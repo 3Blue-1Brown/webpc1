@@ -10,8 +10,8 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'bqkzt4ns3c4znylrimuv',
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
   waitForConnections: true,
-  connectionLimit: 15,
-  queueLimit: 0,
+  connectionLimit: 1, // Single connection to strictly stay within Clever Cloud free max 5 connections limit
+  queueLimit: 1000,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0
 });
