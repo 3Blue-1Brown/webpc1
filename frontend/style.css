@@ -1213,8 +1213,14 @@ ul {
   .search-wrap {
     width: 140px !important;
   }
-  .site-main {
-    padding: 0.8rem 0.5rem;
+  .site-main,
+  .categories-section,
+  .featured-section,
+  .container {
+    padding: 0.5rem 0.3rem !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   /* ── 1. Categories: Horizontal Scroll Bar on Mobile ── */
@@ -1239,24 +1245,28 @@ ul {
   .category-btn,
   .category-pill {
     flex: 0 0 auto !important;
-    min-width: 110px !important;
+    min-width: 100px !important;
     scroll-snap-align: start;
-    padding: 8px 12px !important;
-    font-size: 0.82rem !important;
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
     text-align: center;
-    border-radius: 20px !important;
+    border-radius: 16px !important;
   }
 
   /* ── 2. Products: Crisp 2-Column Grid on Mobile ── */
+  #product-grid,
+  #flash-sale-grid,
+  #new-products-grid,
+  #featured-grid,
   .product-grid,
   .products-grid,
   .grid-products,
   .flash-products {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: calc(50% - 4px) calc(50% - 4px) !important;
     gap: 8px !important;
     padding: 4px 0 !important;
-    justify-items: stretch !important;
+    justify-content: space-between !important;
     align-items: stretch !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -1264,7 +1274,7 @@ ul {
 
   /* ── 3. Product Card Adjustments on Mobile ── */
   .product-card {
-    padding: 6px !important;
+    padding: 5px !important;
     border-radius: 10px !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1275,68 +1285,69 @@ ul {
     box-sizing: border-box !important;
   }
   .product-card .card-img {
-    height: 120px !important;
-    min-height: 120px !important;
-    max-height: 120px !important;
-    padding: 4px !important;
+    height: 110px !important;
+    min-height: 110px !important;
+    max-height: 110px !important;
+    padding: 2px !important;
   }
   .product-card .card-img img {
     height: 100% !important;
-    max-height: 110px !important;
+    max-height: 100px !important;
     object-fit: contain !important;
   }
   .product-card .card-body {
-    padding: 6px 4px !important;
+    padding: 4px 2px !important;
     display: flex !important;
     flex-direction: column !important;
     flex: 1 !important;
   }
   .product-card .card-category {
-    font-size: 0.7rem !important;
+    font-size: 0.68rem !important;
     margin-bottom: 2px !important;
   }
   .product-card .card-name,
   .product-card .product-title,
   .product-card h3,
   .product-card h4 {
-    font-size: 0.8rem !important;
-    line-height: 1.2 !important;
-    height: 2.4em !important;
-    min-height: 2.4em !important;
-    margin: 2px 0 6px 0 !important;
+    font-size: 0.78rem !important;
+    line-height: 1.15 !important;
+    height: 2.3em !important;
+    min-height: 2.3em !important;
+    margin: 2px 0 4px 0 !important;
     -webkit-line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
   .product-card .card-actions-row {
+    display: flex !important;
     flex-direction: row !important;
-    gap: 3px !important;
-    margin-bottom: 4px !important;
+    gap: 2px !important;
+    margin-bottom: 3px !important;
   }
   .btn-price-tag,
   .btn-contact-premium,
   .btn-add-cart,
   .btn-buy-now,
   .btn-stock {
-    padding: 5px 2px !important;
-    font-size: 0.72rem !important;
-    border-radius: 6px !important;
+    padding: 4px 2px !important;
+    font-size: 0.68rem !important;
+    border-radius: 4px !important;
     min-width: 0 !important;
     flex: 1 !important;
   }
   .btn-cart-label,
   .btn-buynow-label {
-    font-size: 0.68rem !important;
-    line-height: 1.1 !important;
+    font-size: 0.65rem !important;
+    line-height: 1.05 !important;
   }
   .btn-price-label,
   .btn-contact-subtext {
-    font-size: 0.68rem !important;
+    font-size: 0.65rem !important;
   }
   .btn-price-value,
   .btn-contact-text {
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
   }
 
   /* ── 4. Flash Sale Banners ── */
