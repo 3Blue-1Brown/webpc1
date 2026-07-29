@@ -105,8 +105,9 @@ function executePureJsQuery(sql, params = []) {
       });
     }
 
-    // Filter by category if requested
-    if (tableName === 'san_pham' && lowerSql.includes('id_danh_muc =') && params.length > 0) {
+    // Filter by category ONLY if explicitly filtered in WHERE clause (WHERE id_danh_muc = ?)
+    const catWhereMatch = cleanSql.match(/WHERE.*id_danh_muc\s*=\s*\?/i);
+    if (tableName === 'san_pham' && catWhereMatch && params.length > 0) {
       const catId = Number(params[0]);
       if (catId) items = items.filter(i => Number(i.id_danh_muc) === catId);
     }
