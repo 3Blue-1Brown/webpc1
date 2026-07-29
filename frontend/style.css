@@ -1256,51 +1256,87 @@ ul {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 8px !important;
     padding: 4px 0 !important;
+    justify-items: stretch !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   /* ── 3. Product Card Adjustments on Mobile ── */
   .product-card {
-    padding: 8px !important;
+    padding: 6px !important;
     border-radius: 10px !important;
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
-  .product-card .card-img-wrap,
-  .product-card img {
+  .product-card .card-img {
     height: 120px !important;
-    object-fit: contain;
+    min-height: 120px !important;
+    max-height: 120px !important;
+    padding: 4px !important;
   }
+  .product-card .card-img img {
+    height: 100% !important;
+    max-height: 110px !important;
+    object-fit: contain !important;
+  }
+  .product-card .card-body {
+    padding: 6px 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+  }
+  .product-card .card-category {
+    font-size: 0.7rem !important;
+    margin-bottom: 2px !important;
+  }
+  .product-card .card-name,
   .product-card .product-title,
   .product-card h3,
   .product-card h4 {
-    font-size: 0.82rem !important;
-    line-height: 1.25 !important;
-    height: 2.5em !important;
-    margin: 4px 0 !important;
+    font-size: 0.8rem !important;
+    line-height: 1.2 !important;
+    height: 2.4em !important;
+    min-height: 2.4em !important;
+    margin: 2px 0 6px 0 !important;
     -webkit-line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
   .product-card .card-actions-row {
-    flex-direction: column !important;
-    gap: 4px !important;
+    flex-direction: row !important;
+    gap: 3px !important;
+    margin-bottom: 4px !important;
   }
   .btn-price-tag,
   .btn-contact-premium,
   .btn-add-cart,
+  .btn-buy-now,
   .btn-stock {
-    padding: 5px 4px !important;
-    font-size: 0.78rem !important;
+    padding: 5px 2px !important;
+    font-size: 0.72rem !important;
     border-radius: 6px !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+  .btn-cart-label,
+  .btn-buynow-label {
+    font-size: 0.68rem !important;
+    line-height: 1.1 !important;
   }
   .btn-price-label,
   .btn-contact-subtext {
-    font-size: 0.72rem !important;
+    font-size: 0.68rem !important;
   }
   .btn-price-value,
   .btn-contact-text {
-    font-size: 0.8rem !important;
+    font-size: 0.75rem !important;
   }
 
   /* ── 4. Flash Sale Banners ── */
