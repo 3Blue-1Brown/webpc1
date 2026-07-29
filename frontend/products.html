@@ -102,6 +102,10 @@
       try {
         const res = await fetch(apiUrl);
         const data = await res.json();
+        if (!Array.isArray(data)) {
+          console.error('Lỗi dữ liệu sản phẩm:', data);
+          return;
+        }
         allProducts = data;
         
         // Read URL params
@@ -111,6 +115,7 @@
         // Fetch categories to populate select box
         const catRes = await fetch('/api/categories');
         const cats = await catRes.json();
+        if (!Array.isArray(cats)) return;
         const select = document.getElementById('category-filter');
         
         const catGrid = document.getElementById('category-grid');

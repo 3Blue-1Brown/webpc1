@@ -5,16 +5,18 @@ const { logActivity } = require('../logger');
 const { verifyToken, verifyAdmin, verifyManagerOrAdmin } = require('./auth');
 
 // helper function to calculate total from DB directly for security
-async function calculateOrderTotal(items) {
+async function calculateOrderTotal(connection, items) {
   let total = 0;
   for (const item of items) {
-    const [rows] = await db.query('SELECT gia, gia_khuyen_mai FROM san_pham WHERE id = ? AND is_deleted = 0', [item.id]);
+    const [rows] = await connection.query('SELECT gia, gia_khuyen_mai FROM san_pham WHERE id = ? AND is_deleted = 0', [item.id]);
     if (rows.length > 0) {
       const product = rows[0];
       const price = (product.gia_khuyen_mai && product.gia_khuyen_mai < product.gia) ? product.gia_khuyen_mai : product.gia;
       total += price * item.quantity;
     } else {
-      throw new Error(`Sản phẩm với ID ${item.id} không tồn tại.`);
+      const err = new Error(`Sản phẩm với ID ${item.id} không tồn tại.`);
+      err.statusCode = 400;
+      throw err;
     }
   }
   return total;
@@ -42,8 +44,8 @@ router.post('/', async (req, res) => {
 
     await connection.beginTransaction();
 
-    // 1. Calculate total securely
-    const totalAmount = await calculateOrderTotal(items);
+    // 1. Calculate total securely using active connection
+    const totalAmount = await calculateOrderTotal(connection, items);
 
     // 2. Insert into don_hang
     const [orderResult] = await connection.query(

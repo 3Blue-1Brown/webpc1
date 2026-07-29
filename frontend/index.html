@@ -119,8 +119,8 @@
 
   <script src="js/image-utils.js"></script>
   <script src="cart.js?v=2"></script>
-<script src="product-card.js"></script>
-<script src="zalo-qr-modal.js"></script>
+  <script src="product-card.js"></script>
+  <script src="zalo-qr-modal.js"></script>
 
   <script>
     // ── Load Banners into 1920x600 Slider ──
@@ -137,7 +137,7 @@
         if (!track) return;
 
         // Use active banners from database. Fallback to banner2.png if empty
-        let activeBanners = banners;
+        let activeBanners = Array.isArray(banners) ? banners : [];
         if (activeBanners.length === 0) {
           activeBanners = [
             { lien_ket: '#', hinh_anh: 'banner2.png', tieu_de: 'Nam Nguyễn PC 1' },
@@ -192,6 +192,7 @@
       try {
         const res = await fetch('/api/categories');
         const cats = await res.json();
+        if (!Array.isArray(cats)) return;
         const grid = document.getElementById('category-grid');
         grid.innerHTML = '';
         cats.slice(0, 12).forEach(cat => {
@@ -211,11 +212,11 @@
         const products = await res.json();
         const grid = document.getElementById('flash-sale-grid');
         const section = document.getElementById('flash-sale-section');
-        grid.innerHTML = '';
-        if (products.length === 0) {
+        if (!Array.isArray(products) || products.length === 0) {
           section.style.display = 'none';
           return;
         }
+        grid.innerHTML = '';
         section.style.display = 'block';
         products.slice(0, 6).forEach(p => grid.appendChild(buildProductCard(p)));
       } catch (e) { console.error('Flash sale load error', e); }
@@ -228,11 +229,11 @@
         const products = await res.json();
         const grid = document.getElementById('new-products-grid');
         const section = document.getElementById('new-products-section');
-        grid.innerHTML = '';
-        if (products.length === 0) {
+        if (!Array.isArray(products) || products.length === 0) {
           section.style.display = 'none';
           return;
         }
+        grid.innerHTML = '';
         section.style.display = 'block';
         products.slice(0, 6).forEach(p => grid.appendChild(buildProductCard(p)));
       } catch (e) { console.error('New products load error', e); }
@@ -244,10 +245,11 @@
         const res = await fetch('/api/products?type=noi_bat');
         let products = await res.json();
         // Fallback: If no products marked as noi_bat, display top products
-        if (products.length === 0) {
+        if (!Array.isArray(products) || products.length === 0) {
           const resAll = await fetch('/api/products');
           products = await resAll.json();
         }
+        if (!Array.isArray(products)) return;
         const grid = document.getElementById('featured-grid');
         grid.innerHTML = '';
         products.slice(0, 6).forEach(p => {

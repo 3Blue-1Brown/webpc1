@@ -57,6 +57,7 @@
       try {
         const catRes = await fetch('/api/categories');
         const cats = await catRes.json();
+        if (!Array.isArray(cats)) return;
         
         const catGrid = document.getElementById('category-grid');
         if (catGrid) {
