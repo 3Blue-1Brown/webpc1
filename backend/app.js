@@ -1,0 +1,64 @@
+require('dotenv').config();
+const express = require('express');
+const compression = require('compression');
+const path = require('path');
+const categoriesRouter = require('./routes/categories');
+const productsRouter = require('./routes/products');
+const bannersRouter = require('./routes/banners');
+const contactsRouter = require('./routes/contacts');
+const ordersRouter = require('./routes/orders');
+
+const { router: authRouter } = require('./routes/auth');
+const usersRouter = require('./routes/users');
+const activityLogsRouter = require('./routes/activity_logs');
+const statsRouter = require('./routes/stats');
+const db = require('./db');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Gzip compression — reduces response size ~70%
+app.use(compression());
+
+// Serve static frontend files with 1-day cache, uploads with 30-day cache
+app.use(express.static(path.join(__dirname, '..', 'frontend'), {
+  maxAge: '1d'
+}));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads'), {
+  maxAge: '30d'
+}));
+
+app.use(express.json());
+app.use('/api/categories', categoriesRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/banners', bannersRouter);
+app.use('/api/contacts', contactsRouter);
+app.use('/api/orders', ordersRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/activity-logs', activityLogsRouter);
+app.use('/api/stats', statsRouter);
+
+
+// Test DB connection and run migrations before starting server
+db.getConnection()
+  .then(async conn => {
+    console.log('✅ Connected to Database');
+    // Automatic Migration for classification columns
+    const columns = ['is_noi_bat', 'is_moi', 'is_flash_sale'];
+    for (const col of columns) {
+      try {
+        await conn.query(`ALTER TABLE san_pham ADD COLUMN ${col} TINYINT(1) DEFAULT 0`);
+        console.log(`✅ Added column ${col} to san_pham table`);
+      } catch (err) {
+        // Ignore if column already exists
+      }
+    }
+    conn.release();
+  })
+  .catch(err => {
+    console.error('⚠️ Database connection error (server will still serve static files):', err.message);
+  });
+
+// Always start the server so frontend works
+app.listen(PORT, () => console.log(`🚀 Server listening on http://localhost:${PORT}`));

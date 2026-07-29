@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nam Nguyễn PC & Workstation - Trang Chủ</title>
+  <link rel="stylesheet" href="style.css?v=5" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="logo"><a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;"><img src="logo.png" alt="Nam Nguyễn Logo" style="height: 48px; width: auto; object-fit: contain;"><div style="display:flex; flex-direction:column; line-height:1.2;"><span style="font-weight:700; font-size:1.3rem; color:#ffffff; letter-spacing:0.5px;">Nam Nguyễn</span><span style="font-weight:700; font-size:0.75rem; color:#facc15; text-transform:uppercase; letter-spacing:1px;">PC &amp; Workstation</span></div></a></div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html" class="active">Trang chủ</a></li>
+        <li><a href="categories.html">Danh mục</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+      </ul>
+    </nav>
+    <div class="search-wrap">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input" />
+      <button id="search-btn">🔍</button>
+    </div>
+  </header>
+  <!-- Category Subnav -->
+  <nav class="category-subnav">
+    <ul id="dynamic-category-subnav">
+      <!-- Injected via JS -->
+    </ul>
+  </nav>
+
+  <!-- Hero Banner Slider (1920x600) -->
+  <section class="hero-slider" id="hero-slider">
+    <div class="slider-track" id="slider-track">
+      <!-- Injected via JS -->
+    </div>
+    <button class="slider-btn slider-prev" id="slider-prev">❮</button>
+    <button class="slider-btn slider-next" id="slider-next">❯</button>
+    <div class="slider-dots" id="slider-dots">
+      <!-- Injected via JS -->
+    </div>
+  </section>
+
+  <!-- Introduction & CTA -->
+  <section class="intro">
+    <h2>Về Nam Nguyễn PC & Workstation</h2>
+    <p>Chúng tôi cung cấp các sản phẩm công nghệ tiên tiến, hỗ trợ khách hàng chọn mua linh kiện phù hợp, bảo hành uy tín.</p>
+    <button class="cta-btn" onclick="window.location='about.html'">Tìm hiểu thêm</button>
+  </section>
+
+  <!-- Categories Quick Links -->
+  <section class="categories-section">
+    <h2 class="section-title">Danh mục sản phẩm</h2>
+    <div class="category-grid" id="category-grid"></div>
+  </section>
+
+  <!-- Flash Sale Section -->
+  <section class="featured-section" id="flash-sale-section" style="background: #fff5f5; padding: 0; border-radius: 12px; margin: 2rem auto; max-width: 1200px; border: 1px solid #fee2e2; overflow: hidden; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);">
+    
+    <!-- Header with Countdown Timer -->
+    <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: #fff; padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 2.2rem; line-height: 1;">⚡</span>
+        <div>
+          <h2 style="margin: 0; font-size: 1.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #facc15; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">FLASH SALE GIÁ SỐC</h2>
+          <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #fef08a;">SỐ LƯỢNG CÓ HẠN - MUA NGAY KẺO HẾT</p>
+        </div>
+      </div>
+      
+      <!-- Live Countdown Timer -->
+      <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; background: rgba(0,0,0,0.25); padding: 0.5rem 1rem; border-radius: 8px;">
+        <span style="font-size: 0.9rem; color: #fff; text-transform: uppercase; margin-right: 4px;">Kết thúc sau:</span>
+        <div style="background: #1f2937; color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 1.2rem; text-align: center; min-width: 44px; font-family: monospace;" id="timer-hours">05</div>
+        <span style="color: #facc15; font-size: 1.2rem;">:</span>
+        <div style="background: #1f2937; color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 1.2rem; text-align: center; min-width: 44px; font-family: monospace;" id="timer-minutes">42</div>
+        <span style="color: #facc15; font-size: 1.2rem;">:</span>
+        <div style="background: #1f2937; color: #facc15; border-radius: 6px; padding: 6px 10px; font-size: 1.2rem; text-align: center; min-width: 44px; font-family: monospace;" id="timer-seconds">19</div>
+      </div>
+    </div>
+
+    <!-- 3 Flash Sale Banners -->
+    <div style="padding: 1.5rem 1rem 0.5rem 1rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="flash_banner1.png" alt="Flash Sale 50% Off" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async">
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="flash_banner2.png" alt="Super Workstation Deal" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async">
+        </div>
+        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="flash_banner3.png" alt="Hardware Clearance Sale" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async">
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="product-grid" id="flash-sale-grid" style="padding-bottom: 1rem;"></div>
+    </div>
+  </section>
+
+  <!-- New Products Section -->
+  <section class="featured-section" id="new-products-section" style="margin: 2rem auto; max-width: 1200px;">
+    <h2 class="section-title">🆕 Sản phẩm mới</h2>
+    <div class="product-grid" id="new-products-grid"></div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="featured-section" id="featured-products-section" style="margin: 2rem auto; max-width: 1200px;">
+    <h2 class="section-title">⭐ Sản phẩm nổi bật</h2>
+    <div class="product-grid" id="featured-grid"></div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>© 2026 NAM NGUYỄN PC & WORKSTATION. All rights reserved.</p>
+  </footer>
+
+  <script src="js/image-utils.js"></script>
+  <script src="cart.js?v=2"></script>
+<script src="product-card.js"></script>
+<script src="zalo-qr-modal.js"></script>
+
+  <script>
+    // ── Load Banners into 1920x600 Slider ──
+    async function loadBanners() {
+      try {
+        const res = await fetch('/api/banners');
+        const banners = await res.json();
+        
+        const track = document.getElementById('slider-track');
+        const dotsContainer = document.getElementById('slider-dots');
+        const prevBtn = document.getElementById('slider-prev');
+        const nextBtn = document.getElementById('slider-next');
+        
+        if (!track) return;
+
+        // Use active banners from database. Fallback to banner2.png if empty
+        let activeBanners = banners;
+        if (activeBanners.length === 0) {
+          activeBanners = [
+            { lien_ket: '#', hinh_anh: 'banner2.png', tieu_de: 'Nam Nguyễn PC 1' },
+            { lien_ket: '#', hinh_anh: 'banner_new.png', tieu_de: 'Nam Nguyễn PC 2' }
+          ];
+        }
+
+        track.innerHTML = activeBanners.map((b, i) => {
+          const bannerImgRaw = b.hinh_anh || '';
+          const bannerImg = (bannerImgRaw.startsWith('http://') || bannerImgRaw.startsWith('https://') || bannerImgRaw.startsWith('/')) ? bannerImgRaw : '/' + bannerImgRaw;
+          const finalImg = convertImageUrl(bannerImg);
+
+          return `
+            <div class="slide ${i === 0 ? 'active' : ''}">
+              <a href="${b.lien_ket}"><img src="${finalImg}" alt="${b.tieu_de || 'Banner'}"
+                data-raw-url="${bannerImg}" decoding="async"
+                onerror="if(typeof handleImgError==='function'){handleImgError(this)}else{this.src='banner2.png'}"></a>
+            </div>
+          `;
+        }).join('');
+
+        dotsContainer.innerHTML = activeBanners.map((b, i) => `<span class="dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`).join('');
+        
+        const slides = document.querySelectorAll('.hero-slider .slide');
+        const dots = document.querySelectorAll('.slider-dots .dot');
+        let current = 0;
+        let timer = null;
+
+        function goTo(idx) {
+          slides[current].classList.remove('active');
+          dots[current].classList.remove('active');
+          current = (idx + slides.length) % slides.length;
+          slides[current].classList.add('active');
+          dots[current].classList.add('active');
+        }
+
+        function next() { goTo(current + 1); }
+        function prev() { goTo(current - 1); }
+        function startAuto() { timer = setInterval(next, 3000); }
+        function resetAuto() { clearInterval(timer); startAuto(); }
+
+        nextBtn.addEventListener('click', () => { next(); resetAuto(); });
+        prevBtn.addEventListener('click', () => { prev(); resetAuto(); });
+        dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.index); resetAuto(); }));
+        
+        startAuto();
+      } catch(e) { console.error('Banners load error', e); }
+    }
+
+    // ── Load categories ──
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories');
+        const cats = await res.json();
+        const grid = document.getElementById('category-grid');
+        grid.innerHTML = '';
+        cats.slice(0, 12).forEach(cat => {
+          const card = document.createElement('div');
+          card.className = 'category-card';
+          const imgHTML = cat.hinh_anh ? `<div class="cat-img-wrap"><img src="${cat.hinh_anh}" alt="${cat.ten_danh_muc}" loading="lazy" decoding="async"></div>` : '';
+          card.innerHTML = `<a href="products.html?cat=${cat.id}">${imgHTML}<span class="cat-title">${cat.ten_danh_muc}</span></a>`;
+          grid.appendChild(card);
+        });
+      } catch (e) { console.error('Categories load error', e); }
+    }
+
+    // ── Load Flash Sale products ──
+    async function loadFlashSale() {
+      try {
+        const res = await fetch('/api/products?type=flash_sale');
+        const products = await res.json();
+        const grid = document.getElementById('flash-sale-grid');
+        const section = document.getElementById('flash-sale-section');
+        grid.innerHTML = '';
+        if (products.length === 0) {
+          section.style.display = 'none';
+          return;
+        }
+        section.style.display = 'block';
+        products.slice(0, 6).forEach(p => grid.appendChild(buildProductCard(p)));
+      } catch (e) { console.error('Flash sale load error', e); }
+    }
+
+    // ── Load New products ──
+    async function loadNewProducts() {
+      try {
+        const res = await fetch('/api/products?type=moi');
+        const products = await res.json();
+        const grid = document.getElementById('new-products-grid');
+        const section = document.getElementById('new-products-section');
+        grid.innerHTML = '';
+        if (products.length === 0) {
+          section.style.display = 'none';
+          return;
+        }
+        section.style.display = 'block';
+        products.slice(0, 6).forEach(p => grid.appendChild(buildProductCard(p)));
+      } catch (e) { console.error('New products load error', e); }
+    }
+
+    // ── Load featured products (first 6) ──
+    async function loadFeatured() {
+      try {
+        const res = await fetch('/api/products?type=noi_bat');
+        let products = await res.json();
+        // Fallback: If no products marked as noi_bat, display top products
+        if (products.length === 0) {
+          const resAll = await fetch('/api/products');
+          products = await resAll.json();
+        }
+        const grid = document.getElementById('featured-grid');
+        grid.innerHTML = '';
+        products.slice(0, 6).forEach(p => {
+          grid.appendChild(buildProductCard(p));
+        });
+      } catch (e) { console.error('Featured load error', e); }
+    }
+
+    // ── Live Countdown Timer for Flash Sale ──
+    function startFlashSaleCountdown() {
+      let targetTime = localStorage.getItem('flash_sale_target');
+      if (!targetTime || Date.now() > parseInt(targetTime)) {
+        targetTime = Date.now() + (6 * 60 * 60 * 1000 + 45 * 60 * 1000); // 6 hours 45 mins
+        localStorage.setItem('flash_sale_target', targetTime);
+      } else {
+        targetTime = parseInt(targetTime);
+      }
+
+      function updateTimer() {
+        const diff = targetTime - Date.now();
+        if (diff <= 0) {
+          localStorage.setItem('flash_sale_target', Date.now() + (6 * 60 * 60 * 1000));
+          return;
+        }
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        const hElem = document.getElementById('timer-hours');
+        const mElem = document.getElementById('timer-minutes');
+        const sElem = document.getElementById('timer-seconds');
+
+        if (hElem) hElem.textContent = hours.toString().padStart(2, '0');
+        if (mElem) mElem.textContent = minutes.toString().padStart(2, '0');
+        if (sElem) sElem.textContent = seconds.toString().padStart(2, '0');
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    // Initialise — load all APIs in parallel for maximum speed
+    Promise.all([
+      loadBanners(),
+      loadCategories(),
+      loadFlashSale(),
+      loadNewProducts(),
+      loadFeatured()
+    ]);
+    startFlashSaleCountdown();
+  </script>
+</body>
+</html>

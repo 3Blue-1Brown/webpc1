@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nam Nguyễn PC & Workstation - Sản phẩm</title>
+  <link rel="stylesheet" href="style.css?v=5" />
+</head>
+<body>
+  <!-- Header (copied from index.html) -->
+  <header class="site-header">
+    <div class="logo"><a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;"><img src="logo.png" alt="Nam Nguyễn Logo" style="height: 48px; width: auto; object-fit: contain;"><div style="display:flex; flex-direction:column; line-height:1.2;"><span style="font-weight:700; font-size:1.3rem; color:#ffffff; letter-spacing:0.5px;">Nam Nguyễn</span><span style="font-weight:700; font-size:0.75rem; color:#facc15; text-transform:uppercase; letter-spacing:1px;">PC &amp; Workstation</span></div></a></div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="categories.html">Danh mục</a></li>
+        <li><a href="products.html" class="active">Sản phẩm</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+      </ul>
+    </nav>
+    <div class="search-wrap">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input" />
+      <button id="search-btn">🔍</button>
+    </div>
+  </header>
+  <!-- Category Subnav -->
+  <nav class="category-subnav">
+    <ul id="dynamic-category-subnav">
+      <!-- Injected via JS -->
+    </ul>
+  </nav>
+
+  <main class="site-main">
+    <!-- Categories Grid -->
+    
+
+    <section class="filter-panel" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div>
+        <label for="filter-name" style="font-weight: 600;">Tên</label><br/>
+        <input type="text" id="filter-name" placeholder="Tên sản phẩm" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;" />
+      </div>
+      <div>
+        <label for="category-filter" style="font-weight: 600;">Danh mục</label><br/>
+        <select id="category-filter" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;">
+          <option value="All">Tất cả</option>
+        </select>
+      </div>
+      <div>
+        <label for="filter-price-min" style="font-weight: 600;">Giá từ</label><br/>
+        <input type="number" id="filter-price-min" min="0" placeholder="0" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;" />
+      </div>
+      <div>
+        <label for="filter-price-max" style="font-weight: 600;">Giá tới</label><br/>
+        <input type="number" id="filter-price-max" min="0" placeholder="∞" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;" />
+      </div>
+
+      <div>
+        <label for="filter-condition" style="font-weight: 600;">Tình trạng</label><br/>
+        <select id="filter-condition" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;">
+          <option value="All">Tất cả</option>
+          <option value="new">Mới</option>
+          <option value="used">Cũ</option>
+        </select>
+      </div>
+      <div>
+        <label for="sort-select" style="font-weight: 600;">Sắp xếp</label><br/>
+        <select id="sort-select" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;">
+          <option value="name-asc">Tên A→Z</option>
+          <option value="price-asc">Giá thấp→cao</option>
+          <option value="price-desc">Giá cao→thấp</option>
+        </select>
+      </div>
+      <div style="align-self:end;">
+        <button id="apply-filters" style="background:var(--gold);color:var(--dark);border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer;">Áp dụng</button>
+      </div>
+    </section>
+
+    <div class="product-grid" id="product-grid"></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 NAM NGUYỄN PC & WORKSTATION. All rights reserved.</p>
+  </footer>
+
+  <script src="js/image-utils.js"></script>
+  <script src="cart.js?v=2"></script>
+  <script src="product-card.js"></script>
+  <script src="zalo-qr-modal.js"></script>
+  <script>
+    const apiUrl = '/api/products';
+    const pageSize = 25;
+    let allProducts = [];
+    let currentPage = 1;
+    let currentFilter = 'All';
+    let currentSort = 'name-asc';
+
+    // Fetch products once
+    async function fetchProducts() {
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        allProducts = data;
+        
+        // Read URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const catId = urlParams.get('cat');
+        
+        // Fetch categories to populate select box
+        const catRes = await fetch('/api/categories');
+        const cats = await catRes.json();
+        const select = document.getElementById('category-filter');
+        
+        const catGrid = document.getElementById('category-grid');
+        cats.forEach(c => {
+          select.innerHTML += `<option value="${c.ten_danh_muc}">${c.ten_danh_muc}</option>`;
+          
+          if (catGrid) {
+            const card = document.createElement('div');
+            card.className = 'category-card';
+            const imgHTML = c.hinh_anh ? `<div class="cat-img-wrap"><img src="${c.hinh_anh}" alt="${c.ten_danh_muc}"></div>` : '';
+            card.innerHTML = `<a href="categories.html?cat=${c.id}">${imgHTML}<span class="cat-title">${c.ten_danh_muc}</span></a>`;
+            catGrid.appendChild(card);
+          }
+        });
+
+        if (catId) {
+          const category = cats.find(c => c.id == catId);
+          if (category) {
+            currentFilter = category.ten_danh_muc;
+            select.value = category.ten_danh_muc;
+          }
+        }
+        
+        applyFilterSort();
+      } catch (e) {
+        console.error('Failed to fetch products', e);
+      }
+    }
+
+    function applyFilterSort() {
+      const name = document.getElementById('filter-name') ? document.getElementById('filter-name').value.trim().toLowerCase() : '';
+      const priceMin = document.getElementById('filter-price-min') ? parseFloat(document.getElementById('filter-price-min').value) : NaN;
+      const priceMax = document.getElementById('filter-price-max') ? parseFloat(document.getElementById('filter-price-max').value) : NaN;
+      const condition = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'All';
+
+      let filtered = allProducts;
+      
+      // Filter by category
+      if (currentFilter !== 'All') {
+        filtered = filtered.filter(p => p.ten_danh_muc === currentFilter);
+      }
+      
+      // Advanced filters
+      filtered = filtered.filter(p => {
+        if (name && !p.ten_san_pham.toLowerCase().includes(name)) return false;
+        if (!isNaN(priceMin) && (p.gia || 0) < priceMin) return false;
+        if (!isNaN(priceMax) && (p.gia || 0) > priceMax) return false;
+        if (condition === 'new' && !p.trang_thai) return false; // assume true = new
+        if (condition === 'used' && p.trang_thai) return false;
+        return true;
+      });
+
+      // Sorting
+      if (currentSort === 'name-asc') {
+        filtered.sort((a, b) => a.ten_san_pham.localeCompare(b.ten_san_pham));
+      } else if (currentSort === 'price-asc') {
+        filtered.sort((a, b) => (a.gia || 0) - (b.gia || 0));
+      } else if (currentSort === 'price-desc') {
+        filtered.sort((a, b) => (b.gia || 0) - (a.gia || 0));
+      }
+      renderPagination(filtered);
+      renderPage(filtered, currentPage);
+    }
+
+    function renderPage(list, page) {
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize;
+      const pageItems = list.slice(start, end);
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '';
+      pageItems.forEach(p => {
+        grid.appendChild(buildProductCard(p));
+      });
+    }
+
+    function renderPagination(list) {
+      const totalPages = Math.ceil(list.length / pageSize) || 1;
+      const container = document.getElementById('pagination');
+      container.innerHTML = '';
+      const prev = document.createElement('button');
+      prev.textContent = '« Prev';
+      prev.disabled = currentPage === 1;
+      prev.onclick = () => { currentPage--; applyFilterSort(); };
+      container.appendChild(prev);
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = i === currentPage ? 'active' : '';
+        btn.onclick = () => { currentPage = i; applyFilterSort(); };
+        container.appendChild(btn);
+      }
+
+      const next = document.createElement('button');
+      next.textContent = 'Next »';
+      next.disabled = currentPage === totalPages;
+      next.onclick = () => { currentPage++; applyFilterSort(); };
+      container.appendChild(next);
+    }
+
+    // Event listeners for controls
+    document.getElementById('category-filter').addEventListener('change', e => {
+      currentFilter = e.target.value;
+      currentPage = 1;
+      applyFilterSort();
+    });
+    document.getElementById('sort-select').addEventListener('change', e => {
+      currentSort = e.target.value;
+      currentPage = 1;
+      applyFilterSort();
+    });
+    if(document.getElementById('apply-filters')) {
+      document.getElementById('apply-filters').addEventListener('click', () => {
+        currentPage = 1;
+        applyFilterSort();
+      });
+    }
+    document.getElementById('search-btn').addEventListener('click', () => {
+      const term = document.getElementById('search-input').value.trim().toLowerCase();
+      if (!term) return;
+      const filtered = allProducts.filter(p => p.ten_san_pham.toLowerCase().includes(term));
+      renderPagination(filtered);
+      renderPage(filtered, 1);
+    });
+
+    // Initial load
+    fetchProducts();
+  </script>
+</body>
+</html>

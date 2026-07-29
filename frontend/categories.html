@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nam Nguyễn PC & Workstation - Danh mục sản phẩm</title>
+  <link rel="stylesheet" href="style.css?v=5" />
+</head>
+<body>
+  <!-- Header (copied from index.html) -->
+  <header class="site-header">
+    <div class="logo"><a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;"><img src="logo.png" alt="Nam Nguyễn Logo" style="height: 48px; width: auto; object-fit: contain;"><div style="display:flex; flex-direction:column; line-height:1.2;"><span style="font-weight:700; font-size:1.3rem; color:#ffffff; letter-spacing:0.5px;">Nam Nguyễn</span><span style="font-weight:700; font-size:0.75rem; color:#facc15; text-transform:uppercase; letter-spacing:1px;">PC &amp; Workstation</span></div></a></div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="categories.html" class="active">Danh mục</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+      </ul>
+    </nav>
+    <div class="search-wrap">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input" />
+      <button id="search-btn">🔍</button>
+    </div>
+  </header>
+  <!-- Category Subnav -->
+  <nav class="category-subnav">
+    <ul id="dynamic-category-subnav">
+      <!-- Injected via JS -->
+    </ul>
+  </nav>
+
+  <main class="site-main">
+    <!-- Categories Grid -->
+    <section class="categories-section" style="padding-top: 0; padding-bottom: 2rem;">
+      <h2 class="section-title">Danh mục sản phẩm</h2>
+      <div class="category-grid" id="category-grid"></div>
+    </section>
+
+    
+
+    
+    
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 NAM NGUYỄN PC & WORKSTATION. All rights reserved.</p>
+  </footer>
+
+  <script src="cart.js?v=2"></script>
+  <script src="product-card.js"></script>
+  <script src="zalo-qr-modal.js"></script>
+  <script>
+    async function loadCategories() {
+      try {
+        const catRes = await fetch('/api/categories');
+        const cats = await catRes.json();
+        
+        const catGrid = document.getElementById('category-grid');
+        if (catGrid) {
+          catGrid.innerHTML = '';
+          cats.slice(0, 12).forEach(c => {
+            const card = document.createElement('div');
+            card.className = 'category-card';
+            const imgHTML = c.hinh_anh ? `<div class="cat-img-wrap"><img src="${c.hinh_anh}" alt="${c.ten_danh_muc}"></div>` : '';
+            card.innerHTML = `<a href="products.html?cat=${c.id}">${imgHTML}<span class="cat-title">${c.ten_danh_muc}</span></a>`;
+            catGrid.appendChild(card);
+          });
+        }
+      } catch (e) {
+        console.error('Failed to fetch categories', e);
+      }
+    }
+    
+    document.getElementById('search-btn').addEventListener('click', () => {
+      const term = document.getElementById('search-input').value.trim();
+      if (term) alert('Bạn đang tìm: ' + term);
+    });
+
+    loadCategories();
+  </script>
+</body>
+</html>

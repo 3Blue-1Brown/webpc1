@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chi Tiết Sản Phẩm</title>
+  <link rel="stylesheet" href="style.css?v=5" />
+  <style>
+    /* ══════════════════════════════════════
+       Product Detail – Two Column Layout
+    ══════════════════════════════════════ */
+    .detail-container {
+      max-width: 1280px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    /* Product name */
+    .product-name {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+
+    /* ── Two-column layout ── */
+    .detail-layout {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+    .detail-left {
+      flex: 0 0 45%;
+      max-width: 45%;
+      min-width: 0;
+      position: sticky;
+      top: 1rem;
+    }
+    .detail-right {
+      flex: 0 0 calc(55% - 2rem);
+      max-width: calc(55% - 2rem);
+      min-width: 0;
+    }
+
+    /* ══════════════════════════════════════
+       Gallery: Ảnh chính + Ảnh phụ
+    ══════════════════════════════════════ */
+    .product-gallery {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .gallery-main-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 450px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.2rem;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .gallery-main-wrap img {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      object-position: center;
+      border-radius: 8px;
+      transition: opacity 0.4s ease;
+    }
+    .gallery-main-wrap img.fading {
+      opacity: 0;
+    }
+
+    /* ── Thumbnails ── */
+    .gallery-thumbs {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 6px 2px 10px;
+      width: 100%;
+      justify-content: center;
+      scrollbar-width: thin;
+      scrollbar-color: var(--orange) #f0f0f0;
+    }
+    .gallery-thumbs::-webkit-scrollbar { height: 5px; }
+    .gallery-thumbs::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 4px; }
+    .gallery-thumbs::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 4px; }
+
+    .gallery-thumb {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      min-width: 80px;
+      min-height: 80px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      padding: 4px;
+      box-sizing: border-box;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      pointer-events: none;
+    }
+    .gallery-thumb:hover {
+      border-color: var(--orange);
+      opacity: 0.8;
+    }
+    .gallery-thumb.active {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(249,115,22,0.2);
+    }
+
+    /* ══════════════════════════════════════
+       Right Column: Specs + Purchase Block
+    ══════════════════════════════════════ */
+
+    /* ── Specs Table ── */
+    .spec-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .spec-card-header {
+      background: var(--dark);
+      color: #fff;
+      padding: 0.9rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .spec-table tr {
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.2s;
+    }
+    .spec-table tr:last-child {
+      border-bottom: none;
+    }
+    .spec-table tr:hover {
+      background: #fef7f0;
+    }
+    .spec-table th {
+      text-align: left;
+      padding: 0.7rem 1.2rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #6b7280;
+      background: #fafafa;
+      width: 38%;
+      vertical-align: top;
+    }
+    .spec-table td {
+      padding: 0.7rem 1.2rem;
+      font-size: 0.85rem;
+      color: var(--dark);
+      font-weight: 500;
+    }
+
+    /* ── Purchase Block ── */
+    .purchase-block {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      padding: 1.5rem;
+    }
+
+    /* Price display */
+    .price-display {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .price-current {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #dc2626;
+      line-height: 1.2;
+    }
+    .price-original {
+      font-size: 1rem;
+      color: #9ca3af;
+      text-decoration: line-through;
+      font-weight: 500;
+    }
+
+    /* Stock status */
+    .stock-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+    }
+    .stock-status.in-stock {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    .stock-status.out-of-stock {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    .stock-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .stock-status.in-stock .stock-dot {
+      background: #059669;
+      animation: pulse-green 2s infinite;
+    }
+    .stock-status.out-of-stock .stock-dot {
+      background: #dc2626;
+    }
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── Action Buttons ── */
+    .purchase-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-detail-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: transform 0.2s, box-shadow 0.25s, filter 0.2s;
+      width: 100%;
+    }
+    .btn-detail-action:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+    .btn-detail-action:active {
+      transform: translateY(0);
+    }
+    .btn-detail-action .btn-icon {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    /* Liên hệ nhận báo giá – Cam */
+    .btn-contact-quote {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      box-shadow: 0 4px 14px rgba(249,115,22,0.3);
+    }
+    .btn-contact-quote:hover {
+      box-shadow: 0 6px 20px rgba(249,115,22,0.45);
+    }
+
+    /* Thêm vào giỏ hàng – Xanh dương */
+    .btn-add-cart {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      box-shadow: 0 4px 14px rgba(59,130,246,0.3);
+    }
+    .btn-add-cart:hover {
+      box-shadow: 0 6px 20px rgba(59,130,246,0.45);
+    }
+
+    /* Mua ngay – Đỏ, nổi bật nhất */
+    .btn-buy-now {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+      box-shadow: 0 4px 14px rgba(220,38,38,0.35);
+      font-size: 1.05rem;
+      padding: 16px 20px;
+    }
+    .btn-buy-now:hover {
+      box-shadow: 0 8px 24px rgba(220,38,38,0.5);
+    }
+
+    /* ── Sample Table Design matching User Image ── */
+    .product-description-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      padding: 1.5rem;
+      margin-top: 2rem;
+      border: 1px solid #e5e7eb;
+    }
+    .product-description-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid #f97316;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .desc-table-wrapper {
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .desc-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      font-size: 0.95rem;
+    }
+    .desc-table tr {
+      border-bottom: 1px solid #d1d5db;
+    }
+    .desc-table tr:last-child {
+      border-bottom: none;
+    }
+    .desc-table-label {
+      width: 32%;
+      background: #f9fafb;
+      padding: 14px 18px;
+      font-weight: 600;
+      color: #1f2937;
+      border-right: 1px solid #d1d5db;
+      vertical-align: top;
+      line-height: 1.55;
+    }
+    .desc-table-value {
+      background: #ffffff;
+      padding: 14px 18px;
+      color: #374151;
+      font-weight: 500;
+      vertical-align: top;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .desc-notes-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 8px;
+      border-left: 4px solid #f97316;
+      color: #334155;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    /* ══════════════════════════════════════
+       Responsive
+    ══════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .detail-layout {
+        flex-direction: column;
+      }
+      .detail-left,
+      .detail-right {
+        flex: none;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="logo"><a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;"><img src="logo.png" alt="Nam Nguyễn Logo" style="height: 48px; width: auto; object-fit: contain;"><div style="display:flex; flex-direction:column; line-height:1.2;"><span style="font-weight:700; font-size:1.3rem; color:#ffffff; letter-spacing:0.5px;">Nam Nguyễn</span><span style="font-weight:700; font-size:0.75rem; color:#facc15; text-transform:uppercase; letter-spacing:1px;">PC &amp; Workstation</span></div></a></div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="categories.html">Danh mục</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+      </ul>
+    </nav>
+    <div class="search-wrap">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input" />
+      <button id="search-btn">🔍</button>
+    </div>
+  </header>
+  <!-- Category Subnav -->
+  <nav class="category-subnav">
+    <ul id="dynamic-category-subnav">
+      <!-- Injected via JS -->
+    </ul>
+  </nav>
+
+  <main class="site-main">
+    <section class="detail-container" id="detail-container">
+      <!-- Content will be injected by script -->
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 NAM NGUYỄN PC & WORKSTATION. All rights reserved.</p>
+  </footer>
+
+  <script src="js/image-utils.js"></script>
+  <script src="cart.js"></script>
+  <script src="zalo-qr-modal.js"></script>
+  <script>
+    /**
+     * Parse any description text pasted by user into a beautiful 2-column table & description box
+     */
+    function formatDescriptionToTable(rawText, p = {}) {
+      const text = (rawText || (p ? p.mo_ta : '') || '').trim();
+      if (!text) {
+        return '<p style="color:#9ca3af; font-style:italic; padding:0.5rem 0;">Chưa có thông số & mô tả chi tiết.</p>';
+      }
+
+      // If text is already HTML format, render directly
+      if (/<(table|ul|ol|div)\b[^>]*>/i.test(text)) {
+        return `<div class="desc-custom-html">${text}</div>`;
+      }
+
+      const specsList = [];
+      const addedKeys = new Set();
+      const notesList = [];
+
+      function addSpecItem(key, value) {
+        if (!key || value === null || value === undefined) return;
+        const cleanKey = String(key).trim().replace(/^[-•*–\s]+/, '').trim();
+        const cleanVal = String(value).trim();
+        if (!cleanKey || !cleanVal || cleanVal === 'N/A') return;
+
+        const norm = cleanKey.toLowerCase();
+        if (!addedKeys.has(norm)) {
+          addedKeys.add(norm);
+          specsList.push({ key: cleanKey, value: cleanVal });
+        } else {
+          // Update value if richer
+          const existing = specsList.find(s => s.key.toLowerCase() === norm);
+          if (existing && cleanVal.length > existing.value.length) {
+            existing.value = cleanVal;
+          }
+        }
+      }
+
+      // List of common spec key prefixes to recognize when pasted without colon/tab
+      const commonPrefixes = [
+        'Sản phẩm', 'Tên sản phẩm', 'Hãng sản xuất', 'Hãng', 'Model', 'Socket Server', 'Socket CPU', 'Socket',
+        'Tốc độ cơ bản', 'Xung cơ bản', 'Xung Turbo', 'Xung nhịp', 'Cache', 'Bộ nhớ đệm',
+        'Nhân CPU', 'Số nhân', 'Luồng CPU', 'Số luồng', 'Đồ họa tích hợp', 'GPU tích hợp', 'GPU',
+        'Bộ nhớ hỗ trợ', 'Chuẩn RAM', 'Loại RAM', 'Dung lượng', 'Bus', 'Độ trễ', 'Điện áp',
+        'Dây chuyền công nghệ', 'Tiến trình sản xuất', 'Tiến trình', 'TDP', 'Bảo hành', 'Tình trạng', 'Xuất xứ',
+        'Chipset', 'Số khe RAM', 'M.2', 'SATA', 'LAN', 'WiFi', 'Bluetooth', 'Form Factor', 'Form Case',
+        'Chuẩn giao tiếp', 'Tốc độ đọc', 'Tốc độ ghi', 'TBW', 'NAND Flash',
+        'Kích thước', 'Độ phân giải', 'Tần số quét', 'Tấm nền', 'Thời gian phản hồi', 'Độ sáng', 'HDR',
+        'VRAM', 'Loại bộ nhớ', 'Bus Memory', 'Công suất', 'Chuẩn 80 Plus', 'Modular', 'Kênh RAM hỗ trợ'
+      ];
+
+      // Separate joined single-line string into lines before each key prefix
+      let processedText = text;
+      commonPrefixes.forEach(k => {
+        const escaped = k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`([^\\n])\\s+(${escaped})`, 'gi');
+        processedText = processedText.replace(regex, '$1\n$2');
+      });
+
+      const lines = processedText.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
+
+      lines.forEach(line => {
+        // 1. Colon delimiter (e.g. "Socket: LGA1700")
+        const colonIdx = line.indexOf(':');
+        if (colonIdx > 0 && colonIdx < line.length - 1) {
+          const k = line.substring(0, colonIdx).trim();
+          const v = line.substring(colonIdx + 1).trim();
+          if (k && v) {
+            addSpecItem(k, v);
+            return;
+          }
+        }
+
+        // 2. Tab delimiter (e.g. "Socket\tLGA1700")
+        const tabIdx = line.indexOf('\t');
+        if (tabIdx > 0 && tabIdx < line.length - 1) {
+          const k = line.substring(0, tabIdx).trim();
+          const v = line.substring(tabIdx + 1).trim();
+          if (k && v) {
+            addSpecItem(k, v);
+            return;
+          }
+        }
+
+        // 3. Equals or dash delimiter (e.g. "Socket = LGA1700" or "Socket - LGA1700")
+        const matchDelim = line.match(/^([^=-]+)\s*[:=-]\s*(.+)$/);
+        if (matchDelim) {
+          addSpecItem(matchDelim[1], matchDelim[2]);
+          return;
+        }
+
+        // 4. Prefix match without colon/tab (e.g. "Socket LGA1700" or "Cache 36MB")
+        let matchedPrefix = false;
+        for (const prefix of commonPrefixes) {
+          if (line.toLowerCase().startsWith(prefix.toLowerCase())) {
+            const val = line.substring(prefix.length).trim().replace(/^[:\t\s=-]+/, '').trim();
+            if (val) {
+              addSpecItem(prefix, val);
+              matchedPrefix = true;
+              break;
+            }
+          }
+        }
+        if (matchedPrefix) return;
+
+        // 5. Otherwise, treat as descriptive text line
+        // Filter out lines that are just spec key names (e.g. "Cache") or incomplete fragments
+        const cleanLine = line.trim();
+        const isKeyOnly = commonPrefixes.some(p => p.toLowerCase() === cleanLine.toLowerCase() || (cleanLine.length < 15 && p.toLowerCase().startsWith(cleanLine.toLowerCase())));
+        if (cleanLine && cleanLine.length > 2 && !isKeyOnly) {
+          notesList.push(cleanLine);
+        }
+      });
+
+      let tableHtml = '';
+      if (specsList.length > 0) {
+        const rowsHtml = specsList.map(item => `
+          <tr>
+            <td class="desc-table-label">${item.key}</td>
+            <td class="desc-table-value">${item.value}</td>
+          </tr>
+        `).join('');
+
+        tableHtml = `
+          <div class="desc-table-wrapper">
+            <table class="desc-table">
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      let notesHtml = '';
+      if (notesList.length > 0) {
+        notesHtml = `
+          <div class="desc-notes-box" style="${specsList.length > 0 ? 'margin-top:1rem;' : ''}">
+            ${notesList.map(n => `<p style="margin-bottom:0.4rem;">${n}</p>`).join('')}
+          </div>
+        `;
+      }
+
+      return (tableHtml + notesHtml) || `<p style="line-height:1.6;">${text}</p>`;
+    }
+
+    // Utility to get query param
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const productId = getQueryParam('id');
+    const apiUrl = `/api/products/${productId}`;
+
+    async function loadProduct() {
+      const detailEl = document.getElementById('detail-container');
+      if (!detailEl) return;
+
+      if (!productId) {
+        detailEl.innerHTML = '<div style="padding:3rem; text-align:center; font-size:1.2rem; color:#ef4444; font-weight:bold;">⚠️ Không tìm thấy ID sản phẩm trong đường dẫn.</div>';
+        return;
+      }
+      try {
+        const res = await fetch(apiUrl);
+        if (!res.ok) {
+          detailEl.innerHTML = `
+            <div style="padding:4rem 2rem; text-align:center; background:#fff; border-radius:12px; margin:2rem auto; max-width:600px; box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+              <div style="font-size:3.5rem; margin-bottom:1rem;">🔍</div>
+              <h3 style="color:#1f2937; font-size:1.4rem; font-weight:700; margin-bottom:0.5rem;">Sản phẩm không tồn tại</h3>
+              <p style="color:#ef4444; font-size:0.95rem; margin-bottom:1.5rem; font-weight:600;">Mã sản phẩm #${productId} có thể đã bị xóa hoặc dừng kinh doanh.</p>
+              <a href="products.html" style="display:inline-block; background:#f97316; color:#fff; padding:0.75rem 1.5rem; border-radius:8px; font-weight:bold; text-decoration:none;">Xem danh sách sản phẩm</a>
+            </div>
+          `;
+          return;
+        }
+
+        const p = await res.json();
+
+        // ── Build gallery HTML ──
+        const imgConvert = typeof convertImageUrl === 'function' ? convertImageUrl : (u => u);
+
+        let allImagesRaw = (p.images && p.images.length > 0) ? p.images : (p.duong_dan_anh ? [p.duong_dan_anh] : ['']);
+        let allImages = allImagesRaw.map(imgConvert);
+
+        const thumbsHtml = allImages.map((src, i) => {
+          const rawSrc = allImagesRaw[i] || '';
+          return `<div class="gallery-thumb${i === 0 ? ' active' : ''}" data-idx="${i}">
+             <img src="${src}" alt="${p.ten_san_pham || 'Ảnh'} - ảnh ${i+1}" decoding="async" referrerpolicy="no-referrer"
+                  data-raw-url="${rawSrc}"
+                  onerror="if(typeof handleImgError==='function'){handleImgError(this)}else{this.src='/placeholder.png'}">
+           </div>`;
+        }).join('');
+
+        const galleryHtml = `
+          <div class="product-gallery">
+            <div class="gallery-main-wrap">
+              <img src="${allImages[0]}" alt="${p.ten_san_pham || 'Ảnh'}" id="gallery-main-img" decoding="async" referrerpolicy="no-referrer"
+                   data-raw-url="${allImagesRaw[0] || ''}"
+                   onerror="if(typeof handleImgError==='function'){handleImgError(this)}else{this.src='/placeholder.png'}">
+            </div>
+            <div class="gallery-thumbs" id="gallery-thumbs">
+              ${thumbsHtml}
+            </div>
+          </div>
+        `;
+
+        // ── Price values ──
+        const price = p.gia ? Number(p.gia) : 0;
+        const salePrice = p.gia_khuyen_mai ? Number(p.gia_khuyen_mai) : 0;
+        const displayPrice = salePrice && salePrice < price ? salePrice : price;
+        const hasDiscount = salePrice && salePrice < price;
+        const stock = p.so_luong !== undefined ? Number(p.so_luong) : (p.trang_thai ? 1 : 0);
+        const isInStock = stock > 0;
+
+        // ── Build full HTML ──
+        detailEl.innerHTML = `
+          <h2 class="product-name">${p.ten_san_pham || 'Sản phẩm'}</h2>
+
+          <div class="detail-layout">
+            <!-- ═══ LEFT: Gallery ═══ -->
+            <div class="detail-left">
+              ${galleryHtml}
+            </div>
+
+            <!-- ═══ RIGHT: Purchase Block + Specs Table ═══ -->
+            <div class="detail-right">
+              <div class="purchase-block">
+                <!-- Price -->
+                <div class="price-display">
+                  <span class="price-current">${displayPrice.toLocaleString('vi-VN')}đ</span>
+                  ${hasDiscount ? `<span class="price-original">${price.toLocaleString('vi-VN')}đ</span>` : ''}
+                </div>
+
+                <!-- Stock Status -->
+                <div class="stock-status ${isInStock ? 'in-stock' : 'out-of-stock'}">
+                  <span class="stock-dot"></span>
+                  ${isInStock ? 'Còn hàng' : 'Hết hàng'}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="purchase-actions">
+                  <button class="btn-detail-action btn-contact-quote" onclick="showZaloQR()">
+                    <span class="btn-icon">📞</span>
+                    Liên hệ nhận báo giá
+                  </button>
+                  <button class="btn-detail-action btn-add-cart" id="btn-add-cart">
+                    <span class="btn-icon">🛒</span>
+                    Thêm vào giỏ hàng
+                  </button>
+                  <button class="btn-detail-action btn-buy-now" id="btn-buy-now">
+                    <span class="btn-icon">⚡</span>
+                    Mua ngay
+                  </button>
+                </div>
+              </div>
+
+              <!-- SPECS & DESCRIPTION CARD PLACED BELOW PURCHASE BLOCK -->
+              <div class="product-description-card" style="margin-top: 1.5rem;">
+                <h3>📋 Thông số kỹ thuật & Mô tả sản phẩm</h3>
+                ${formatDescriptionToTable(p.mo_ta, p)}
+              </div>
+            </div>
+          </div>
+        `;
+
+        // ── Attach cart events safely ──
+        const btnAdd = document.getElementById('btn-add-cart');
+        if (btnAdd) {
+          btnAdd.addEventListener('click', () => {
+            if (window.Cart) window.Cart.addToCart(p);
+          });
+        }
+
+        const btnBuy = document.getElementById('btn-buy-now');
+        if (btnBuy) {
+          btnBuy.addEventListener('click', () => {
+            if (window.Cart) {
+              window.Cart.addToCart(p);
+              window.location.href = 'cart.html';
+            }
+          });
+        }
+
+        // ══════════════════════════════════════════════
+        //  Gallery: auto-slideshow + click thumbnail
+        // ══════════════════════════════════════════════
+        const mainImg   = document.getElementById('gallery-main-img');
+        const thumbEls  = document.querySelectorAll('#gallery-thumbs .gallery-thumb');
+        let currentIdx  = 0;
+        let autoTimer   = null;
+
+        function showImage(idx) {
+          if (!mainImg) return;
+          const total = allImages.length;
+          currentIdx  = (idx + total) % total;
+
+          mainImg.classList.add('fading');
+          setTimeout(() => {
+            if (mainImg) {
+              mainImg.src = allImages[currentIdx];
+              mainImg.dataset.rawUrl = allImagesRaw[currentIdx] || '';
+              mainImg.dataset.attempt = '0';
+              mainImg.classList.remove('fading');
+            }
+          }, 400);
+
+          thumbEls.forEach((th, i) => {
+            th.classList.toggle('active', i === currentIdx);
+          });
+
+          if (thumbEls[currentIdx]) {
+            thumbEls[currentIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          }
+        }
+
+        function resetAutoTimer() {
+          clearInterval(autoTimer);
+          autoTimer = setInterval(() => showImage(currentIdx + 1), 3000);
+        }
+
+        thumbEls.forEach((th, i) => {
+          th.addEventListener('click', () => {
+            showImage(i);
+            resetAutoTimer();
+          });
+        });
+
+        const galleryWrap = document.querySelector('.product-gallery');
+        if (galleryWrap) {
+          galleryWrap.addEventListener('mouseenter', () => clearInterval(autoTimer));
+          galleryWrap.addEventListener('mouseleave', () => {
+            if (allImages.length > 1) resetAutoTimer();
+          });
+        }
+
+        if (allImages.length > 1) {
+          resetAutoTimer();
+        }
+      } catch (e) {
+        console.error('Lỗi loadProduct:', e);
+        const detailEl = document.getElementById('detail-container');
+        if (detailEl) {
+          detailEl.innerHTML = `
+            <div style="padding:4rem 2rem; text-align:center; background:#fff; border-radius:12px; margin:2rem auto; max-width:600px; box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+              <div style="font-size:3.5rem; margin-bottom:1rem;">⚠️</div>
+              <h3 style="color:#1f2937; font-size:1.4rem; font-weight:700; margin-bottom:0.5rem;">Đã xảy ra lỗi khi tải trang</h3>
+              <p style="color:#ef4444; font-size:0.95rem; margin-bottom:1.5rem; font-weight:600;">Chi tiết: ${e.message}</p>
+              <button onclick="location.reload()" style="background:#f97316; color:#fff; padding:0.75rem 1.5rem; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Tải lại trang</button>
+            </div>
+          `;
+        }
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadProduct);
+    } else {
+      loadProduct();
+    }
+  </script>
+</body>
+</html>

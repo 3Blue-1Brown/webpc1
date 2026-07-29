@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tài Khoản Của Tôi - Nam Nguyễn PC & Workstation</title>
+  <link rel="stylesheet" href="style.css?v=5" />
+  <style>
+    .profile-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      display: flex;
+      gap: 30px;
+      padding: 0 20px;
+    }
+    .profile-sidebar {
+      width: 250px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+    .profile-sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .profile-sidebar li {
+      margin-bottom: 15px;
+    }
+    .profile-sidebar a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      display: block;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    .profile-sidebar a:hover, .profile-sidebar a.active {
+      background: var(--light);
+      color: var(--orange);
+    }
+    .profile-content {
+      flex: 1;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .profile-section {
+      display: none;
+    }
+    .profile-section.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .btn-save {
+      padding: 10px 20px;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-save:hover {
+      background: #e65100;
+    }
+    .avatar-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      border: 2px solid #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: var(--light);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="logo"><a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;"><img src="logo.png" alt="Nam Nguyễn Logo" style="height: 48px; width: auto; object-fit: contain;"><div style="display:flex; flex-direction:column; line-height:1.2;"><span style="font-weight:700; font-size:1.3rem; color:#ffffff; letter-spacing:0.5px;">Nam Nguyễn</span><span style="font-weight:700; font-size:0.75rem; color:#facc15; text-transform:uppercase; letter-spacing:1px;">PC &amp; Workstation</span></div></a></div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="categories.html">Danh mục</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+      </ul>
+    </nav>
+    <div class="search-wrap">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input" />
+      <button id="search-btn">🔍</button>
+    </div>
+  </header>
+
+  <div class="profile-container">
+    <div class="profile-sidebar">
+      <ul>
+        <li><a href="#" onclick="showSection('info')" class="active" id="tab-info">Thông tin tài khoản</a></li>
+        <li><a href="#" onclick="showSection('orders')" id="tab-orders">Đơn hàng của tôi</a></li>
+        <li><a href="#" onclick="showSection('password')" id="tab-password">Đổi mật khẩu</a></li>
+        <li><a href="#" onclick="logout()">Đăng xuất</a></li>
+      </ul>
+    </div>
+    <div class="profile-content">
+      <!-- Info Section -->
+      <div id="section-info" class="profile-section active">
+        <h2>Thông Tin Tài Khoản</h2>
+        <form id="profile-form">
+          <div class="form-group">
+            <img src="placeholder.png" alt="Avatar" id="avatar-preview" class="avatar-preview" onerror="this.src='https://via.placeholder.com/100'">
+            <input type="file" id="avatar-input" accept="image/*">
+          </div>
+          <div class="form-group">
+            <label>Họ và tên</label>
+            <input type="text" id="prof-fullname" required>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="prof-email" required>
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại</label>
+            <input type="text" id="prof-phone">
+          </div>
+          <div class="form-group">
+            <label>Địa chỉ</label>
+            <textarea id="prof-address" rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn-save">Cập nhật thông tin</button>
+        </form>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="section-orders" class="profile-section">
+        <h2>Lịch Sử Đơn Hàng</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Mã ĐH</th>
+              <th>Ngày Đặt</th>
+              <th>Tổng Tiền</th>
+              <th>Trạng Thái</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <!-- Data will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Password Section -->
+      <div id="section-password" class="profile-section">
+        <h2>Đổi Mật Khẩu</h2>
+        <form id="password-form">
+          <div class="form-group">
+            <label>Mật khẩu hiện tại</label>
+            <input type="password" id="current-password" required>
+          </div>
+          <div class="form-group">
+            <label>Mật khẩu mới</label>
+            <input type="password" id="new-password" required minlength="6">
+          </div>
+          <button type="submit" class="btn-save">Đổi mật khẩu</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    function showSection(id) {
+      document.querySelectorAll('.profile-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.profile-sidebar a').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(`section-${id}`).classList.add('active');
+      document.getElementById(`tab-${id}`).classList.add('active');
+      
+      if (id === 'orders') {
+        loadOrders();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      window.location.href = '/index.html';
+    }
+
+    // Load profile info
+    async function loadProfile() {
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const user = await res.json();
+          document.getElementById('prof-fullname').value = user.fullName || '';
+          document.getElementById('prof-email').value = user.email || '';
+          document.getElementById('prof-phone').value = user.phone || '';
+          document.getElementById('prof-address').value = user.address || '';
+          if (user.avatar) {
+            document.getElementById('avatar-preview').src = user.avatar;
+          }
+        } else {
+          logout();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Update profile
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('fullname', document.getElementById('prof-fullname').value);
+      formData.append('email', document.getElementById('prof-email').value);
+      formData.append('phone', document.getElementById('prof-phone').value);
+      formData.append('address', document.getElementById('prof-address').value);
+      
+      const fileInput = document.getElementById('avatar-input');
+      if (fileInput.files[0]) {
+        formData.append('avatar', fileInput.files[0]);
+      }
+
+      try {
+        const res = await fetch('/api/users/profile', {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        if (res.ok) {
+          alert('Cập nhật thông tin thành công!');
+          loadProfile();
+        } else {
+          alert('Cập nhật thất bại!');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // Update password
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      
+      try {
+        const res = await fetch('/api/users/password', {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert('Đổi mật khẩu thành công!');
+          document.getElementById('password-form').reset();
+        } else {
+          alert(data.error || 'Đổi mật khẩu thất bại!');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // Load orders
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/users/orders', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const orders = await res.json();
+          const tbody = document.getElementById('orders-tbody');
+          tbody.innerHTML = '';
+          if (!orders || orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:1.5rem; color:#64748b;">Bạn chưa có đơn hàng nào.</td></tr>';
+            return;
+          }
+          orders.forEach(order => {
+            const date = new Date(order.ngay_dat).toLocaleString('vi-VN');
+            const total = Number(order.tong_tien).toLocaleString('vi-VN');
+            const st = order.trang_thai_don_hang || order.trang_thai || 'Mới';
+            let badgeStyle = 'background:#e2e8f0; color:#334155;';
+            if (st === 'Hoàn thành') badgeStyle = 'background:#dcfce7; color:#15803d;';
+            if (st === 'Đang xử lý') badgeStyle = 'background:#fef9c3; color:#a16207;';
+            if (st === 'Hủy') badgeStyle = 'background:#fee2e2; color:#b91c1c;';
+
+            tbody.innerHTML += `
+              <tr>
+                <td style="font-weight:600;">#${order.id}</td>
+                <td>${date}</td>
+                <td style="color:var(--red); font-weight:600;">${total}₫</td>
+                <td><span style="padding:4px 10px; border-radius:12px; font-size:0.85rem; font-weight:600; ${badgeStyle}">${st}</span></td>
+              </tr>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Init
+    loadProfile();
+  </script>
+</body>
+</html>
