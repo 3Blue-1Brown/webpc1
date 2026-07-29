@@ -23,7 +23,7 @@ const { verifyToken, verifyAdmin, verifyManagerOrAdmin } = require('./auth');
 // Multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../../uploads/banners'));
+    cb(null, path.join(__dirname, '../uploads/banners'));
   },
   filename: function (req, file, cb) {
     const uniqueName = Date.now() + '-' + file.originalname.replace(/\s+/g, '_');

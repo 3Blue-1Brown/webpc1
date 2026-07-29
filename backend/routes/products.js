@@ -198,7 +198,7 @@ router.post(
     }
 
     if (req.files && req.files.length > 0) {
-      const uploadDir = path.join(__dirname, '../../uploads/products');
+      const uploadDir = path.join(__dirname, '../uploads/products');
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
@@ -331,7 +331,7 @@ router.put(
     }
 
     if (req.files && req.files.length > 0) {
-      const uploadDir = path.join(__dirname, '../../uploads/products');
+      const uploadDir = path.join(__dirname, '../uploads/products');
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
