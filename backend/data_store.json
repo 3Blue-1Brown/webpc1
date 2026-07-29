@@ -1,137 +1,197 @@
 {
   "danh_muc": [
     {
-      "id": 1,
-      "ten_danh_muc": "Laptop",
-      "mo_ta": "Laptop văn phòng, Gaming, Workstation"
-    },
-    {
-      "id": 2,
-      "ten_danh_muc": "PC Gaming",
-      "mo_ta": "Máy tính chơi game & Workstation đồ họa"
-    },
-    {
-      "id": 3,
-      "ten_danh_muc": "Linh kiện PC",
-      "mo_ta": "CPU, RAM, VGA, Mainboard, SSD, Nguồn"
-    },
-    {
       "id": 4,
-      "ten_danh_muc": "Màn hình",
-      "mo_ta": "Màn hình máy tính 144Hz, 4K"
+      "ten_danh_muc": "CPU SEVER",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/cpu_server.png"
+    },
+    {
+      "id": 5,
+      "ten_danh_muc": "CPU PC",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/cpu_pc.png"
+    },
+    {
+      "id": 6,
+      "ten_danh_muc": "MAINBOARD PC",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/mainboard_pc.png"
+    },
+    {
+      "id": 7,
+      "ten_danh_muc": "MAINBOARD SEVER",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/mainboard_server.png"
+    },
+    {
+      "id": 8,
+      "ten_danh_muc": "RAM PC",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/ram_pc.png"
+    },
+    {
+      "id": 9,
+      "ten_danh_muc": "RAM SEVER",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/ram_server.png"
+    },
+    {
+      "id": 10,
+      "ten_danh_muc": "Ổ CỨNG SSD",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/ssd.png"
+    },
+    {
+      "id": 11,
+      "ten_danh_muc": "MÀN HÌNH MÁY TÍNH",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/monitor.jpg"
+    },
+    {
+      "id": 12,
+      "ten_danh_muc": "CARD ĐỒ HỌA",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/gpu.png"
+    },
+    {
+      "id": 13,
+      "ten_danh_muc": "NGUỒN MÁY TÍNH",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/psu.png"
+    },
+    {
+      "id": 14,
+      "ten_danh_muc": "TẢN NHIỆT CPU",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/cpu_cooler.png"
+    },
+    {
+      "id": 16,
+      "ten_danh_muc": "VỎ MÁY TÍNH",
+      "mo_ta": null,
+      "trang_thai": 1,
+      "hinh_anh": "uploads/products/pc_case.png"
     }
   ],
   "san_pham": [
     {
-      "id": 1,
-      "ten_san_pham": "CPU Intel Core i5 13400F (Up To 4.6GHz, 10 Nhân 16 Luồng)",
-      "id_danh_muc": 3,
-      "hang_san_xuat": "Intel",
-      "gia": 4890000,
-      "gia_khuyen_mai": 4590000,
-      "so_luong": 20,
+      "id": 20,
+      "id_danh_muc": 5,
+      "ten_san_pham": "CPU Intel Core i5-13400F Tray New",
+      "mo_ta": "CPU Intel Core i5-13400F Tray New là bộ vi xử lý thuộc dòng Intel Core thế hệ 13 (Raptor Lake), mang đến hiệu năng mạnh mẽ cho nhu cầu chơi game, làm việc văn phòng, thiết kế đồ họa và xử lý đa nhiệm. Với kiến trúc Hybrid gồm 10 nhân (6 P-Core + 4 E-Core) và 16 luồng, sản phẩm cho khả năng xử lý nhanh chóng, tối ưu hiệu suất và tiết kiệm điện năng.\r\n\r\nPhiên bản Tray New là CPU mới 100%, không đi kèm quạt tản nhiệt của Intel, phù hợp với người dùng muốn sử dụng tản nhiệt khí hoặc tản nhiệt nước riêng để đạt hiệu quả làm mát tốt hơn.",
+      "gia": "5000000.00",
+      "gia_khuyen_mai": "4350000.00",
+      "so_luong": 9,
       "trang_thai": 1,
+      "ngay_tao": "2026-07-24T08:19:56.000Z",
+      "hang_san_xuat": "intel",
+      "is_deleted": 0,
       "is_noi_bat": 1,
       "is_moi": 1,
-      "is_flash_sale": 1,
-      "mo_ta": "Socket: LGA1700\nSố nhân: 10 Nhân\nSố luồng: 16 Luồng\nXung nhịp: Up to 4.6 GHz\nCache: 20MB\nBảo hành: 36 Tháng\nCPU Intel Core i5 13400F hiệu năng cao dành cho PC chơi game và làm việc đồ họa.",
-      "thong_so": "{}",
-      "is_deleted": 0
+      "is_flash_sale": 1
     },
     {
-      "id": 2,
-      "ten_san_pham": "CPU Intel Core i7 14700K (Up To 5.6GHz, 20 Nhân 28 Luồng)",
-      "id_danh_muc": 3,
-      "hang_san_xuat": "Intel",
-      "gia": 10890000,
-      "gia_khuyen_mai": 10290000,
-      "so_luong": 15,
-      "trang_thai": 1,
-      "is_noi_bat": 1,
-      "is_moi": 1,
-      "is_flash_sale": 0,
-      "mo_ta": "Socket: LGA1700\nSố nhân: 20 Nhân\nSố luồng: 28 Luồng\nXung nhịp: Up to 5.6 GHz\nCache: 33MB\nBảo hành: 36 Tháng\nCPU Intel Core i7 14700K đỉnh cao đồ họa 3D và Gaming chuyên nghiệp.",
-      "thong_so": "{}",
-      "is_deleted": 0
-    },
-    {
-      "id": 3,
-      "ten_san_pham": "Card Màn Hình VGA NVIDIA RTX 4060 8GB GDDR6",
-      "id_danh_muc": 3,
-      "hang_san_xuat": "NVIDIA",
-      "gia": 8590000,
-      "gia_khuyen_mai": 7990000,
-      "so_luong": 12,
-      "trang_thai": 1,
-      "is_noi_bat": 1,
-      "is_moi": 0,
-      "is_flash_sale": 1,
-      "mo_ta": "VRAM: 8GB GDDR6\nBus Memory: 128-bit\nCổng kết nối: HDMI, DisplayPort\nBảo hành: 36 Tháng\nCard đồ họa thế hệ RTX 40 series hỗ trợ DLSS 3 và Ray Tracing cực đỉnh.",
-      "thong_so": "{}",
-      "is_deleted": 0
-    },
-    {
-      "id": 4,
-      "ten_san_pham": "RAM PC DDR4 16GB Bus 3200MHz Kingston Fury Beast",
-      "id_danh_muc": 3,
-      "hang_san_xuat": "Kingston",
-      "gia": 1050000,
-      "gia_khuyen_mai": 890000,
-      "so_luong": 30,
-      "trang_thai": 1,
-      "is_noi_bat": 0,
-      "is_moi": 1,
-      "is_flash_sale": 0,
-      "mo_ta": "Loại RAM: DDR4\nDung lượng: 16GB\nBus: 3200MHz\nĐiện áp: 1.35V\nBảo hành: 36 Tháng",
-      "thong_so": "{}",
-      "is_deleted": 0
-    },
-    {
-      "id": 5,
-      "ten_san_pham": "Màn Hình Gaming ASUS TUF 27 Inch 180Hz IPS 1ms",
-      "id_danh_muc": 4,
-      "hang_san_xuat": "ASUS",
-      "gia": 4590000,
-      "gia_khuyen_mai": 3990000,
+      "id": 21,
+      "id_danh_muc": 5,
+      "ten_san_pham": "Intel Core i5-9400F",
+      "mo_ta": "2.9GHz Turbo Up To 4.1GHz, 6 nhân 6 luồng, 9MB Cache, Coffee Lake",
+      "gia": "1850000.00",
+      "gia_khuyen_mai": "1550000.00",
       "so_luong": 10,
       "trang_thai": 1,
-      "is_noi_bat": 1,
-      "is_moi": 1,
-      "is_flash_sale": 1,
-      "mo_ta": "Kích thước: 27 Inch\nTấm nền: Fast IPS\nTần số quét: 180Hz\nThời gian phản hồi: 1ms\nĐộ phân giải: Full HD\nBảo hành: 36 Tháng",
-      "thong_so": "{}",
-      "is_deleted": 0
+      "ngay_tao": "2026-07-24T08:53:35.000Z",
+      "hang_san_xuat": "intel",
+      "is_deleted": 0,
+      "is_noi_bat": 0,
+      "is_moi": 0,
+      "is_flash_sale": 1
+    },
+    {
+      "id": 24,
+      "id_danh_muc": 5,
+      "ten_san_pham": "CPU Intel Core i3 8100",
+      "mo_ta": "3.60GHz, 6M, 4 Cores 4 Threads",
+      "gia": "700000.00",
+      "gia_khuyen_mai": "600000.00",
+      "so_luong": 10,
+      "trang_thai": 1,
+      "ngay_tao": "2026-07-24T09:24:07.000Z",
+      "hang_san_xuat": "intel",
+      "is_deleted": 0,
+      "is_noi_bat": 0,
+      "is_moi": 0,
+      "is_flash_sale": 1
+    },
+    {
+      "id": 25,
+      "id_danh_muc": 4,
+      "ten_san_pham": "Intel Core i5",
+      "mo_ta": null,
+      "gia": "1000.00",
+      "gia_khuyen_mai": null,
+      "so_luong": 10,
+      "trang_thai": 1,
+      "ngay_tao": "2026-07-24T18:31:06.000Z",
+      "hang_san_xuat": "intel",
+      "is_deleted": 0,
+      "is_noi_bat": 0,
+      "is_moi": 0,
+      "is_flash_sale": 0
     }
   ],
   "anh_san_pham": [
     {
-      "id": 1,
-      "id_san_pham": 1,
-      "duong_dan": "uploads/products/cpu_pc.webp",
+      "id": 39,
+      "id_san_pham": 20,
+      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQWEiuL1d7SlHK77hW5uM_K08DuxLoFRYytfumBBGClbZTo5inbDxNaZlHvH3DpRYLzeqYd-uno4koatwG-hVnxz-NnV3KRMXHZkR08at2DMuDvsLSuiFMEEUsgMPxAyNnQgWnbnAiTIS-evrRZhDCvU65TawDQTfSlKOAa34cN3i41cjZu-51MaEwOASKY=w16383",
       "anh_chinh": 1
     },
     {
-      "id": 2,
-      "id_san_pham": 2,
-      "duong_dan": "uploads/products/cpu_server.webp",
+      "id": 40,
+      "id_san_pham": 20,
+      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQU1diRcrC8oycNOVMKBKcibfxcFfGa9NHkm_VcuhkkWq3_5plPC-CVBSk2D9cofCTSxZljhNzXUEdzLx225f2P599IuW8hSJdQdLALG8nKrU0LYp9tv8LsYCLArBZzjP3E02mt6P0XaRNHeLsHl_qO0j2yJatyxCAbXeNzuuJvra1rD-Frse_jlE1B2ing=w16383",
+      "anh_chinh": 0
+    },
+    {
+      "id": 41,
+      "id_san_pham": 21,
+      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQURUOfEQLW5rDDuhOR7B9qJrY5RFDo0ihf1uAA3xNLNWbIPFzqITSOAyjNr3dRs4EcLcAjkEAd9-hVzr6ErS1HOmGaTi2__v3gmj4vRZCBlK_814TNzNAnxcjm6UZK_nOB5zl7Lew7RNb4uFpC6cwxMFNJ-O2X19KAL8g8ztAiHYbBLkt1tl5Z6f2F10XU=w16383",
       "anh_chinh": 1
     },
     {
-      "id": 3,
-      "id_san_pham": 3,
-      "duong_dan": "uploads/products/gpu.webp",
+      "id": 42,
+      "id_san_pham": 21,
+      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQV8UI9v8p8f1R3UqJL_lxtSbUC1JgFuYT7ew6b3FJV4Nk5Wxsdnp_Jm03XemJrcEtj0sWIl4t9OK5VdmKQmlIThDXyF7uPDmwFHYqG6K7CCy2_p4jcFgwzNQ-M7bJ2L6FqKthl63acXF16h47oRTaqqY1lwCiJOmh6vJ331WTyIPclO9CI7iQL-tiSFRd8=w16383",
+      "anh_chinh": 0
+    },
+    {
+      "id": 44,
+      "id_san_pham": 24,
+      "duong_dan": "uploads/products/downloaded-1784910241998-5467.png",
       "anh_chinh": 1
     },
     {
-      "id": 4,
-      "id_san_pham": 4,
-      "duong_dan": "uploads/products/ram_pc.webp",
-      "anh_chinh": 1
+      "id": 45,
+      "id_san_pham": 24,
+      "duong_dan": "uploads/products/downloaded-1784910242385-1557.jpg",
+      "anh_chinh": 0
     },
     {
-      "id": 5,
-      "id_san_pham": 5,
-      "duong_dan": "uploads/products/monitor.webp",
+      "id": 46,
+      "id_san_pham": 25,
+      "duong_dan": "uploads/products/downloaded-1784917866387-8582.jpg",
       "anh_chinh": 1
     }
   ],
@@ -139,19 +199,19 @@
   "chi_tiet_don_hang": [],
   "banners": [
     {
-      "id": 1,
-      "tieu_de": "Siêu Khuyến Mãi Linh Kiện Máy Tính 2026",
-      "duong_dan_anh": "flash_banner1.png",
+      "id": 7,
+      "tieu_de": "Banner Khuyến Mãi",
+      "duong_dan_anh": "https://lh3.googleusercontent.com/d/1s3uPlFDJq_8gjJ_zF0xRzbGmp6NzwIkV",
       "lien_ket": "#",
       "thu_tu": 1,
       "trang_thai": 1
     },
     {
-      "id": 2,
-      "tieu_de": "PC Gaming & Workstation Đồ Họa Đỉnh Cao",
-      "duong_dan_anh": "banner2.png",
+      "id": 9,
+      "tieu_de": "Banner Khuyến Mãi",
+      "duong_dan_anh": "banner_new.png",
       "lien_ket": "#",
-      "thu_tu": 2,
+      "thu_tu": 1,
       "trang_thai": 1
     }
   ],
@@ -159,14 +219,14 @@
     {
       "id": 1,
       "ten_dang_nhap": "admin",
-      "mat_khau": "$2a$10$.I7t5y/Mnmk6.mxG1tHRIOFyOfIe7orD.YTN4I9drxEWfx/9sguvq",
+      "mat_khau": "$2a$10$ILk4tfu6GGBOvVsUOrF0yuyLF3hi9Vpa1Y4yKkOCKtLfJ3wz8WH76",
       "ho_ten": "Quản Trị Viên Hệ Thống",
       "chuc_vu": "admin"
     },
     {
       "id": 2,
       "ten_dang_nhap": "manager",
-      "mat_khau": "$2a$10$.I7t5y/Mnmk6.mxG1tHRIOFyOfIe7orD.YTN4I9drxEWfx/9sguvq",
+      "mat_khau": "$2a$10$ILk4tfu6GGBOvVsUOrF0yuyLF3hi9Vpa1Y4yKkOCKtLfJ3wz8WH76",
       "ho_ten": "Nhân Viên Manager",
       "chuc_vu": "manager"
     }
