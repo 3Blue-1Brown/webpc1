@@ -1190,7 +1190,7 @@ ul {
   border: 1px solid #fca5a5;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments & Mobile 2-Column Layout */
 @media (max-width: 900px) {
   .about-grid,
   .contact-container {
@@ -1204,29 +1204,131 @@ ul {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     overflow-x: auto;
-    padding: 0.6rem 1rem;
-    gap: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    gap: 0.6rem;
   }
   .main-nav ul {
     flex-direction: row !important;
     flex-wrap: nowrap !important;
   }
   .search-wrap {
-    width: auto !important;
+    width: 140px !important;
   }
   .site-main {
-    padding: 1rem;
+    padding: 0.8rem 0.5rem;
   }
+
+  /* ── 1. Categories: Horizontal Scroll Bar on Mobile ── */
+  .category-grid,
+  .categories-grid,
+  .category-buttons {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 8px !important;
+    padding: 6px 4px 12px 4px !important;
+    scrollbar-width: none;
+  }
+  .category-grid::-webkit-scrollbar,
+  .categories-grid::-webkit-scrollbar,
+  .category-buttons::-webkit-scrollbar {
+    display: none;
+  }
+  .category-card,
+  .category-btn,
+  .category-pill {
+    flex: 0 0 auto !important;
+    min-width: 110px !important;
+    scroll-snap-align: start;
+    padding: 8px 12px !important;
+    font-size: 0.82rem !important;
+    text-align: center;
+    border-radius: 20px !important;
+  }
+
+  /* ── 2. Products: Crisp 2-Column Grid on Mobile ── */
+  .product-grid,
+  .products-grid,
+  .grid-products,
+  .flash-products {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 4px 0 !important;
+  }
+
+  /* ── 3. Product Card Adjustments on Mobile ── */
+  .product-card {
+    padding: 8px !important;
+    border-radius: 10px !important;
+    display: flex;
+    flex-direction: column;
+  }
+  .product-card .card-img-wrap,
+  .product-card img {
+    height: 120px !important;
+    object-fit: contain;
+  }
+  .product-card .product-title,
+  .product-card h3,
+  .product-card h4 {
+    font-size: 0.82rem !important;
+    line-height: 1.25 !important;
+    height: 2.5em !important;
+    margin: 4px 0 !important;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product-card .card-actions-row {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+  .btn-price-tag,
+  .btn-contact-premium,
+  .btn-add-cart,
+  .btn-stock {
+    padding: 5px 4px !important;
+    font-size: 0.78rem !important;
+    border-radius: 6px !important;
+  }
+  .btn-price-label,
+  .btn-contact-subtext {
+    font-size: 0.72rem !important;
+  }
+  .btn-price-value,
+  .btn-contact-text {
+    font-size: 0.8rem !important;
+  }
+
+  /* ── 4. Flash Sale Banners ── */
+  .banner-slider-grid,
+  .flash-banners {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 8px !important;
+    padding-bottom: 6px !important;
+    scrollbar-width: none;
+  }
+  .banner-slider-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .banner-card {
+    flex: 0 0 85% !important;
+    border-radius: 10px !important;
+  }
+
   .about-hero-overlay h1 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
   .about-slogan {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 }
 
-
-
-
 /* Category Subnav (Hidden per user request) */
 .category-subnav { display: none !important; }
+
