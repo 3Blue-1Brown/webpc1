@@ -43,21 +43,11 @@ app.use('/api/stats', statsRouter);
 // Test DB connection and run migrations before starting server
 db.getConnection()
   .then(async conn => {
-    console.log('✅ Connected to Database');
-    // Automatic Migration for classification columns
-    const columns = ['is_noi_bat', 'is_moi', 'is_flash_sale'];
-    for (const col of columns) {
-      try {
-        await conn.query(`ALTER TABLE san_pham ADD COLUMN ${col} TINYINT(1) DEFAULT 0`);
-        console.log(`✅ Added column ${col} to san_pham table`);
-      } catch (err) {
-        // Ignore if column already exists
-      }
-    }
+    console.log('✅ Database is ready and online');
     conn.release();
   })
   .catch(err => {
-    console.error('⚠️ Database connection error (server will still serve static files):', err.message);
+    console.warn('ℹ️ DB initialization status:', err.message);
   });
 
 // Always start the server so frontend works

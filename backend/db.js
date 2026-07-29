@@ -1,29 +1,35 @@
 // db.js
-// Dual-mode database module: MySQL primary with automatic embedded SQLite fallback for Cloud / Render
+// Universal Database Module: Fast embedded SQLite with MySQL compatibility wrapper
 const mysql = require('mysql2/promise');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-let mode = 'PENDING';
+let mode = 'SQLITE'; // Default to SQLite for 0ms instant startup & Cloud compatibility
 let mysqlPool = null;
 let sqliteDb = null;
+let sqliteInitPromise = null;
 
-// Initialize SQLite database
 const sqlitePath = path.join(__dirname, 'database.sqlite');
 
 function initSqlite() {
-  return new Promise((resolve, reject) => {
-    sqliteDb = new sqlite3.Database(sqlitePath, (err) => {
+  if (sqliteInitPromise) return sqliteInitPromise;
+
+  sqliteInitPromise = new Promise((resolve, reject) => {
+    sqliteDb = new sqlite3.Database(sqlitePath, async (err) => {
       if (err) return reject(err);
-      mode = 'SQLITE';
-      console.log('📦 Using embedded SQLite database:', sqlitePath);
-      setupSqliteTables()
-        .then(resolve)
-        .catch(reject);
+      console.log('⚡ SQLite Database connected:', sqlitePath);
+      try {
+        await setupSqliteTables();
+        resolve();
+      } catch (setupErr) {
+        reject(setupErr);
+      }
     });
   });
+
+  return sqliteInitPromise;
 }
 
 function runSqlite(sql, params = []) {
@@ -39,7 +45,7 @@ function allSqlite(sql, params = []) {
   return new Promise((resolve, reject) => {
     sqliteDb.all(sql, params, (err, rows) => {
       if (err) return reject(err);
-      resolve(rows);
+      resolve(rows || []);
     });
   });
 }
@@ -84,6 +90,7 @@ async function setupSqliteTables() {
     phuong_thuc_thanh_toan TEXT,
     tong_tien REAL DEFAULT 0,
     trang_thai_don_hang TEXT DEFAULT 'Mới',
+    trang_thai TEXT DEFAULT 'Mới',
     ghi_chu TEXT,
     ngay_dat DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
@@ -122,23 +129,23 @@ async function setupSqliteTables() {
     thoi_gian DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  // Seed sample categories if empty
+  // Seed sample categories
   const cats = await allSqlite('SELECT COUNT(*) as count FROM danh_muc');
   if (cats[0].count === 0) {
-    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['Laptop', 'Laptop văn phòng, Gaming, Server']);
-    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['PC Gaming', 'Máy tính chơi game & Workstation']);
+    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['Laptop', 'Laptop văn phòng, Gaming, Workstation']);
+    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['PC Gaming', 'Máy tính chơi game & Workstation đồ họa']);
     await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['Linh kiện PC', 'CPU, RAM, VGA, Mainboard, SSD, Nguồn']);
     await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['Màn hình', 'Màn hình máy tính 144Hz, 4K']);
   }
 
-  // Seed sample products if empty
+  // Seed sample products
   const prods = await allSqlite('SELECT COUNT(*) as count FROM san_pham');
   if (prods[0].count === 0) {
     const sampleProducts = [
       {
         ten: 'CPU Intel Core i5 13400F (Up To 4.6GHz, 10 Nhân 16 Luồng)',
         cat: 3, brand: 'Intel', gia: 4890000, km: 4590000,
-        desc: 'Socket: LGA1700\nSố nhân: 10 Nhân\nSố luồng: 16 Luồng\nXung nhịp: Up to 4.6 GHz\nCache: 20MB\nBảo hành: 36 Tháng\nCPU Intel Core i5 13400F là vi xử lý thế hệ 13 dòng Raptor Lake hiệu năng cao dành cho PC chơi game và làm việc đồ họa.',
+        desc: 'Socket: LGA1700\nSố nhân: 10 Nhân\nSố luồng: 16 Luồng\nXung nhịp: Up to 4.6 GHz\nCache: 20MB\nBảo hành: 36 Tháng\nCPU Intel Core i5 13400F hiệu năng cao dành cho PC chơi game và làm việc đồ họa.',
         img: 'uploads/products/cpu_pc.webp', is_noi_bat: 1, is_moi: 1, is_flash: 1
       },
       {
@@ -177,7 +184,7 @@ async function setupSqliteTables() {
     }
   }
 
-  // Seed sample banners if empty
+  // Seed sample banners
   const banners = await allSqlite('SELECT COUNT(*) as count FROM banners');
   if (banners[0].count === 0) {
     await runSqlite('INSERT INTO banners (tieu_de, duong_dan_anh, lien_ket, thu_tu, trang_thai) VALUES (?, ?, ?, 1, 1)',
@@ -188,7 +195,7 @@ async function setupSqliteTables() {
     );
   }
 
-  // Seed admin user if empty
+  // Seed admin user
   const users = await allSqlite('SELECT COUNT(*) as count FROM tai_khoan');
   if (users[0].count === 0) {
     const bcrypt = require('bcryptjs');
@@ -202,84 +209,69 @@ async function setupSqliteTables() {
   }
 }
 
-// Helper to convert MySQL queries to SQLite compatible
+// Adapt MySQL query syntax to SQLite
 function adaptQuery(sql) {
   let s = sql;
-
-  // Convert MySQL `TINYINT(1)` / `LIMIT offset, count` / subqueries
   s = s.replace(/NOW\(\)/gi, "CURRENT_TIMESTAMP");
   s = s.replace(/ISNULL\(/gi, "IFNULL(");
   s = s.replace(/LIMIT\s+(\d+)\s*,\s*(\d+)/gi, "LIMIT $2 OFFSET $1");
-
-  // In SQLite subqueries inside SELECT, handle anh_chinh
-  s = s.replace(/ORDER BY anh_chinh DESC/gi, "ORDER BY anh_chinh DESC");
-
   return s;
 }
 
-// Convert MySQL params placeholders if needed
-function adaptParams(params) {
-  if (!params) return [];
-  if (Array.isArray(params)) return params;
-  return [params];
-}
-
-// Main execution wrapper
+// Main Query method returning [rows, fields] format matching mysql2
 async function query(sql, params = []) {
-  if (mode === 'MYSQL') {
+  if (mode === 'MYSQL' && mysqlPool) {
     try {
-      const [rows] = await mysqlPool.query(sql, params);
-      return rows;
+      return await mysqlPool.query(sql, params);
     } catch (err) {
-      console.warn('⚠️ MySQL query failed, falling back to SQLite:', err.message);
+      console.warn('⚠️ MySQL Query Failed, switching to SQLite:', err.message);
       mode = 'SQLITE';
-      if (!sqliteDb) await initSqlite();
     }
   }
 
-  if (mode === 'SQLITE' || mode === 'PENDING') {
-    if (!sqliteDb) await initSqlite();
-    const cleanSql = adaptQuery(sql);
-    const cleanParams = adaptParams(params);
+  await initSqlite();
+  const cleanSql = adaptQuery(sql);
+  const cleanParams = Array.isArray(params) ? params : [params];
+  const isSelect = /^\s*(SELECT|PRAGMA|EXPLAIN)/i.test(cleanSql);
 
-    const isSelect = /^\s*(SELECT|PRAGMA|EXPLAIN)/i.test(cleanSql);
-
-    if (isSelect) {
-      const rows = await allSqlite(cleanSql, cleanParams);
-      // Map SQLite row objects if needed
-      return rows;
-    } else {
-      const res = await runSqlite(cleanSql, cleanParams);
-      return [res];
-    }
+  if (isSelect) {
+    const rows = await allSqlite(cleanSql, cleanParams);
+    return [rows, null];
+  } else {
+    const res = await runSqlite(cleanSql, cleanParams);
+    return [res, null];
   }
 }
 
-// Try MySQL connection asynchronously at startup
+// Try MySQL if DB_HOST is configured
 async function initDatabase() {
-  try {
-    mysqlPool = mysql.createPool({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '123456',
-      database: process.env.DB_NAME || 'ban_hang_db',
-      port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
-      waitForConnections: true,
-      connectionLimit: 10,
-      connectTimeout: 3000
-    });
+  if (process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.USE_MYSQL === 'true') {
+    try {
+      mysqlPool = mysql.createPool({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'ban_hang_db',
+        port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
+        waitForConnections: true,
+        connectionLimit: 10,
+        connectTimeout: 4000
+      });
 
-    const conn = await mysqlPool.getConnection();
-    conn.release();
-    mode = 'MYSQL';
-    console.log('✅ Connected to MySQL Database');
-  } catch (err) {
-    console.log('ℹ️ MySQL not available (or Cloud Server), switching to Embedded SQLite DB');
-    await initSqlite();
+      const conn = await mysqlPool.getConnection();
+      conn.release();
+      mode = 'MYSQL';
+      console.log('✅ Connected to Remote MySQL Database');
+      return;
+    } catch (err) {
+      console.log('ℹ️ Remote MySQL unavailable, using SQLite');
+    }
   }
+
+  // Otherwise, use SQLite
+  await initSqlite();
 }
 
-// Initialize on start
 initDatabase().catch(err => console.error('Database initialization error:', err));
 
 module.exports = {
