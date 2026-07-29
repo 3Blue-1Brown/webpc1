@@ -149,6 +149,13 @@
       "is_noi_bat": 0,
       "is_moi": 0,
       "is_flash_sale": 0
+    },
+    {
+      "id": 26,
+      "id_danh_muc": 5,
+      "ten_san_pham": "Test Product",
+      "gia": 500000,
+      "so_luong": 10
     }
   ],
   "anh_san_pham": [
@@ -223,8 +230,6 @@
       "status": "active"
     }
   ],
-  "lich_su_hoat_dong": [],
-  "lien_he": [],
   "users": [
     {
       "id": 1,
@@ -250,5 +255,8 @@
       "chuc_vu": "manager",
       "status": "active"
     }
-  ]
+  ],
+  "lich_su_hoat_dong": [],
+  "lien_he": [],
+  "thong_so_san_pham": []
 }

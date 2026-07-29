@@ -21,8 +21,10 @@ let store = {
   chi_tiet_don_hang: [],
   banners: [],
   tai_khoan: [],
+  users: [],
   lich_su_hoat_dong: [],
-  lien_he: []
+  lien_he: [],
+  thong_so_san_pham: []
 };
 
 function saveStore() {
@@ -38,144 +40,19 @@ function loadStore() {
     try {
       const raw = fs.readFileSync(storePath, 'utf8');
       const loaded = JSON.parse(raw);
-      if (loaded && Array.isArray(loaded.san_pham) && loaded.san_pham.length > 0 && Array.isArray(loaded.anh_san_pham) && loaded.anh_san_pham.length > 0) {
+      if (loaded) {
         store = { ...store, ...loaded };
-      } else {
-        initSeedStore();
       }
     } catch (e) {
-      initSeedStore();
+      console.warn('Warning reading store file:', e.message);
     }
-  } else {
-    initSeedStore();
   }
 
   // Ensure array safety
-  if (!Array.isArray(store.danh_muc)) store.danh_muc = [];
-  if (!Array.isArray(store.san_pham)) store.san_pham = [];
-  if (!Array.isArray(store.anh_san_pham)) store.anh_san_pham = [];
-  if (!Array.isArray(store.don_hang)) store.don_hang = [];
-  if (!Array.isArray(store.chi_tiet_don_hang)) store.chi_tiet_don_hang = [];
-  if (!Array.isArray(store.banners)) store.banners = [];
-  if (!Array.isArray(store.tai_khoan)) store.tai_khoan = [];
-  if (!Array.isArray(store.lich_su_hoat_dong)) store.lich_su_hoat_dong = [];
-  if (!Array.isArray(store.lien_he)) store.lien_he = [];
-}
-
-function initSeedStore() {
-  const hashedPassword = bcrypt.hashSync('123456', 10);
-
-  store = {
-    danh_muc: [
-      { id: 1, ten_danh_muc: 'Laptop', mo_ta: 'Laptop văn phòng, Gaming, Workstation' },
-      { id: 2, ten_danh_muc: 'PC Gaming', mo_ta: 'Máy tính chơi game & Workstation đồ họa' },
-      { id: 3, ten_danh_muc: 'Linh kiện PC', mo_ta: 'CPU, RAM, VGA, Mainboard, SSD, Nguồn' },
-      { id: 4, ten_danh_muc: 'Màn hình', mo_ta: 'Màn hình máy tính 144Hz, 4K' }
-    ],
-    san_pham: [
-      {
-        id: 1,
-        ten_san_pham: 'CPU Intel Core i5 13400F (Up To 4.6GHz, 10 Nhân 16 Luồng)',
-        id_danh_muc: 3,
-        hang_san_xuat: 'Intel',
-        gia: 4890000,
-        gia_khuyen_mai: 4590000,
-        so_luong: 20,
-        trang_thai: 1,
-        is_noi_bat: 1,
-        is_moi: 1,
-        is_flash_sale: 1,
-        mo_ta: 'Socket: LGA1700\nSố nhân: 10 Nhân\nSố luồng: 16 Luồng\nXung nhịp: Up to 4.6 GHz\nCache: 20MB\nBảo hành: 36 Tháng\nCPU Intel Core i5 13400F hiệu năng cao dành cho PC chơi game và làm việc đồ họa.',
-        thong_so: '{}',
-        is_deleted: 0
-      },
-      {
-        id: 2,
-        ten_san_pham: 'CPU Intel Core i7 14700K (Up To 5.6GHz, 20 Nhân 28 Luồng)',
-        id_danh_muc: 3,
-        hang_san_xuat: 'Intel',
-        gia: 10890000,
-        gia_khuyen_mai: 10290000,
-        so_luong: 15,
-        trang_thai: 1,
-        is_noi_bat: 1,
-        is_moi: 1,
-        is_flash_sale: 0,
-        mo_ta: 'Socket: LGA1700\nSố nhân: 20 Nhân\nSố luồng: 28 Luồng\nXung nhịp: Up to 5.6 GHz\nCache: 33MB\nBảo hành: 36 Tháng\nCPU Intel Core i7 14700K đỉnh cao đồ họa 3D và Gaming chuyên nghiệp.',
-        thong_so: '{}',
-        is_deleted: 0
-      },
-      {
-        id: 3,
-        ten_san_pham: 'Card Màn Hình VGA NVIDIA RTX 4060 8GB GDDR6',
-        id_danh_muc: 3,
-        hang_san_xuat: 'NVIDIA',
-        gia: 8590000,
-        gia_khuyen_mai: 7990000,
-        so_luong: 12,
-        trang_thai: 1,
-        is_noi_bat: 1,
-        is_moi: 0,
-        is_flash_sale: 1,
-        mo_ta: 'VRAM: 8GB GDDR6\nBus Memory: 128-bit\nCổng kết nối: HDMI, DisplayPort\nBảo hành: 36 Tháng\nCard đồ họa thế hệ RTX 40 series hỗ trợ DLSS 3 và Ray Tracing cực đỉnh.',
-        thong_so: '{}',
-        is_deleted: 0
-      },
-      {
-        id: 4,
-        ten_san_pham: 'RAM PC DDR4 16GB Bus 3200MHz Kingston Fury Beast',
-        id_danh_muc: 3,
-        hang_san_xuat: 'Kingston',
-        gia: 1050000,
-        gia_khuyen_mai: 890000,
-        so_luong: 30,
-        trang_thai: 1,
-        is_noi_bat: 0,
-        is_moi: 1,
-        is_flash_sale: 0,
-        mo_ta: 'Loại RAM: DDR4\nDung lượng: 16GB\nBus: 3200MHz\nĐiện áp: 1.35V\nBảo hành: 36 Tháng',
-        thong_so: '{}',
-        is_deleted: 0
-      },
-      {
-        id: 5,
-        ten_san_pham: 'Màn Hình Gaming ASUS TUF 27 Inch 180Hz IPS 1ms',
-        id_danh_muc: 4,
-        hang_san_xuat: 'ASUS',
-        gia: 4590000,
-        gia_khuyen_mai: 3990000,
-        so_luong: 10,
-        trang_thai: 1,
-        is_noi_bat: 1,
-        is_moi: 1,
-        is_flash_sale: 1,
-        mo_ta: 'Kích thước: 27 Inch\nTấm nền: Fast IPS\nTần số quét: 180Hz\nThời gian phản hồi: 1ms\nĐộ phân giải: Full HD\nBảo hành: 36 Tháng',
-        thong_so: '{}',
-        is_deleted: 0
-      }
-    ],
-    anh_san_pham: [
-      { id: 1, id_san_pham: 1, duong_dan: 'uploads/products/cpu_pc.webp', anh_chinh: 1 },
-      { id: 2, id_san_pham: 2, duong_dan: 'uploads/products/cpu_server.webp', anh_chinh: 1 },
-      { id: 3, id_san_pham: 3, duong_dan: 'uploads/products/gpu.webp', anh_chinh: 1 },
-      { id: 4, id_san_pham: 4, duong_dan: 'uploads/products/ram_pc.webp', anh_chinh: 1 },
-      { id: 5, id_san_pham: 5, duong_dan: 'uploads/products/monitor.webp', anh_chinh: 1 }
-    ],
-    don_hang: [],
-    chi_tiet_don_hang: [],
-    banners: [
-      { id: 1, tieu_de: 'Siêu Khuyến Mãi Linh Kiện Máy Tính 2026', duong_dan_anh: 'flash_banner1.png', lien_ket: '#', thu_tu: 1, trang_thai: 1 },
-      { id: 2, tieu_de: 'PC Gaming & Workstation Đồ Họa Đỉnh Cao', duong_dan_anh: 'banner2.png', lien_ket: '#', thu_tu: 2, trang_thai: 1 }
-    ],
-    tai_khoan: [
-      { id: 1, ten_dang_nhap: 'admin', mat_khau: hashedPassword, ho_ten: 'Quản Trị Viên Hệ Thống', chuc_vu: 'admin' },
-      { id: 2, ten_dang_nhap: 'manager', mat_khau: hashedPassword, ho_ten: 'Nhân Viên Manager', chuc_vu: 'manager' }
-    ],
-    lich_su_hoat_dong: [],
-    lien_he: []
-  };
-
-  saveStore();
+  const keys = ['danh_muc', 'san_pham', 'anh_san_pham', 'don_hang', 'chi_tiet_don_hang', 'banners', 'tai_khoan', 'users', 'lich_su_hoat_dong', 'lien_he', 'thong_so_san_pham'];
+  keys.forEach(k => {
+    if (!Array.isArray(store[k])) store[k] = [];
+  });
 }
 
 loadStore();
@@ -195,9 +72,11 @@ function executePureJsQuery(sql, params = []) {
     else if (lowerSql.includes('from don_hang')) tableName = 'don_hang';
     else if (lowerSql.includes('from chi_tiet_don_hang')) tableName = 'chi_tiet_don_hang';
     else if (lowerSql.includes('from tai_khoan')) tableName = 'tai_khoan';
+    else if (lowerSql.includes('from users')) tableName = 'users';
     else if (lowerSql.includes('from lich_su_hoat_dong')) tableName = 'lich_su_hoat_dong';
     else if (lowerSql.includes('from anh_san_pham')) tableName = 'anh_san_pham';
     else if (lowerSql.includes('from lien_he')) tableName = 'lien_he';
+    else if (lowerSql.includes('from thong_so_san_pham')) tableName = 'thong_so_san_pham';
     else {
       const fromMatch = cleanSql.match(/FROM\s+([a-zA-Z0-9_]+)/i);
       if (fromMatch) tableName = fromMatch[1].trim();
@@ -221,7 +100,7 @@ function executePureJsQuery(sql, params = []) {
         return {
           ...p,
           ten_danh_muc: cat ? cat.ten_danh_muc : '',
-          duong_dan_anh: img ? img.duong_dan : ''
+          duong_dan_anh: img ? img.duong_dan : '/uploads/products/cpu_pc.webp'
         };
       });
     }
@@ -246,11 +125,11 @@ function executePureJsQuery(sql, params = []) {
       items = items.filter(i => Number(i.id_san_pham) === targetSpId);
     }
 
-    // Filter by ten_dang_nhap
-    const userMatch = cleanSql.match(/WHERE\s+ten_dang_nhap\s*=\s*\?/i);
+    // Filter by ten_dang_nhap or username
+    const userMatch = cleanSql.match(/WHERE\s+(?:username|ten_dang_nhap)\s*=\s*\?/i);
     if (userMatch && params.length > 0) {
       const targetUser = String(params[0]).toLowerCase();
-      items = items.filter(i => String(i.ten_dang_nhap).toLowerCase() === targetUser);
+      items = items.filter(i => String(i.username || i.ten_dang_nhap).toLowerCase() === targetUser);
     }
 
     // Filter active banners
@@ -280,7 +159,9 @@ function executePureJsQuery(sql, params = []) {
     const intoMatch = cleanSql.match(/INSERT\s+INTO\s+([a-zA-Z0-9_]+)/i);
     const tableName = intoMatch ? intoMatch[1].trim() : '';
 
-    if (!Array.isArray(store[tableName])) store[tableName] = [];
+    if (!store[tableName] || !Array.isArray(store[tableName])) {
+      store[tableName] = [];
+    }
 
     const newId = store[tableName].length > 0 ? Math.max(...store[tableName].map(i => Number(i.id) || 0)) + 1 : 1;
     const newObj = { id: newId };
@@ -399,7 +280,10 @@ module.exports = {
     return {
       query: query,
       execute: query,
-      release: () => {}
+      release: () => {},
+      beginTransaction: async () => {},
+      commit: async () => {},
+      rollback: async () => {}
     };
   }
 };
