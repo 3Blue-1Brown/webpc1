@@ -1,0 +1,176 @@
+{
+  "danh_muc": [
+    {
+      "id": 1,
+      "ten_danh_muc": "Laptop",
+      "mo_ta": "Laptop văn phòng, Gaming, Workstation"
+    },
+    {
+      "id": 2,
+      "ten_danh_muc": "PC Gaming",
+      "mo_ta": "Máy tính chơi game & Workstation đồ họa"
+    },
+    {
+      "id": 3,
+      "ten_danh_muc": "Linh kiện PC",
+      "mo_ta": "CPU, RAM, VGA, Mainboard, SSD, Nguồn"
+    },
+    {
+      "id": 4,
+      "ten_danh_muc": "Màn hình",
+      "mo_ta": "Màn hình máy tính 144Hz, 4K"
+    }
+  ],
+  "san_pham": [
+    {
+      "id": 1,
+      "ten_san_pham": "CPU Intel Core i5 13400F (Up To 4.6GHz, 10 Nhân 16 Luồng)",
+      "id_danh_muc": 3,
+      "hang_san_xuat": "Intel",
+      "gia": 4890000,
+      "gia_khuyen_mai": 4590000,
+      "so_luong": 20,
+      "trang_thai": 1,
+      "is_noi_bat": 1,
+      "is_moi": 1,
+      "is_flash_sale": 1,
+      "mo_ta": "Socket: LGA1700\nSố nhân: 10 Nhân\nSố luồng: 16 Luồng\nXung nhịp: Up to 4.6 GHz\nCache: 20MB\nBảo hành: 36 Tháng\nCPU Intel Core i5 13400F hiệu năng cao dành cho PC chơi game và làm việc đồ họa.",
+      "thong_so": "{}",
+      "is_deleted": 0
+    },
+    {
+      "id": 2,
+      "ten_san_pham": "CPU Intel Core i7 14700K (Up To 5.6GHz, 20 Nhân 28 Luồng)",
+      "id_danh_muc": 3,
+      "hang_san_xuat": "Intel",
+      "gia": 10890000,
+      "gia_khuyen_mai": 10290000,
+      "so_luong": 15,
+      "trang_thai": 1,
+      "is_noi_bat": 1,
+      "is_moi": 1,
+      "is_flash_sale": 0,
+      "mo_ta": "Socket: LGA1700\nSố nhân: 20 Nhân\nSố luồng: 28 Luồng\nXung nhịp: Up to 5.6 GHz\nCache: 33MB\nBảo hành: 36 Tháng\nCPU Intel Core i7 14700K đỉnh cao đồ họa 3D và Gaming chuyên nghiệp.",
+      "thong_so": "{}",
+      "is_deleted": 0
+    },
+    {
+      "id": 3,
+      "ten_san_pham": "Card Màn Hình VGA NVIDIA RTX 4060 8GB GDDR6",
+      "id_danh_muc": 3,
+      "hang_san_xuat": "NVIDIA",
+      "gia": 8590000,
+      "gia_khuyen_mai": 7990000,
+      "so_luong": 12,
+      "trang_thai": 1,
+      "is_noi_bat": 1,
+      "is_moi": 0,
+      "is_flash_sale": 1,
+      "mo_ta": "VRAM: 8GB GDDR6\nBus Memory: 128-bit\nCổng kết nối: HDMI, DisplayPort\nBảo hành: 36 Tháng\nCard đồ họa thế hệ RTX 40 series hỗ trợ DLSS 3 và Ray Tracing cực đỉnh.",
+      "thong_so": "{}",
+      "is_deleted": 0
+    },
+    {
+      "id": 4,
+      "ten_san_pham": "RAM PC DDR4 16GB Bus 3200MHz Kingston Fury Beast",
+      "id_danh_muc": 3,
+      "hang_san_xuat": "Kingston",
+      "gia": 1050000,
+      "gia_khuyen_mai": 890000,
+      "so_luong": 30,
+      "trang_thai": 1,
+      "is_noi_bat": 0,
+      "is_moi": 1,
+      "is_flash_sale": 0,
+      "mo_ta": "Loại RAM: DDR4\nDung lượng: 16GB\nBus: 3200MHz\nĐiện áp: 1.35V\nBảo hành: 36 Tháng",
+      "thong_so": "{}",
+      "is_deleted": 0
+    },
+    {
+      "id": 5,
+      "ten_san_pham": "Màn Hình Gaming ASUS TUF 27 Inch 180Hz IPS 1ms",
+      "id_danh_muc": 4,
+      "hang_san_xuat": "ASUS",
+      "gia": 4590000,
+      "gia_khuyen_mai": 3990000,
+      "so_luong": 10,
+      "trang_thai": 1,
+      "is_noi_bat": 1,
+      "is_moi": 1,
+      "is_flash_sale": 1,
+      "mo_ta": "Kích thước: 27 Inch\nTấm nền: Fast IPS\nTần số quét: 180Hz\nThời gian phản hồi: 1ms\nĐộ phân giải: Full HD\nBảo hành: 36 Tháng",
+      "thong_so": "{}",
+      "is_deleted": 0
+    }
+  ],
+  "anh_san_pham": [
+    {
+      "id": 1,
+      "id_san_pham": 1,
+      "duong_dan": "uploads/products/cpu_pc.webp",
+      "anh_chinh": 1
+    },
+    {
+      "id": 2,
+      "id_san_pham": 2,
+      "duong_dan": "uploads/products/cpu_server.webp",
+      "anh_chinh": 1
+    },
+    {
+      "id": 3,
+      "id_san_pham": 3,
+      "duong_dan": "uploads/products/gpu.webp",
+      "anh_chinh": 1
+    },
+    {
+      "id": 4,
+      "id_san_pham": 4,
+      "duong_dan": "uploads/products/ram_pc.webp",
+      "anh_chinh": 1
+    },
+    {
+      "id": 5,
+      "id_san_pham": 5,
+      "duong_dan": "uploads/products/monitor.webp",
+      "anh_chinh": 1
+    }
+  ],
+  "don_hang": [],
+  "chi_tiet_don_hang": [],
+  "banners": [
+    {
+      "id": 1,
+      "tieu_de": "Siêu Khuyến Mãi Linh Kiện Máy Tính 2026",
+      "duong_dan_anh": "flash_banner1.png",
+      "lien_ket": "#",
+      "thu_tu": 1,
+      "trang_thai": 1
+    },
+    {
+      "id": 2,
+      "tieu_de": "PC Gaming & Workstation Đồ Họa Đỉnh Cao",
+      "duong_dan_anh": "banner2.png",
+      "lien_ket": "#",
+      "thu_tu": 2,
+      "trang_thai": 1
+    }
+  ],
+  "tai_khoan": [
+    {
+      "id": 1,
+      "ten_dang_nhap": "admin",
+      "mat_khau": "$2a$10$.I7t5y/Mnmk6.mxG1tHRIOFyOfIe7orD.YTN4I9drxEWfx/9sguvq",
+      "ho_ten": "Quản Trị Viên Hệ Thống",
+      "chuc_vu": "admin"
+    },
+    {
+      "id": 2,
+      "ten_dang_nhap": "manager",
+      "mat_khau": "$2a$10$.I7t5y/Mnmk6.mxG1tHRIOFyOfIe7orD.YTN4I9drxEWfx/9sguvq",
+      "ho_ten": "Nhân Viên Manager",
+      "chuc_vu": "manager"
+    }
+  ],
+  "lich_su_hoat_dong": [],
+  "lien_he": []
+}

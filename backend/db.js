@@ -1,249 +1,368 @@
 // db.js
-// Universal Database Module: Fast embedded SQLite with MySQL compatibility wrapper
+// Universal Pure JavaScript Database Engine (0 Native C Dependencies, 0 GLIBC Errors)
+// Supports MySQL if remote DB configured, or embedded Pure JS Data Store for Render Cloud
 const mysql = require('mysql2/promise');
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-let mode = 'SQLITE'; // Default to SQLite for 0ms instant startup & Cloud compatibility
+let mode = 'PURE_JS';
 let mysqlPool = null;
-let sqliteDb = null;
-let sqliteInitPromise = null;
 
-const sqlitePath = path.join(__dirname, 'database.sqlite');
+const storePath = path.join(__dirname, 'data_store.json');
 
-function initSqlite() {
-  if (sqliteInitPromise) return sqliteInitPromise;
+// Memory Data Store
+let store = {
+  danh_muc: [],
+  san_pham: [],
+  anh_san_pham: [],
+  don_hang: [],
+  chi_tiet_don_hang: [],
+  banners: [],
+  tai_khoan: [],
+  lich_su_hoat_dong: [],
+  lien_he: []
+};
 
-  sqliteInitPromise = new Promise((resolve, reject) => {
-    sqliteDb = new sqlite3.Database(sqlitePath, async (err) => {
-      if (err) return reject(err);
-      console.log('⚡ SQLite Database connected:', sqlitePath);
-      try {
-        await setupSqliteTables();
-        resolve();
-      } catch (setupErr) {
-        reject(setupErr);
+function saveStore() {
+  try {
+    fs.writeFileSync(storePath, JSON.stringify(store, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error saving data_store.json:', err.message);
+  }
+}
+
+function loadStore() {
+  if (fs.existsSync(storePath)) {
+    try {
+      const raw = fs.readFileSync(storePath, 'utf8');
+      const loaded = JSON.parse(raw);
+      if (loaded && Array.isArray(loaded.san_pham) && loaded.san_pham.length > 0 && Array.isArray(loaded.anh_san_pham) && loaded.anh_san_pham.length > 0) {
+        store = { ...store, ...loaded };
+      } else {
+        initSeedStore();
       }
-    });
-  });
-
-  return sqliteInitPromise;
-}
-
-function runSqlite(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    sqliteDb.run(sql, params, function (err) {
-      if (err) return reject(err);
-      resolve({ insertId: this.lastID, affectedRows: this.changes });
-    });
-  });
-}
-
-function allSqlite(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    sqliteDb.all(sql, params, (err, rows) => {
-      if (err) return reject(err);
-      resolve(rows || []);
-    });
-  });
-}
-
-async function setupSqliteTables() {
-  await runSqlite(`CREATE TABLE IF NOT EXISTS danh_muc (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ten_danh_muc TEXT NOT NULL,
-    mo_ta TEXT
-  )`);
-
-  await runSqlite(`CREATE TABLE IF NOT EXISTS san_pham (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ten_san_pham TEXT NOT NULL,
-    id_danh_muc INTEGER,
-    hang_san_xuat TEXT,
-    gia REAL NOT NULL,
-    gia_khuyen_mai REAL,
-    so_luong INTEGER DEFAULT 10,
-    trang_thai INTEGER DEFAULT 1,
-    is_noi_bat INTEGER DEFAULT 0,
-    is_moi INTEGER DEFAULT 0,
-    is_flash_sale INTEGER DEFAULT 0,
-    mo_ta TEXT,
-    thong_so TEXT,
-    is_deleted INTEGER DEFAULT 0
-  )`);
-
-  await runSqlite(`CREATE TABLE IF NOT EXISTS anh_san_pham (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_san_pham INTEGER NOT NULL,
-    duong_dan TEXT NOT NULL,
-    anh_chinh INTEGER DEFAULT 0
-  )`);
-
-  await runSqlite(`CREATE TABLE IF NOT EXISTS don_hang (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ten_khach_hang TEXT,
-    so_dien_thoai TEXT,
-    dia_chi TEXT,
-    phuong_thuc_nhan_hang TEXT,
-    phuong_thuc_thanh_toan TEXT,
-    tong_tien REAL DEFAULT 0,
-    trang_thai_don_hang TEXT DEFAULT 'Mới',
-    trang_thai TEXT DEFAULT 'Mới',
-    ghi_chu TEXT,
-    ngay_dat DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
-
-  await runSqlite(`CREATE TABLE IF NOT EXISTS chi_tiet_don_hang (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_don_hang INTEGER NOT NULL,
-    id_san_pham INTEGER NOT NULL,
-    so_luong INTEGER DEFAULT 1,
-    don_gia REAL DEFAULT 0
-  )`);
-
-  await runSqlite(`CREATE TABLE IF NOT EXISTS banners (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tieu_de TEXT,
-    duong_dan_anh TEXT NOT NULL,
-    lien_ket TEXT DEFAULT '#',
-    thu_tu INTEGER DEFAULT 0,
-    trang_thai INTEGER DEFAULT 1
-  )`);
-
-  await runSqlite(`CREATE TABLE IF NOT EXISTS tai_khoan (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ten_dang_nhap TEXT UNIQUE NOT NULL,
-    mat_khau TEXT NOT NULL,
-    ho_ten TEXT,
-    chuc_vu TEXT DEFAULT 'manager'
-  )`);
-
-  await runSqlite(`CREATE TABLE IF NOT EXISTS lich_su_hoat_dong (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ten_nguoi_dung TEXT,
-    hanh_dong TEXT,
-    loai_doi_tuong TEXT,
-    chi_tiet TEXT,
-    thoi_gian DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
-
-  // Seed sample categories
-  const cats = await allSqlite('SELECT COUNT(*) as count FROM danh_muc');
-  if (cats[0].count === 0) {
-    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['Laptop', 'Laptop văn phòng, Gaming, Workstation']);
-    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['PC Gaming', 'Máy tính chơi game & Workstation đồ họa']);
-    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['Linh kiện PC', 'CPU, RAM, VGA, Mainboard, SSD, Nguồn']);
-    await runSqlite('INSERT INTO danh_muc (ten_danh_muc, mo_ta) VALUES (?, ?)', ['Màn hình', 'Màn hình máy tính 144Hz, 4K']);
+    } catch (e) {
+      initSeedStore();
+    }
+  } else {
+    initSeedStore();
   }
 
-  // Seed sample products
-  const prods = await allSqlite('SELECT COUNT(*) as count FROM san_pham');
-  if (prods[0].count === 0) {
-    const sampleProducts = [
-      {
-        ten: 'CPU Intel Core i5 13400F (Up To 4.6GHz, 10 Nhân 16 Luồng)',
-        cat: 3, brand: 'Intel', gia: 4890000, km: 4590000,
-        desc: 'Socket: LGA1700\nSố nhân: 10 Nhân\nSố luồng: 16 Luồng\nXung nhịp: Up to 4.6 GHz\nCache: 20MB\nBảo hành: 36 Tháng\nCPU Intel Core i5 13400F hiệu năng cao dành cho PC chơi game và làm việc đồ họa.',
-        img: 'uploads/products/cpu_pc.webp', is_noi_bat: 1, is_moi: 1, is_flash: 1
-      },
-      {
-        ten: 'CPU Intel Core i7 14700K (Up To 5.6GHz, 20 Nhân 28 Luồng)',
-        cat: 3, brand: 'Intel', gia: 10890000, km: 10290000,
-        desc: 'Socket: LGA1700\nSố nhân: 20 Nhân\nSố luồng: 28 Luồng\nXung nhịp: Up to 5.6 GHz\nCache: 33MB\nBảo hành: 36 Tháng\nCPU Intel Core i7 14700K đỉnh cao đồ họa 3D và Gaming chuyên nghiệp.',
-        img: 'uploads/products/cpu_server.webp', is_noi_bat: 1, is_moi: 1, is_flash: 0
-      },
-      {
-        ten: 'Card Màn Hình VGA NVIDIA RTX 4060 8GB GDDR6',
-        cat: 3, brand: 'NVIDIA', gia: 8590000, km: 7990000,
-        desc: 'VRAM: 8GB GDDR6\nBus Memory: 128-bit\nCổng kết nối: HDMI, DisplayPort\nBảo hành: 36 Tháng\nCard đồ họa thế hệ RTX 40 series hỗ trợ DLSS 3 và Ray Tracing cực đỉnh.',
-        img: 'uploads/products/gpu.webp', is_noi_bat: 1, is_moi: 0, is_flash: 1
-      },
-      {
-        ten: 'RAM PC DDR4 16GB Bus 3200MHz Kingston Fury Beast',
-        cat: 3, brand: 'Kingston', gia: 1050000, km: 890000,
-        desc: 'Loại RAM: DDR4\nDung lượng: 16GB\nBus: 3200MHz\nĐiện áp: 1.35V\nBảo hành: 36 Tháng',
-        img: 'uploads/products/ram_pc.webp', is_noi_bat: 0, is_moi: 1, is_flash: 0
-      },
-      {
-        ten: 'Màn Hình Gaming ASUS TUF 27 Inch 180Hz IPS 1ms',
-        cat: 4, brand: 'ASUS', gia: 4590000, km: 3990000,
-        desc: 'Kích thước: 27 Inch\nTấm nền: Fast IPS\nTần số quét: 180Hz\nThời gian phản hồi: 1ms\nĐộ phân giải: Full HD\nBảo hành: 36 Tháng',
-        img: 'uploads/products/monitor.webp', is_noi_bat: 1, is_moi: 1, is_flash: 1
-      }
-    ];
+  // Ensure array safety
+  if (!Array.isArray(store.danh_muc)) store.danh_muc = [];
+  if (!Array.isArray(store.san_pham)) store.san_pham = [];
+  if (!Array.isArray(store.anh_san_pham)) store.anh_san_pham = [];
+  if (!Array.isArray(store.don_hang)) store.don_hang = [];
+  if (!Array.isArray(store.chi_tiet_don_hang)) store.chi_tiet_don_hang = [];
+  if (!Array.isArray(store.banners)) store.banners = [];
+  if (!Array.isArray(store.tai_khoan)) store.tai_khoan = [];
+  if (!Array.isArray(store.lich_su_hoat_dong)) store.lich_su_hoat_dong = [];
+  if (!Array.isArray(store.lien_he)) store.lien_he = [];
+}
 
-    for (const p of sampleProducts) {
-      const res = await runSqlite(`INSERT INTO san_pham 
-        (ten_san_pham, id_danh_muc, hang_san_xuat, gia, gia_khuyen_mai, so_luong, trang_thai, is_noi_bat, is_moi, is_flash_sale, mo_ta, thong_so)
-        VALUES (?, ?, ?, ?, ?, 20, 1, ?, ?, ?, ?, '{}')`,
-        [p.ten, p.cat, p.brand, p.gia, p.km, p.is_noi_bat, p.is_moi, p.is_flash, p.desc]
-      );
-      await runSqlite('INSERT INTO anh_san_pham (id_san_pham, duong_dan, anh_chinh) VALUES (?, ?, 1)', [res.insertId, p.img]);
+function initSeedStore() {
+  const hashedPassword = bcrypt.hashSync('123456', 10);
+
+  store = {
+    danh_muc: [
+      { id: 1, ten_danh_muc: 'Laptop', mo_ta: 'Laptop văn phòng, Gaming, Workstation' },
+      { id: 2, ten_danh_muc: 'PC Gaming', mo_ta: 'Máy tính chơi game & Workstation đồ họa' },
+      { id: 3, ten_danh_muc: 'Linh kiện PC', mo_ta: 'CPU, RAM, VGA, Mainboard, SSD, Nguồn' },
+      { id: 4, ten_danh_muc: 'Màn hình', mo_ta: 'Màn hình máy tính 144Hz, 4K' }
+    ],
+    san_pham: [
+      {
+        id: 1,
+        ten_san_pham: 'CPU Intel Core i5 13400F (Up To 4.6GHz, 10 Nhân 16 Luồng)',
+        id_danh_muc: 3,
+        hang_san_xuat: 'Intel',
+        gia: 4890000,
+        gia_khuyen_mai: 4590000,
+        so_luong: 20,
+        trang_thai: 1,
+        is_noi_bat: 1,
+        is_moi: 1,
+        is_flash_sale: 1,
+        mo_ta: 'Socket: LGA1700\nSố nhân: 10 Nhân\nSố luồng: 16 Luồng\nXung nhịp: Up to 4.6 GHz\nCache: 20MB\nBảo hành: 36 Tháng\nCPU Intel Core i5 13400F hiệu năng cao dành cho PC chơi game và làm việc đồ họa.',
+        thong_so: '{}',
+        is_deleted: 0
+      },
+      {
+        id: 2,
+        ten_san_pham: 'CPU Intel Core i7 14700K (Up To 5.6GHz, 20 Nhân 28 Luồng)',
+        id_danh_muc: 3,
+        hang_san_xuat: 'Intel',
+        gia: 10890000,
+        gia_khuyen_mai: 10290000,
+        so_luong: 15,
+        trang_thai: 1,
+        is_noi_bat: 1,
+        is_moi: 1,
+        is_flash_sale: 0,
+        mo_ta: 'Socket: LGA1700\nSố nhân: 20 Nhân\nSố luồng: 28 Luồng\nXung nhịp: Up to 5.6 GHz\nCache: 33MB\nBảo hành: 36 Tháng\nCPU Intel Core i7 14700K đỉnh cao đồ họa 3D và Gaming chuyên nghiệp.',
+        thong_so: '{}',
+        is_deleted: 0
+      },
+      {
+        id: 3,
+        ten_san_pham: 'Card Màn Hình VGA NVIDIA RTX 4060 8GB GDDR6',
+        id_danh_muc: 3,
+        hang_san_xuat: 'NVIDIA',
+        gia: 8590000,
+        gia_khuyen_mai: 7990000,
+        so_luong: 12,
+        trang_thai: 1,
+        is_noi_bat: 1,
+        is_moi: 0,
+        is_flash_sale: 1,
+        mo_ta: 'VRAM: 8GB GDDR6\nBus Memory: 128-bit\nCổng kết nối: HDMI, DisplayPort\nBảo hành: 36 Tháng\nCard đồ họa thế hệ RTX 40 series hỗ trợ DLSS 3 và Ray Tracing cực đỉnh.',
+        thong_so: '{}',
+        is_deleted: 0
+      },
+      {
+        id: 4,
+        ten_san_pham: 'RAM PC DDR4 16GB Bus 3200MHz Kingston Fury Beast',
+        id_danh_muc: 3,
+        hang_san_xuat: 'Kingston',
+        gia: 1050000,
+        gia_khuyen_mai: 890000,
+        so_luong: 30,
+        trang_thai: 1,
+        is_noi_bat: 0,
+        is_moi: 1,
+        is_flash_sale: 0,
+        mo_ta: 'Loại RAM: DDR4\nDung lượng: 16GB\nBus: 3200MHz\nĐiện áp: 1.35V\nBảo hành: 36 Tháng',
+        thong_so: '{}',
+        is_deleted: 0
+      },
+      {
+        id: 5,
+        ten_san_pham: 'Màn Hình Gaming ASUS TUF 27 Inch 180Hz IPS 1ms',
+        id_danh_muc: 4,
+        hang_san_xuat: 'ASUS',
+        gia: 4590000,
+        gia_khuyen_mai: 3990000,
+        so_luong: 10,
+        trang_thai: 1,
+        is_noi_bat: 1,
+        is_moi: 1,
+        is_flash_sale: 1,
+        mo_ta: 'Kích thước: 27 Inch\nTấm nền: Fast IPS\nTần số quét: 180Hz\nThời gian phản hồi: 1ms\nĐộ phân giải: Full HD\nBảo hành: 36 Tháng',
+        thong_so: '{}',
+        is_deleted: 0
+      }
+    ],
+    anh_san_pham: [
+      { id: 1, id_san_pham: 1, duong_dan: 'uploads/products/cpu_pc.webp', anh_chinh: 1 },
+      { id: 2, id_san_pham: 2, duong_dan: 'uploads/products/cpu_server.webp', anh_chinh: 1 },
+      { id: 3, id_san_pham: 3, duong_dan: 'uploads/products/gpu.webp', anh_chinh: 1 },
+      { id: 4, id_san_pham: 4, duong_dan: 'uploads/products/ram_pc.webp', anh_chinh: 1 },
+      { id: 5, id_san_pham: 5, duong_dan: 'uploads/products/monitor.webp', anh_chinh: 1 }
+    ],
+    don_hang: [],
+    chi_tiet_don_hang: [],
+    banners: [
+      { id: 1, tieu_de: 'Siêu Khuyến Mãi Linh Kiện Máy Tính 2026', duong_dan_anh: 'flash_banner1.png', lien_ket: '#', thu_tu: 1, trang_thai: 1 },
+      { id: 2, tieu_de: 'PC Gaming & Workstation Đồ Họa Đỉnh Cao', duong_dan_anh: 'banner2.png', lien_ket: '#', thu_tu: 2, trang_thai: 1 }
+    ],
+    tai_khoan: [
+      { id: 1, ten_dang_nhap: 'admin', mat_khau: hashedPassword, ho_ten: 'Quản Trị Viên Hệ Thống', chuc_vu: 'admin' },
+      { id: 2, ten_dang_nhap: 'manager', mat_khau: hashedPassword, ho_ten: 'Nhân Viên Manager', chuc_vu: 'manager' }
+    ],
+    lich_su_hoat_dong: [],
+    lien_he: []
+  };
+
+  saveStore();
+}
+
+loadStore();
+
+// Pure JS Query Processor
+function executePureJsQuery(sql, params = []) {
+  const cleanSql = sql.trim();
+  const lowerSql = cleanSql.toLowerCase();
+
+  // 1. SELECT queries
+  if (lowerSql.startsWith('select')) {
+    let tableName = '';
+
+    if (lowerSql.includes('from san_pham')) tableName = 'san_pham';
+    else if (lowerSql.includes('from danh_muc')) tableName = 'danh_muc';
+    else if (lowerSql.includes('from banners')) tableName = 'banners';
+    else if (lowerSql.includes('from don_hang')) tableName = 'don_hang';
+    else if (lowerSql.includes('from chi_tiet_don_hang')) tableName = 'chi_tiet_don_hang';
+    else if (lowerSql.includes('from tai_khoan')) tableName = 'tai_khoan';
+    else if (lowerSql.includes('from lich_su_hoat_dong')) tableName = 'lich_su_hoat_dong';
+    else if (lowerSql.includes('from anh_san_pham')) tableName = 'anh_san_pham';
+    else if (lowerSql.includes('from lien_he')) tableName = 'lien_he';
+    else {
+      const fromMatch = cleanSql.match(/FROM\s+([a-zA-Z0-9_]+)/i);
+      if (fromMatch) tableName = fromMatch[1].trim();
+    }
+
+    if (tableName === 'sp') tableName = 'san_pham';
+    if (tableName === 'dm') tableName = 'danh_muc';
+
+    let items = (store[tableName] && Array.isArray(store[tableName])) ? [...store[tableName]] : [];
+
+    // Filter is_deleted
+    if (tableName === 'san_pham' && lowerSql.includes('is_deleted = 0')) {
+      items = items.filter(i => !i.is_deleted);
+    }
+
+    // Join category name and image for san_pham
+    if (tableName === 'san_pham') {
+      items = items.map(p => {
+        const cat = (store.danh_muc || []).find(c => c.id === Number(p.id_danh_muc));
+        const img = (store.anh_san_pham || []).find(a => a.id_san_pham === p.id && a.anh_chinh === 1) || (store.anh_san_pham || []).find(a => a.id_san_pham === p.id);
+        return {
+          ...p,
+          ten_danh_muc: cat ? cat.ten_danh_muc : '',
+          duong_dan_anh: img ? img.duong_dan : ''
+        };
+      });
+    }
+
+    // Filter by category if requested
+    if (tableName === 'san_pham' && lowerSql.includes('id_danh_muc =') && params.length > 0) {
+      const catId = Number(params[0]);
+      if (catId) items = items.filter(i => Number(i.id_danh_muc) === catId);
+    }
+
+    // Filter by ID
+    const idMatch = cleanSql.match(/WHERE\s+(?:sp\.)?id\s*=\s*\?/i);
+    if (idMatch && params.length > 0) {
+      const targetId = Number(params[0]);
+      items = items.filter(i => Number(i.id) === targetId);
+    }
+
+    // Filter by id_san_pham
+    const spIdMatch = cleanSql.match(/WHERE\s+id_san_pham\s*=\s*\?/i);
+    if (spIdMatch && params.length > 0) {
+      const targetSpId = Number(params[0]);
+      items = items.filter(i => Number(i.id_san_pham) === targetSpId);
+    }
+
+    // Filter by ten_dang_nhap
+    const userMatch = cleanSql.match(/WHERE\s+ten_dang_nhap\s*=\s*\?/i);
+    if (userMatch && params.length > 0) {
+      const targetUser = String(params[0]).toLowerCase();
+      items = items.filter(i => String(i.ten_dang_nhap).toLowerCase() === targetUser);
+    }
+
+    // Filter active banners
+    if (tableName === 'banners' && lowerSql.includes('trang_thai = 1')) {
+      items = items.filter(b => Number(b.trang_thai) === 1);
+    }
+
+    // Order by ID DESC / thu_tu ASC / thoi_gian DESC
+    if (lowerSql.includes('order by thu_tu asc')) {
+      items.sort((a, b) => Number(a.thu_tu || 0) - Number(b.thu_tu || 0));
+    } else if (lowerSql.includes('order by id desc')) {
+      items.sort((a, b) => Number(b.id) - Number(a.id));
+    } else if (lowerSql.includes('order by thoi_gian desc')) {
+      items.sort((a, b) => new Date(b.thoi_gian || 0) - new Date(a.thoi_gian || 0));
+    }
+
+    // COUNT query
+    if (lowerSql.includes('count(')) {
+      return [{ count: items.length }];
+    }
+
+    return items;
+  }
+
+  // 2. INSERT queries
+  if (lowerSql.startsWith('insert')) {
+    const intoMatch = cleanSql.match(/INSERT\s+INTO\s+([a-zA-Z0-9_]+)/i);
+    const tableName = intoMatch ? intoMatch[1].trim() : '';
+
+    if (!Array.isArray(store[tableName])) store[tableName] = [];
+
+    const newId = store[tableName].length > 0 ? Math.max(...store[tableName].map(i => Number(i.id) || 0)) + 1 : 1;
+    const newObj = { id: newId };
+
+    const colMatch = cleanSql.match(/\(([^)]+)\)\s+VALUES/i);
+    if (colMatch && params.length > 0) {
+      const cols = colMatch[1].split(',').map(c => c.trim().replace(/[`"]/g, ''));
+      cols.forEach((col, idx) => {
+        if (idx < params.length) {
+          newObj[col] = params[idx];
+        }
+      });
+    }
+
+    if (tableName === 'lich_su_hoat_dong' || tableName === 'don_hang') {
+      newObj.thoi_gian = new Date().toISOString();
+      newObj.ngay_dat = new Date().toISOString();
+    }
+
+    store[tableName].push(newObj);
+    saveStore();
+
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  // 3. UPDATE queries
+  if (lowerSql.startsWith('update')) {
+    const updateMatch = cleanSql.match(/UPDATE\s+([a-zA-Z0-9_]+)/i);
+    const tableName = updateMatch ? updateMatch[1].trim() : '';
+
+    if (store[tableName] && Array.isArray(store[tableName])) {
+      let affected = 0;
+      const targetId = params.length > 0 ? Number(params[params.length - 1]) : null;
+
+      if (targetId) {
+        const item = store[tableName].find(i => Number(i.id) === targetId);
+        if (item) {
+          if (lowerSql.includes('is_deleted = 1')) item.is_deleted = 1;
+          if (lowerSql.includes('trang_thai')) item.trang_thai = params[0];
+          if (lowerSql.includes('trang_thai_don_hang')) item.trang_thai_don_hang = params[0];
+
+          affected = 1;
+          saveStore();
+        }
+      }
+      return { insertId: 0, affectedRows: affected };
     }
   }
 
-  // Seed sample banners
-  const banners = await allSqlite('SELECT COUNT(*) as count FROM banners');
-  if (banners[0].count === 0) {
-    await runSqlite('INSERT INTO banners (tieu_de, duong_dan_anh, lien_ket, thu_tu, trang_thai) VALUES (?, ?, ?, 1, 1)',
-      ['Siêu Khuyến Mãi Linh Kiện Máy Tính 2026', 'flash_banner1.png', '#']
-    );
-    await runSqlite('INSERT INTO banners (tieu_de, duong_dan_anh, lien_ket, thu_tu, trang_thai) VALUES (?, ?, ?, 2, 1)',
-      ['PC Gaming & Workstation Đồ Họa Đỉnh Cao', 'banner2.png', '#']
-    );
+  // 4. DELETE queries
+  if (lowerSql.startsWith('delete')) {
+    const fromMatch = cleanSql.match(/FROM\s+([a-zA-Z0-9_]+)/i);
+    const tableName = fromMatch ? fromMatch[1].trim() : '';
+
+    if (store[tableName] && Array.isArray(store[tableName]) && params.length > 0) {
+      const targetId = Number(params[0]);
+      const initialLen = store[tableName].length;
+      store[tableName] = store[tableName].filter(i => Number(i.id) !== targetId);
+      saveStore();
+      return { insertId: 0, affectedRows: initialLen - store[tableName].length };
+    }
   }
 
-  // Seed admin user
-  const users = await allSqlite('SELECT COUNT(*) as count FROM tai_khoan');
-  if (users[0].count === 0) {
-    const bcrypt = require('bcryptjs');
-    const hashed = await bcrypt.hash('123456', 10);
-    await runSqlite('INSERT INTO tai_khoan (ten_dang_nhap, mat_khau, ho_ten, chuc_vu) VALUES (?, ?, ?, ?)',
-      ['admin', hashed, 'Quản Trị Viên Hệ Thống', 'admin']
-    );
-    await runSqlite('INSERT INTO tai_khoan (ten_dang_nhap, mat_khau, ho_ten, chuc_vu) VALUES (?, ?, ?, ?)',
-      ['manager', hashed, 'Nhân Viên Manager', 'manager']
-    );
-  }
+  return [];
 }
 
-// Adapt MySQL query syntax to SQLite
-function adaptQuery(sql) {
-  let s = sql;
-  s = s.replace(/NOW\(\)/gi, "CURRENT_TIMESTAMP");
-  s = s.replace(/ISNULL\(/gi, "IFNULL(");
-  s = s.replace(/LIMIT\s+(\d+)\s*,\s*(\d+)/gi, "LIMIT $2 OFFSET $1");
-  return s;
-}
-
-// Main Query method returning [rows, fields] format matching mysql2
+// Unified Query method returning [rows, null] matching mysql2
 async function query(sql, params = []) {
   if (mode === 'MYSQL' && mysqlPool) {
     try {
       return await mysqlPool.query(sql, params);
     } catch (err) {
-      console.warn('⚠️ MySQL Query Failed, switching to SQLite:', err.message);
-      mode = 'SQLITE';
+      console.warn('⚠️ Remote MySQL failed, using Pure JS Engine:', err.message);
+      mode = 'PURE_JS';
     }
   }
 
-  await initSqlite();
-  const cleanSql = adaptQuery(sql);
-  const cleanParams = Array.isArray(params) ? params : [params];
-  const isSelect = /^\s*(SELECT|PRAGMA|EXPLAIN)/i.test(cleanSql);
-
-  if (isSelect) {
-    const rows = await allSqlite(cleanSql, cleanParams);
-    return [rows, null];
-  } else {
-    const res = await runSqlite(cleanSql, cleanParams);
-    return [res, null];
-  }
+  const result = executePureJsQuery(sql, params);
+  return [result, null];
 }
 
-// Try MySQL if DB_HOST is configured
+// Optional Remote MySQL initialization
 async function initDatabase() {
   if (process.env.DB_HOST && process.env.DB_HOST !== 'localhost' && process.env.USE_MYSQL === 'true') {
     try {
@@ -255,7 +374,7 @@ async function initDatabase() {
         port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
         waitForConnections: true,
         connectionLimit: 10,
-        connectTimeout: 4000
+        connectTimeout: 3000
       });
 
       const conn = await mysqlPool.getConnection();
@@ -264,15 +383,14 @@ async function initDatabase() {
       console.log('✅ Connected to Remote MySQL Database');
       return;
     } catch (err) {
-      console.log('ℹ️ Remote MySQL unavailable, using SQLite');
+      console.log('ℹ️ Remote MySQL not configured, using Pure JS Database Engine');
     }
   }
 
-  // Otherwise, use SQLite
-  await initSqlite();
+  console.log('⚡ Using Pure JavaScript Embedded Database Engine (Zero C/GLIBC dependencies)');
 }
 
-initDatabase().catch(err => console.error('Database initialization error:', err));
+initDatabase().catch(err => console.error('DB init error:', err));
 
 module.exports = {
   query: query,
