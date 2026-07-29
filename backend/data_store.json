@@ -5,84 +5,84 @@
       "ten_danh_muc": "CPU SEVER",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/cpu_server.png"
+      "hinh_anh": "/uploads/products/cpu_server.webp"
     },
     {
       "id": 5,
       "ten_danh_muc": "CPU PC",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/cpu_pc.png"
+      "hinh_anh": "/uploads/products/cpu_pc.webp"
     },
     {
       "id": 6,
       "ten_danh_muc": "MAINBOARD PC",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/mainboard_pc.png"
+      "hinh_anh": "/uploads/products/mainboard_pc.webp"
     },
     {
       "id": 7,
       "ten_danh_muc": "MAINBOARD SEVER",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/mainboard_server.png"
+      "hinh_anh": "/uploads/products/cpu_server.webp"
     },
     {
       "id": 8,
       "ten_danh_muc": "RAM PC",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/ram_pc.png"
+      "hinh_anh": "/uploads/products/ram_pc.webp"
     },
     {
       "id": 9,
       "ten_danh_muc": "RAM SEVER",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/ram_server.png"
+      "hinh_anh": "/uploads/products/cpu_server.webp"
     },
     {
       "id": 10,
       "ten_danh_muc": "Ổ CỨNG SSD",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/ssd.png"
+      "hinh_anh": "/uploads/products/ssd.webp"
     },
     {
       "id": 11,
       "ten_danh_muc": "MÀN HÌNH MÁY TÍNH",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/monitor.jpg"
+      "hinh_anh": "/uploads/products/monitor.webp"
     },
     {
       "id": 12,
       "ten_danh_muc": "CARD ĐỒ HỌA",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/gpu.png"
+      "hinh_anh": "/uploads/products/gpu.webp"
     },
     {
       "id": 13,
       "ten_danh_muc": "NGUỒN MÁY TÍNH",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/psu.png"
+      "hinh_anh": "/uploads/products/psu.webp"
     },
     {
       "id": 14,
       "ten_danh_muc": "TẢN NHIỆT CPU",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/cpu_cooler.png"
+      "hinh_anh": "/uploads/products/cpu_cooler.webp"
     },
     {
       "id": 16,
       "ten_danh_muc": "VỎ MÁY TÍNH",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/pc_case.png"
+      "hinh_anh": "/uploads/products/pc_case.webp"
     }
   ],
   "san_pham": [
@@ -153,45 +153,27 @@
   ],
   "anh_san_pham": [
     {
-      "id": 39,
+      "id": 1,
       "id_san_pham": 20,
-      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQWEiuL1d7SlHK77hW5uM_K08DuxLoFRYytfumBBGClbZTo5inbDxNaZlHvH3DpRYLzeqYd-uno4koatwG-hVnxz-NnV3KRMXHZkR08at2DMuDvsLSuiFMEEUsgMPxAyNnQgWnbnAiTIS-evrRZhDCvU65TawDQTfSlKOAa34cN3i41cjZu-51MaEwOASKY=w16383",
+      "duong_dan": "/uploads/products/cpu_pc.webp",
       "anh_chinh": 1
     },
     {
-      "id": 40,
-      "id_san_pham": 20,
-      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQU1diRcrC8oycNOVMKBKcibfxcFfGa9NHkm_VcuhkkWq3_5plPC-CVBSk2D9cofCTSxZljhNzXUEdzLx225f2P599IuW8hSJdQdLALG8nKrU0LYp9tv8LsYCLArBZzjP3E02mt6P0XaRNHeLsHl_qO0j2yJatyxCAbXeNzuuJvra1rD-Frse_jlE1B2ing=w16383",
-      "anh_chinh": 0
-    },
-    {
-      "id": 41,
+      "id": 2,
       "id_san_pham": 21,
-      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQURUOfEQLW5rDDuhOR7B9qJrY5RFDo0ihf1uAA3xNLNWbIPFzqITSOAyjNr3dRs4EcLcAjkEAd9-hVzr6ErS1HOmGaTi2__v3gmj4vRZCBlK_814TNzNAnxcjm6UZK_nOB5zl7Lew7RNb4uFpC6cwxMFNJ-O2X19KAL8g8ztAiHYbBLkt1tl5Z6f2F10XU=w16383",
+      "duong_dan": "/uploads/products/cpu_pc.webp",
       "anh_chinh": 1
     },
     {
-      "id": 42,
-      "id_san_pham": 21,
-      "duong_dan": "https://lh3.googleusercontent.com/sitesv/AG8ngQV8UI9v8p8f1R3UqJL_lxtSbUC1JgFuYT7ew6b3FJV4Nk5Wxsdnp_Jm03XemJrcEtj0sWIl4t9OK5VdmKQmlIThDXyF7uPDmwFHYqG6K7CCy2_p4jcFgwzNQ-M7bJ2L6FqKthl63acXF16h47oRTaqqY1lwCiJOmh6vJ331WTyIPclO9CI7iQL-tiSFRd8=w16383",
-      "anh_chinh": 0
-    },
-    {
-      "id": 44,
+      "id": 3,
       "id_san_pham": 24,
-      "duong_dan": "uploads/products/downloaded-1784910241998-5467.png",
+      "duong_dan": "/uploads/products/cpu_pc.webp",
       "anh_chinh": 1
     },
     {
-      "id": 45,
-      "id_san_pham": 24,
-      "duong_dan": "uploads/products/downloaded-1784910242385-1557.jpg",
-      "anh_chinh": 0
-    },
-    {
-      "id": 46,
+      "id": 4,
       "id_san_pham": 25,
-      "duong_dan": "uploads/products/downloaded-1784917866387-8582.jpg",
+      "duong_dan": "/uploads/products/cpu_pc.webp",
       "anh_chinh": 1
     }
   ],
@@ -218,19 +200,55 @@
   "tai_khoan": [
     {
       "id": 1,
+      "username": "admin",
       "ten_dang_nhap": "admin",
-      "mat_khau": "$2a$10$ILk4tfu6GGBOvVsUOrF0yuyLF3hi9Vpa1Y4yKkOCKtLfJ3wz8WH76",
+      "password": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "mat_khau": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "fullname": "Quản Trị Viên Hệ Thống",
       "ho_ten": "Quản Trị Viên Hệ Thống",
-      "chuc_vu": "admin"
+      "role": "admin",
+      "chuc_vu": "admin",
+      "status": "active"
     },
     {
       "id": 2,
+      "username": "manager",
       "ten_dang_nhap": "manager",
-      "mat_khau": "$2a$10$ILk4tfu6GGBOvVsUOrF0yuyLF3hi9Vpa1Y4yKkOCKtLfJ3wz8WH76",
+      "password": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "mat_khau": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "fullname": "Nhân Viên Manager",
       "ho_ten": "Nhân Viên Manager",
-      "chuc_vu": "manager"
+      "role": "manager",
+      "chuc_vu": "manager",
+      "status": "active"
     }
   ],
   "lich_su_hoat_dong": [],
-  "lien_he": []
+  "lien_he": [],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "ten_dang_nhap": "admin",
+      "password": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "mat_khau": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "fullname": "Quản Trị Viên Hệ Thống",
+      "ho_ten": "Quản Trị Viên Hệ Thống",
+      "role": "admin",
+      "chuc_vu": "admin",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "username": "manager",
+      "ten_dang_nhap": "manager",
+      "password": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "mat_khau": "$2a$10$x.FoGxUGNApNzhgxZdQR.ecoRGqp4yvgjx5NyMWIw8Ff8Pj4BxJT.",
+      "fullname": "Nhân Viên Manager",
+      "ho_ten": "Nhân Viên Manager",
+      "role": "manager",
+      "chuc_vu": "manager",
+      "status": "active"
+    }
+  ]
 }
