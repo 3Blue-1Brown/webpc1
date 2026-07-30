@@ -168,25 +168,25 @@
         filtered = filtered.filter(p => p.is_flash_sale || (p.gia_khuyen_mai && Number(p.gia_khuyen_mai) < Number(p.gia)));
       }
 
-      // Filter by category group from URL (pc, server, linhkien)
+      // Filter by category group from URL (pc_gaming, server_ws, upgrade_accessories)
       const urlParams = new URLSearchParams(window.location.search);
       const groupParam = (urlParams.get('group') || '').toLowerCase();
-      if (groupParam === 'pc') {
+      if (groupParam === 'pc_gaming' || groupParam === 'pc') {
         filtered = filtered.filter(p => {
           const cat = (p.ten_danh_muc || '').toUpperCase();
           const nameStr = (p.ten_san_pham || '').toUpperCase();
-          return cat.includes('CPU PC') || cat.includes('MAINBOARD PC') || cat.includes('RAM PC') || nameStr.includes('PC') || nameStr.includes('GAMING');
+          return cat.includes('CPU PC') || cat.includes('MAINBOARD PC') || cat.includes('RAM PC') || cat.includes('CARD') || cat.includes('VỎ') || cat.includes('VO') || nameStr.includes('PC') || nameStr.includes('GAMING');
         });
-      } else if (groupParam === 'server' || groupParam === 'workstation') {
+      } else if (groupParam === 'server_ws' || groupParam === 'server' || groupParam === 'workstation') {
         filtered = filtered.filter(p => {
           const cat = (p.ten_danh_muc || '').toUpperCase();
           const nameStr = (p.ten_san_pham || '').toUpperCase();
           return cat.includes('SEVER') || cat.includes('SERVER') || cat.includes('WORKSTATION') || nameStr.includes('WORKSTATION') || nameStr.includes('SEVER');
         });
-      } else if (groupParam === 'linhkien') {
+      } else if (groupParam === 'upgrade_accessories' || groupParam === 'linhkien') {
         filtered = filtered.filter(p => {
           const cat = (p.ten_danh_muc || '').toUpperCase();
-          return cat.includes('SSD') || cat.includes('MÀN HÌNH') || cat.includes('MAN HINH') || cat.includes('CARD') || cat.includes('NGUỒN') || cat.includes('NGUON') || cat.includes('TẢN NHIỆT') || cat.includes('TAN NHIET') || cat.includes('VỎ') || cat.includes('VO');
+          return cat.includes('SSD') || cat.includes('MÀN HÌNH') || cat.includes('MAN HINH') || cat.includes('NGUỒN') || cat.includes('NGUON') || cat.includes('TẢN NHIỆT') || cat.includes('TAN NHIET');
         });
       }
 
