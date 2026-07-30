@@ -213,7 +213,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const userStr = localStorage.getItem('user');
   const mainNavUl = document.querySelector('.main-nav ul');
   if (mainNavUl) {
-    // Dynamic Failsafe Menu Icons Booster
+    // Dynamic Failsafe Menu Items & Icons Booster
+    if (!mainNavUl.querySelector('a[href*="pc-builder"]')) {
+      const prodLi = mainNavUl.querySelector('a[href*="products"]')?.parentElement;
+      const builderLi = document.createElement('li');
+      builderLi.innerHTML = '<a href="pc-builder.html">🛠️ Xây Dựng Cấu Hình</a>';
+      if (prodLi) {
+        prodLi.after(builderLi);
+      } else {
+        mainNavUl.appendChild(builderLi);
+      }
+    }
+
     const iconMap = {
       'index.html': '🏠',
       'categories.html': '📂',
