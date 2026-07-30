@@ -1,11 +1,15 @@
 const db = require('./db');
 
-async function initLogger() {
+async function initLogger(retryCount = 0) {
   try {
     await db.query('CREATE TABLE IF NOT EXISTS lich_su_hoat_dong (id INT AUTO_INCREMENT PRIMARY KEY, id_nguoi_dung INT NULL, ten_nguoi_dung VARCHAR(255) NULL, hanh_dong VARCHAR(100) NOT NULL, loai_doi_tuong VARCHAR(50) NOT NULL, id_doi_tuong INT NULL, chi_tiet TEXT NULL, thoi_gian DATETIME DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;');
-    console.log('Activity log table initialized');
+    console.log('✅ Activity log table initialized');
   } catch (err) {
-    console.error('Activity log table error:', err.message);
+    if (retryCount < 3) {
+      setTimeout(() => initLogger(retryCount + 1), 3000);
+    } else {
+      console.warn('ℹ️ Activity log table note:', err.message);
+    }
   }
 }
 

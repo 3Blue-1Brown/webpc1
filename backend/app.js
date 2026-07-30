@@ -46,15 +46,5 @@ app.use('/api/activity-logs', activityLogsRouter);
 app.use('/api/stats', statsRouter);
 
 
-// Test DB connection and run migrations before starting server
-db.getConnection()
-  .then(async conn => {
-    console.log('✅ Database is ready and online');
-    conn.release();
-  })
-  .catch(err => {
-    console.warn('ℹ️ DB initialization status:', err.message);
-  });
-
-// Always start the server so frontend works
+// Start the server
 app.listen(PORT, () => console.log(`🚀 Server listening on http://localhost:${PORT}`));

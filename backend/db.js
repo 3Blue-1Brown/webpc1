@@ -10,29 +10,28 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'bqkzt4ns3c4znylrimuv',
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
   waitForConnections: true,
-  connectionLimit: 5, // Up to 5 connections for Clever Cloud free max limit
+  connectionLimit: 3, // Reduced to 3 to stay within Clever Cloud max 5 connections during Render container restarts
   queueLimit: 1000,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000
 });
 
-// Periodic heartbeat (every 30s) to keep connections alive and prevent ETIMEDOUT / ECONNRESET on Clever Cloud
+// Periodic heartbeat (every 35s) to keep connections alive
 setInterval(async () => {
   try {
     await pool.query('SELECT 1');
   } catch (err) {
-    console.warn('⚠️ DB Heartbeat reconnecting...', err.message);
+    // Ignore transient heartbeat errors
   }
-}, 30000);
+}, 35000);
 
-// Test connection on load
-pool.getConnection()
-  .then(conn => {
+// Test connection on load gracefully
+pool.query('SELECT 1')
+  .then(() => {
     console.log('✅ Connected to Clever Cloud MySQL Database');
-    conn.release();
   })
   .catch(err => {
-    console.warn('⚠️ DB connection info:', err.message);
+    console.warn('ℹ️ DB initial connection note:', err.message);
   });
 
 module.exports = pool;
