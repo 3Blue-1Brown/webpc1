@@ -606,22 +606,46 @@
       <!-- Orders View -->
       <div id="orders-view" class="section-view">
         <div class="card">
-          <h3>Danh sách đơn hàng</h3>
-          <table>
-                        <thead>
-              <tr>
-                <th class="text-center" style="width: 80px;">Mã ĐH</th>
-                <th class="text-left">Khách hàng</th>
-                <th class="text-center" style="width: 180px;">Ngày đặt</th>
-                <th class="text-left" style="width: 140px; text-align:left !important;">Tổng tiền</th>
-                <th class="text-center" style="width: 140px;">Trạng thái</th>
-                <th class="text-center" style="width: 220px;">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="orders-tbody">
-              <tr><td colspan="6" style="text-align:center;">Đang tải...</td></tr>
-            </tbody>
-          </table>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap: 1rem;">
+            <h3>📦 Danh sách đơn hàng</h3>
+            <span id="order-count-summary" style="font-size:0.85rem; color:#64748b; font-weight:600; background:#f1f5f9; padding:4px 12px; border-radius:12px;">Đang tải...</span>
+          </div>
+
+          <!-- Filter & Search for Orders -->
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem; background:#f8fafc; padding:1rem; border-radius:10px; border:1px solid #e2e8f0;">
+            <div>
+              <label style="font-weight: 700; font-size:0.85rem; color:#374151;">🔍 Tìm kiếm đơn hàng</label><br>
+              <input type="text" id="order-search" placeholder="Mã đơn hàng, Tên KH, SĐT..." style="width:100%; padding:0.55rem; border:1px solid #cbd5e1; border-radius:6px; margin-top:4px; font-size:0.9rem;" oninput="renderFilteredOrders()">
+            </div>
+            <div>
+              <label style="font-weight: 700; font-size:0.85rem; color:#374151;">📌 Trạng thái đơn</label><br>
+              <select id="order-status-filter" style="width:100%; padding:0.55rem; border:1px solid #cbd5e1; border-radius:6px; margin-top:4px; font-size:0.9rem; background:#fff; cursor:pointer;" onchange="renderFilteredOrders()">
+                <option value="All">Tất cả trạng thái</option>
+                <option value="Mới">Mới</option>
+                <option value="Đang xử lý">Đang xử lý</option>
+                <option value="Hoàn thành">Hoàn thành</option>
+                <option value="Hủy">Hủy</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto; width: 100%;">
+            <table style="width: 100%; min-width: 800px;">
+              <thead>
+                <tr>
+                  <th class="text-center" style="width: 80px;">Mã ĐH</th>
+                  <th class="text-left">Khách hàng</th>
+                  <th class="text-center" style="width: 180px;">Ngày đặt</th>
+                  <th class="text-left" style="width: 140px; text-align:left !important;">Tổng tiền</th>
+                  <th class="text-center" style="width: 140px;">Trạng thái</th>
+                  <th class="text-center" style="width: 220px;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="orders-tbody">
+                <tr><td colspan="6" style="text-align:center;">Đang tải...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       
@@ -765,25 +789,45 @@
       <!-- Users View -->
       <div id="users-view" class="section-view">
         <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-            <h3>Quản lý Tài khoản</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+            <h3>👥 Quản lý Tài khoản</h3>
             <button class="btn-sm" id="btn-add-user" style="background:var(--orange); color:#fff; padding:0.6rem 1.2rem; font-weight:700; border-radius:6px;" onclick="openUserModal()">+ Thêm tài khoản mới</button>
           </div>
-          <table>
-                        <thead>
-              <tr>
-                <th class="text-center" style="width: 80px;">ID</th>
-                <th class="text-left" style="width: 200px;">Tên đăng nhập</th>
-                <th class="text-left">Họ và tên</th>
-                <th class="text-center" style="width: 150px;">Vai trò</th>
-                <th class="text-center" style="width: 150px;">Trạng thái</th>
-                <th class="text-center" style="width: 250px;">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="users-tbody">
-              <tr><td colspan="6" style="text-align:center;">Đang tải...</td></tr>
-            </tbody>
-          </table>
+
+          <!-- Filter & Search for Users -->
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem; background:#f8fafc; padding:1rem; border-radius:10px; border:1px solid #e2e8f0;">
+            <div>
+              <label style="font-weight: 700; font-size:0.85rem; color:#374151;">🔍 Tìm kiếm tài khoản</label><br>
+              <input type="text" id="user-search" placeholder="Tên đăng nhập, Họ tên, Email..." style="width:100%; padding:0.55rem; border:1px solid #cbd5e1; border-radius:6px; margin-top:4px; font-size:0.9rem;" oninput="renderFilteredUsers()">
+            </div>
+            <div>
+              <label style="font-weight: 700; font-size:0.85rem; color:#374151;">🔑 Vai trò</label><br>
+              <select id="user-role-filter" style="width:100%; padding:0.55rem; border:1px solid #cbd5e1; border-radius:6px; margin-top:4px; font-size:0.9rem; background:#fff; cursor:pointer;" onchange="renderFilteredUsers()">
+                <option value="All">Tất cả vai trò</option>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="customer">Khách hàng</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto; width: 100%;">
+            <table style="width: 100%; min-width: 800px;">
+              <thead>
+                <tr>
+                  <th class="text-center" style="width: 80px;">ID</th>
+                  <th class="text-left" style="width: 200px;">Tên đăng nhập</th>
+                  <th class="text-left">Họ và tên</th>
+                  <th class="text-center" style="width: 150px;">Vai trò</th>
+                  <th class="text-center" style="width: 150px;">Trạng thái</th>
+                  <th class="text-center" style="width: 250px;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr><td colspan="6" style="text-align:center;">Đang tải...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1451,6 +1495,8 @@
     } catch(e){}
 
     // 4. Orders CRUD
+    let cachedOrders = [];
+
     async function loadOrders() {
       try {
         const res = await fetch('/api/orders', { headers: authHeaders });
@@ -1458,46 +1504,64 @@
           if(res.status === 401 || res.status === 403) window.location.href = '/login.html';
           throw new Error('Lỗi lấy dữ liệu');
         }
-        const orders = await res.json();
-        
-        const tbody = document.getElementById('orders-tbody');
-        tbody.innerHTML = '';
-        if(orders.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Chưa có đơn hàng nào.</td></tr>';
-          return;
-        }
-
-        orders.forEach(o => {
-          let badgeClass = 'status-moi';
-          if(o.trang_thai === 'Đang xử lý') badgeClass = 'status-dang-xu-ly';
-          if(o.trang_thai === 'Hoàn thành') badgeClass = 'status-hoan-thanh';
-          if(o.trang_thai === 'Hủy') badgeClass = 'status-huy';
-          
-          const dateStr = new Date(o.ngay_dat).toLocaleString('vi-VN');
-          
-          tbody.innerHTML += `
-            <tr>
-              <td class="text-center">#${o.id}</td>
-              <td class="text-left">${o.ho_ten}<br><small>${o.so_dien_thoai}</small></td>
-              <td class="text-center">${dateStr}</td>
-              <td class="text-left" style="text-align:left !important; color:var(--red);font-weight: 700;">${Number(o.tong_tien).toLocaleString('vi-VN')}₫</td>
-              <td class="text-center"><span class="status-badge ${badgeClass}">${o.trang_thai}</span></td>
-              <td class="text-center" style="white-space: nowrap;">
-                <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:0.25rem; vertical-align: middle;">
-                  <option value="Mới" ${o.trang_thai==='Mới'?'selected':''}>Mới</option>
-                  <option value="Đang xử lý" ${o.trang_thai==='Đang xử lý'?'selected':''}>Đang xử lý</option>
-                  <option value="Hoàn thành" ${o.trang_thai==='Hoàn thành'?'selected':''}>Hoàn thành</option>
-                  <option value="Hủy" ${o.trang_thai==='Hủy'?'selected':''}>Hủy</option>
-                </select>
-                <button class="btn-sm btn-view" onclick="viewOrderDetails(${o.id})" style="vertical-align: middle;">Xem CT</button>
-                ${isManager ? '' : `<button class="btn-sm btn-delete" onclick="deleteOrder(${o.id})" style="vertical-align: middle;">Xóa</button>`}
-              </td>
-            </tr>
-          `;
-        });
+        cachedOrders = await res.json();
+        renderFilteredOrders();
       } catch (err) {
         console.error(err);
       }
+    }
+
+    function renderFilteredOrders() {
+      const search = (document.getElementById('order-search')?.value || '').trim().toLowerCase();
+      const statusFilter = document.getElementById('order-status-filter')?.value || 'All';
+
+      const filtered = cachedOrders.filter(o => {
+        const matchSearch = !search || 
+          (`#${o.id}`).includes(search) || 
+          (o.ho_ten || '').toLowerCase().includes(search) || 
+          (o.so_dien_thoai || '').includes(search);
+        const matchStatus = statusFilter === 'All' || o.trang_thai === statusFilter;
+        return matchSearch && matchStatus;
+      });
+
+      const summaryEl = document.getElementById('order-count-summary');
+      if (summaryEl) summaryEl.textContent = `Hiển thị ${filtered.length} / ${cachedOrders.length} đơn hàng`;
+
+      const tbody = document.getElementById('orders-tbody');
+      tbody.innerHTML = '';
+      if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Không tìm thấy đơn hàng nào phù hợp.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(o => {
+        let badgeClass = 'status-moi';
+        if(o.trang_thai === 'Đang xử lý') badgeClass = 'status-dang-xu-ly';
+        if(o.trang_thai === 'Hoàn thành') badgeClass = 'status-hoan-thanh';
+        if(o.trang_thai === 'Hủy') badgeClass = 'status-huy';
+        
+        const dateStr = new Date(o.ngay_dat).toLocaleString('vi-VN');
+        
+        tbody.innerHTML += `
+          <tr>
+            <td class="text-center" style="font-weight:700; color:#475569;">#${o.id}</td>
+            <td class="text-left" style="font-weight:700; color:#1e293b;">${o.ho_ten}<br><small style="color:#64748b; font-weight:normal;">📞 ${o.so_dien_thoai || 'N/A'}</small></td>
+            <td class="text-center" style="font-size:0.88rem; color:#475569;">${dateStr}</td>
+            <td class="text-left" style="text-align:left !important; color:var(--red); font-weight:700;">${Number(o.tong_tien).toLocaleString('vi-VN')}₫</td>
+            <td class="text-center"><span class="status-badge ${badgeClass}">${o.trang_thai}</span></td>
+            <td class="text-center" style="white-space: nowrap;">
+              <select onchange="updateOrderStatus(${o.id}, this.value)" style="padding:0.35rem 0.5rem; border-radius:6px; border:1px solid #cbd5e1; vertical-align: middle; cursor:pointer;">
+                <option value="Mới" ${o.trang_thai==='Mới'?'selected':''}>Mới</option>
+                <option value="Đang xử lý" ${o.trang_thai==='Đang xử lý'?'selected':''}>Đang xử lý</option>
+                <option value="Hoàn thành" ${o.trang_thai==='Hoàn thành'?'selected':''}>Hoàn thành</option>
+                <option value="Hủy" ${o.trang_thai==='Hủy'?'selected':''}>Hủy</option>
+              </select>
+              <button class="btn-sm btn-view" onclick="viewOrderDetails(${o.id})" style="vertical-align: middle; margin-left:4px;">Xem CT</button>
+              ${isManager ? '' : `<button class="btn-sm btn-delete" onclick="deleteOrder(${o.id})" style="vertical-align: middle; margin-left:4px;">Xóa</button>`}
+            </td>
+          </tr>
+        `;
+      });
     }
 
     async function updateOrderStatus(id, newStatus) {
@@ -2227,58 +2291,75 @@
     // ──────────────────────────────────────────
     // 7. USERS MANAGEMENT (CRUD)
     // ──────────────────────────────────────────
-    
+    let cachedUsers = [];
+
     async function loadUsers() {
       try {
         const res = await fetch('/api/users', { headers: authHeaders });
         if(!res.ok) throw new Error('Lỗi lấy dữ liệu người dùng');
-        const users = await res.json();
-        
-        const tbody = document.getElementById('users-tbody');
-        tbody.innerHTML = '';
-        if(users.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Không có dữ liệu.</td></tr>';
-          return;
-        }
-
-        users.forEach(u => {
-          let roleBadge = '';
-          if (u.role === 'admin') roleBadge = '<span class="status-badge status-hoan-thanh">Admin</span>';
-          else if (u.role === 'manager') roleBadge = '<span class="status-badge status-dang-xu-ly">Manager</span>';
-          else roleBadge = '<span class="status-badge status-moi">Khách hàng</span>';
-          
-          let statusBadge = u.status === 'active' 
-            ? '<span class="status-badge status-hoan-thanh">Hoạt động</span>' 
-            : '<span class="status-badge status-huy">Đã Khóa</span>';
-
-          const actionHtml = `
-            <select onchange="updateUserRole(${u.id}, this.value)" style="padding:0.25rem; vertical-align: middle;">
-              <option value="" disabled selected>Đổi Quyền</option>
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-              <option value="customer">Khách hàng</option>
-            </select>
-            ${u.status === 'active' ? 
-              `<button class="btn-sm btn-delete" onclick="updateUserStatus(${u.id}, 'locked')" style="vertical-align: middle;">Khóa</button>` : 
-              `<button class="btn-sm btn-view" onclick="updateUserStatus(${u.id}, 'active')" style="vertical-align: middle;">Mở khóa</button>`
-            }
-            <button class="btn-sm btn-delete" onclick="deleteUser(${u.id})" style="vertical-align: middle; margin-left: 0.25rem;" title="Xóa tài khoản vĩnh viễn">Xóa</button>
-          `;
-
-          tbody.innerHTML += `
-              <tr>
-                <td class="text-center">#${u.id}</td>
-                <td class="text-left" style="font-weight: 700;">${u.username}</td>
-                <td class="text-left">${u.fullname || ''}<br><small>${u.email || ''}</small></td>
-                <td class="text-center">${roleBadge}</td>
-                <td class="text-center">${statusBadge}</td>
-                <td class="text-center" style="white-space: nowrap;">${actionHtml}</td>
-              </tr>
-          `;
-        });
+        cachedUsers = await res.json();
+        renderFilteredUsers();
       } catch (err) {
         console.error(err);
       }
+    }
+
+    function renderFilteredUsers() {
+      const search = (document.getElementById('user-search')?.value || '').trim().toLowerCase();
+      const roleFilter = document.getElementById('user-role-filter')?.value || 'All';
+
+      const filtered = cachedUsers.filter(u => {
+        const matchSearch = !search || 
+          (`#${u.id}`).includes(search) || 
+          (u.username || '').toLowerCase().includes(search) || 
+          (u.fullname || '').toLowerCase().includes(search) ||
+          (u.email || '').toLowerCase().includes(search);
+        const matchRole = roleFilter === 'All' || u.role === roleFilter;
+        return matchSearch && matchRole;
+      });
+
+      const tbody = document.getElementById('users-tbody');
+      tbody.innerHTML = '';
+      if(filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Không có tài khoản nào phù hợp.</td></tr>';
+        return;
+      }
+
+      filtered.forEach(u => {
+        let roleBadge = '';
+        if (u.role === 'admin') roleBadge = '<span class="status-badge status-hoan-thanh">Admin</span>';
+        else if (u.role === 'manager') roleBadge = '<span class="status-badge status-dang-xu-ly">Manager</span>';
+        else roleBadge = '<span class="status-badge status-moi">Khách hàng</span>';
+        
+        let statusBadge = u.status === 'active' 
+          ? '<span class="status-badge status-hoan-thanh">Hoạt động</span>' 
+          : '<span class="status-badge status-huy">Đã Khóa</span>';
+
+        const actionHtml = `
+          <select onchange="updateUserRole(${u.id}, this.value)" style="padding:0.35rem 0.5rem; border-radius:6px; border:1px solid #cbd5e1; vertical-align: middle; cursor:pointer;">
+            <option value="" disabled selected>Đổi Quyền</option>
+            <option value="admin">Admin</option>
+            <option value="manager">Manager</option>
+            <option value="customer">Khách hàng</option>
+          </select>
+          ${u.status === 'active' ? 
+            `<button class="btn-sm btn-delete" onclick="updateUserStatus(${u.id}, 'locked')" style="vertical-align: middle; margin-left:4px;">Khóa</button>` : 
+            `<button class="btn-sm btn-view" onclick="updateUserStatus(${u.id}, 'active')" style="vertical-align: middle; margin-left:4px;">Mở khóa</button>`
+          }
+          <button class="btn-sm btn-delete" onclick="deleteUser(${u.id})" style="vertical-align: middle; margin-left: 4px;" title="Xóa tài khoản vĩnh viễn">Xóa</button>
+        `;
+
+        tbody.innerHTML += `
+            <tr>
+              <td class="text-center" style="font-weight:700; color:#475569;">#${u.id}</td>
+              <td class="text-left" style="font-weight: 700; color:#1e293b;">${u.username}</td>
+              <td class="text-left" style="font-weight:600; color:#334155;">${u.fullname || u.username}<br><small style="color:#64748b; font-weight:normal;">✉️ ${u.email || 'N/A'}</small></td>
+              <td class="text-center">${roleBadge}</td>
+              <td class="text-center">${statusBadge}</td>
+              <td class="text-center" style="white-space: nowrap;">${actionHtml}</td>
+            </tr>
+        `;
+      });
     }
 
     function openUserModal() {
