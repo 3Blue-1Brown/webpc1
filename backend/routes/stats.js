@@ -91,7 +91,7 @@ router.get('/summary', verifyToken, verifyManagerOrAdmin, async (req, res) => {
         dm.id,
         dm.ten_danh_muc, 
         COUNT(DISTINCT sp.id) AS count_products,
-        COALESCE(SUM(CASE WHEN dh.trang_thai_don_hang = 'Hoàn thành' THEN ct.gia * ct.so_luong ELSE 0 END), 0) AS category_revenue,
+        COALESCE(SUM(CASE WHEN dh.trang_thai_don_hang = 'Hoàn thành' THEN ct.don_gia * ct.so_luong ELSE 0 END), 0) AS category_revenue,
         COALESCE(SUM(CASE WHEN dh.trang_thai_don_hang = 'Hoàn thành' THEN ct.so_luong ELSE 0 END), 0) AS total_sold_qty
       FROM danh_muc dm
       LEFT JOIN san_pham sp ON dm.id = sp.id_danh_muc AND sp.is_deleted = 0
