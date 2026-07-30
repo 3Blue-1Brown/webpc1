@@ -32,8 +32,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Auto-migrate loai_banner column
-(async function migrateBannerTable() {
+// Helper: Ensure loai_banner column exists in database
+async function ensureLoaiBannerColumn() {
   try {
     await db.query(`
       CREATE TABLE IF NOT EXISTS banner (
@@ -55,14 +55,17 @@ const upload = multer({ storage: storage });
   } catch (err) {
     console.warn('ℹ️ Banner table migration note:', err.message);
   }
-})();
+}
+
+// Run migration immediately on module load
+ensureLoaiBannerColumn();
 
 // GET active banners (For Frontend, with optional ?type=main or ?type=sale)
 router.get('/', async (req, res) => {
   try {
+    await ensureLoaiBannerColumn();
     const bannerType = req.query.type || 'main';
     let query = 'SELECT * FROM banner WHERE trang_thai = 1';
-    let params = [];
 
     if (bannerType === 'sale') {
       query += " AND loai_banner = 'sale'";
@@ -71,8 +74,18 @@ router.get('/', async (req, res) => {
     }
     query += ' ORDER BY vi_tri ASC';
 
-    const [rows] = await db.query(query, params);
-    res.json(rows);
+    try {
+      const [rows] = await db.query(query);
+      res.json(rows);
+    } catch (dbErr) {
+      if (dbErr.message && dbErr.message.includes("Unknown column 'loai_banner'")) {
+        await db.query("ALTER TABLE banner ADD COLUMN loai_banner VARCHAR(50) DEFAULT 'main'");
+        const [rows] = await db.query('SELECT * FROM banner WHERE trang_thai = 1 ORDER BY vi_tri ASC');
+        res.json(rows);
+      } else {
+        throw dbErr;
+      }
+    }
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -81,9 +94,9 @@ router.get('/', async (req, res) => {
 // GET all banners (For Admin)
 router.get('/all', verifyToken, verifyManagerOrAdmin, async (req, res) => {
   try {
+    await ensureLoaiBannerColumn();
     const bannerType = req.query.type;
     let query = 'SELECT * FROM banner';
-    let params = [];
     if (bannerType === 'sale') {
       query += " WHERE loai_banner = 'sale'";
     } else if (bannerType === 'main') {
@@ -91,8 +104,18 @@ router.get('/all', verifyToken, verifyManagerOrAdmin, async (req, res) => {
     }
     query += ' ORDER BY vi_tri ASC';
 
-    const [rows] = await db.query(query, params);
-    res.json(rows);
+    try {
+      const [rows] = await db.query(query);
+      res.json(rows);
+    } catch (dbErr) {
+      if (dbErr.message && dbErr.message.includes("Unknown column 'loai_banner'")) {
+        await db.query("ALTER TABLE banner ADD COLUMN loai_banner VARCHAR(50) DEFAULT 'main'");
+        const [rows] = await db.query('SELECT * FROM banner ORDER BY vi_tri ASC');
+        res.json(rows);
+      } else {
+        throw dbErr;
+      }
+    }
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -110,10 +133,26 @@ router.post('/', verifyToken, verifyManagerOrAdmin,  async (req, res) => {
     const finalImage = cleanImageUrl(hinh_anh);
     const bannerType = loai_banner === 'sale' ? 'sale' : 'main';
 
-    const [result] = await db.execute(
-      'INSERT INTO banner (tieu_de, hinh_anh, lien_ket, vi_tri, trang_thai, loai_banner) VALUES (?, ?, ?, ?, ?, ?)',
-      [tieu_de || null, finalImage, lien_ket || '#', vi_tri || 0, trang_thai !== undefined ? trang_thai : 1, bannerType]
-    );
+    await ensureLoaiBannerColumn();
+
+    let result;
+    try {
+      [result] = await db.execute(
+        'INSERT INTO banner (tieu_de, hinh_anh, lien_ket, vi_tri, trang_thai, loai_banner) VALUES (?, ?, ?, ?, ?, ?)',
+        [tieu_de || null, finalImage, lien_ket || '#', vi_tri || 0, trang_thai !== undefined ? parseInt(trang_thai) : 1, bannerType]
+      );
+    } catch (dbErr) {
+      if (dbErr.message && dbErr.message.includes("Unknown column 'loai_banner'")) {
+        await db.query("ALTER TABLE banner ADD COLUMN loai_banner VARCHAR(50) DEFAULT 'main'");
+        [result] = await db.execute(
+          'INSERT INTO banner (tieu_de, hinh_anh, lien_ket, vi_tri, trang_thai, loai_banner) VALUES (?, ?, ?, ?, ?, ?)',
+          [tieu_de || null, finalImage, lien_ket || '#', vi_tri || 0, trang_thai !== undefined ? parseInt(trang_thai) : 1, bannerType]
+        );
+      } else {
+        throw dbErr;
+      }
+    }
+
     const isMgr = req.user && (req.user.role || '').toLowerCase() === 'manager';
     const logMsg = isMgr ? `[MANAGER THÊM BANNER ${bannerType.toUpperCase()}] Tiêu đề: ${tieu_de || 'Banner mới'}` : `Tiêu đề: ${tieu_de || 'Banner mới'}`;
     logActivity(req.user, 'Thêm banner', 'Banner', result.insertId, logMsg);
@@ -129,18 +168,40 @@ router.put('/:id', verifyToken, verifyManagerOrAdmin,  async (req, res) => {
     const { tieu_de, lien_ket, vi_tri, trang_thai, hinh_anh, loai_banner } = req.body;
     const finalImage = hinh_anh ? cleanImageUrl(hinh_anh) : null;
     const bannerType = loai_banner === 'sale' ? 'sale' : 'main';
+
+    await ensureLoaiBannerColumn();
     
-    if (finalImage) {
-      await db.execute(
-        'UPDATE banner SET tieu_de = ?, hinh_anh = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
-        [tieu_de, finalImage, lien_ket, vi_tri, trang_thai, bannerType, req.params.id]
-      );
-    } else {
-      await db.execute(
-        'UPDATE banner SET tieu_de = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
-        [tieu_de, lien_ket, vi_tri, trang_thai, bannerType, req.params.id]
-      );
+    try {
+      if (finalImage) {
+        await db.execute(
+          'UPDATE banner SET tieu_de = ?, hinh_anh = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
+          [tieu_de, finalImage, lien_ket, vi_tri, parseInt(trang_thai), bannerType, req.params.id]
+        );
+      } else {
+        await db.execute(
+          'UPDATE banner SET tieu_de = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
+          [tieu_de, lien_ket, vi_tri, parseInt(trang_thai), bannerType, req.params.id]
+        );
+      }
+    } catch (dbErr) {
+      if (dbErr.message && dbErr.message.includes("Unknown column 'loai_banner'")) {
+        await db.query("ALTER TABLE banner ADD COLUMN loai_banner VARCHAR(50) DEFAULT 'main'");
+        if (finalImage) {
+          await db.execute(
+            'UPDATE banner SET tieu_de = ?, hinh_anh = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
+            [tieu_de, finalImage, lien_ket, vi_tri, parseInt(trang_thai), bannerType, req.params.id]
+          );
+        } else {
+          await db.execute(
+            'UPDATE banner SET tieu_de = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
+            [tieu_de, lien_ket, vi_tri, parseInt(trang_thai), bannerType, req.params.id]
+          );
+        }
+      } else {
+        throw dbErr;
+      }
     }
+
     res.json({ message: 'Banner updated' });
     const isMgr = req.user && (req.user.role || '').toLowerCase() === 'manager';
     const logMsg = isMgr ? `[MANAGER CHỈNH SỬA] Cập nhật banner #${req.params.id}` : `Cập nhật banner #${req.params.id}`;
