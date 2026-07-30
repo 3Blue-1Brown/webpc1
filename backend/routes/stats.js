@@ -85,14 +85,32 @@ router.get('/summary', verifyToken, verifyManagerOrAdmin, async (req, res) => {
 
     const [topProducts] = await db.query(topProductsSql, topProductsParams);
 
-    // 6. Category breakdown
-    const [categoriesStats] = await db.query(
-      `SELECT dm.ten_danh_muc, COUNT(sp.id) AS count_products
-       FROM danh_muc dm
-       LEFT JOIN san_pham sp ON dm.id = sp.id_danh_muc AND sp.is_deleted = 0
-       GROUP BY dm.id
-       ORDER BY count_products DESC`
-    );
+    // 6. Category breakdown with revenue & product count
+    let catSql = `
+      SELECT 
+        dm.id,
+        dm.ten_danh_muc, 
+        COUNT(DISTINCT sp.id) AS count_products,
+        COALESCE(SUM(CASE WHEN dh.trang_thai_don_hang = 'Hoàn thành' THEN ct.gia * ct.so_luong ELSE 0 END), 0) AS category_revenue,
+        COALESCE(SUM(CASE WHEN dh.trang_thai_don_hang = 'Hoàn thành' THEN ct.so_luong ELSE 0 END), 0) AS total_sold_qty
+      FROM danh_muc dm
+      LEFT JOIN san_pham sp ON dm.id = sp.id_danh_muc AND sp.is_deleted = 0
+      LEFT JOIN chi_tiet_don_hang ct ON sp.id = ct.id_san_pham
+    `;
+
+    let catParams = [];
+    if (orderWhereClause) {
+      catSql += ` LEFT JOIN don_hang dh ON ct.id_don_hang = dh.id`;
+      const dhWhere = orderWhereClause.replace('WHERE', 'AND').replace(/ngay_dat/g, 'dh.ngay_dat');
+      catSql += ` ${dhWhere}`;
+      catParams = [...orderParams];
+    } else {
+      catSql += ` LEFT JOIN don_hang dh ON ct.id_don_hang = dh.id`;
+    }
+
+    catSql += ` GROUP BY dm.id ORDER BY category_revenue DESC, count_products DESC`;
+
+    const [categoriesStats] = await db.query(catSql, catParams);
 
     res.json({
       revenue: {

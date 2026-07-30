@@ -514,9 +514,9 @@
           </div>
         </div>
 
-        <!-- 4 Stat Cards -->
+        <!-- 4 Stat Cards (Clickable Navigation) -->
         <div class="stats-grid">
-          <div class="stat-card">
+          <div class="stat-card clickable-stat-card" onclick="switchAdminTab('orders-view')" title="Bấm để xem danh sách Đơn hàng">
             <div class="stat-icon revenue">💵</div>
             <div class="stat-info">
               <h4>Doanh Thu Thực Tế</h4>
@@ -525,7 +525,7 @@
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card clickable-stat-card" onclick="switchAdminTab('orders-view')" title="Bấm để xem danh sách Đơn hàng">
             <div class="stat-icon orders">📦</div>
             <div class="stat-info">
               <h4>Tổng Đơn Hàng</h4>
@@ -534,7 +534,7 @@
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card clickable-stat-card" onclick="switchAdminTab('products-view')" title="Bấm để xem Quản lý Sản phẩm">
             <div class="stat-icon products">💻</div>
             <div class="stat-info">
               <h4>Sản Phẩm & Tồn Kho</h4>
@@ -543,12 +543,12 @@
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card clickable-stat-card" onclick="switchAdminTab('users-view')" title="Bấm để xem Quản lý Tài khoản">
             <div class="stat-icon users">👥</div>
             <div class="stat-info">
               <h4>Tài Khoản Hệ Thống</h4>
               <div class="stat-val" id="stat-users">0</div>
-              <div class="stat-sub" id="stat-contacts-sub">Tin nhắn mới: 0</div>
+              <div class="stat-sub" id="stat-contacts-sub" onclick="event.stopPropagation(); switchAdminTab('contacts-view');" style="cursor:pointer;" title="Xem tin nhắn liên hệ">Tin nhắn mới: 0</div>
             </div>
           </div>
         </div>
@@ -556,16 +556,22 @@
         <!-- Dashboard Row 2: Status Breakdown & Category Breakdown -->
         <div class="dashboard-row">
           <!-- Left: Order Status Distribution -->
-          <div class="card" style="margin-bottom:0;">
-            <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b;">📈 Phân Bố & Tỷ Lệ Đơn Hàng Theo Trạng Thái</h4>
+          <div class="card clickable-card" onclick="switchAdminTab('orders-view')" style="margin-bottom:0; cursor:pointer;" title="Bấm để quản lý đơn hàng">
+            <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b; display:flex; justify-content:space-between; align-items:center;">
+              <span>📈 Phân Bố & Tỷ Lệ Đơn Hàng</span>
+              <span style="font-size:0.8rem; color:#2563eb; font-weight:600;">Xem đơn hàng ➔</span>
+            </h4>
             <div id="order-progress-container">
               <p style="color:#64748b;">Đang tải số liệu...</p>
             </div>
           </div>
 
-          <!-- Right: Category Stats -->
+          <!-- Right: Category Stats & Sales Revenue Chart -->
           <div class="card" style="margin-bottom:0;">
-            <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b;">📂 Sản Phẩm Theo Danh Mục</h4>
+            <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b; display:flex; justify-content:space-between; align-items:center;">
+              <span>📊 Biểu Đồ Doanh Số Theo Danh Mục</span>
+              <span style="font-size:0.8rem; color:#059669; font-weight:600;">Lọc sản phẩm ➔</span>
+            </h4>
             <div id="category-stats-container">
               <p style="color:#64748b;">Đang tải số liệu...</p>
             </div>
@@ -574,7 +580,10 @@
 
         <!-- Dashboard Row 3: Top Selling Products -->
         <div class="card" style="margin-top:1.5rem;">
-          <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b;">🏆 Top 5 Sản Phẩm Bán Chạy / Nổi Bật</h4>
+          <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b; display:flex; justify-content:space-between; align-items:center;">
+            <span>🏆 Top 5 Sản Phẩm Bán Chạy / Nổi Bật</span>
+            <span style="font-size:0.8rem; color:#f97316; font-weight:600;">Bấm vào hàng để chỉnh sửa sản phẩm</span>
+          </h4>
           <table>
             <thead>
               <tr>
@@ -1183,32 +1192,48 @@
           </div>
         `;
 
-        // 3. Category Breakdown
+        // 3. Category Sales & Product Breakdown Chart
         const catContainer = document.getElementById('category-stats-container');
         if (data.categoriesStats && data.categoriesStats.length > 0) {
-          let catHtml = '<ul style="list-style:none; padding:0; margin:0;">';
+          const maxRev = Math.max(...data.categoriesStats.map(c => Number(c.category_revenue || 0)), 1);
+          let catHtml = '<div style="display:flex; flex-direction:column; gap:0.75rem;">';
           data.categoriesStats.forEach(c => {
+            const rev = Number(c.category_revenue || 0);
+            const percent = Math.min(Math.round((rev / maxRev) * 100), 100);
+            const formattedRev = rev > 0 ? rev.toLocaleString('vi-VN') + '₫' : '0₫';
+            const catId = c.id;
+
             catHtml += `
-              <li style="display:flex; justify-content:space-between; padding:0.65rem 0; border-bottom:1px solid #f1f5f9; font-size:0.9rem;">
-                <span style="font-weight: 700; color:#334155;">📁 ${c.ten_danh_muc}</span>
-                <span style="background:#e2e8f0; color:#1e293b; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.8rem;">${c.count_products} sp</span>
-              </li>
+              <div class="cat-stat-item" onclick="switchAdminTab('products-view', '${catId}')" style="cursor:pointer; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid #f1f5f9; background:#fff; transition:all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';" onmouseout="this.style.background='#fff'; this.style.borderColor='#f1f5f9';" title="Bấm để xem & lọc danh mục ${c.ten_danh_muc}">
+                <div style="display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:0.35rem;">
+                  <span style="font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                    📁 ${c.ten_danh_muc}
+                  </span>
+                  <span style="display:flex; gap:10px; align-items:center;">
+                    <span style="font-weight:700; color:#059669;">${formattedRev}</span>
+                    <span style="background:#e2e8f0; color:#334155; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.78rem;">${c.count_products} sp</span>
+                  </span>
+                </div>
+                <div style="width:100%; height:8px; background:#f1f5f9; border-radius:4px; overflow:hidden;">
+                  <div style="width:${Math.max(percent, rev > 0 ? 6 : 2)}%; height:100%; background:linear-gradient(90deg, #10b981, #059669); border-radius:4px; transition:width 0.5s ease;"></div>
+                </div>
+              </div>
             `;
           });
-          catHtml += '</ul>';
+          catHtml += '</div>';
           catContainer.innerHTML = catHtml;
         } else {
           catContainer.innerHTML = '<p style="color:#64748b;">Chưa có danh mục nào.</p>';
         }
 
-        // 4. Top Selling Products Table
+        // 4. Top Selling Products Table (Clickable to open Edit Modal)
         const topTbody = document.getElementById('top-products-tbody');
         topTbody.innerHTML = '';
         if (data.topProducts && data.topProducts.length > 0) {
           data.topProducts.forEach((p, idx) => {
             const imgUrl = convertGoogleDriveLink(p.duong_dan_anh || 'placeholder.png');
             topTbody.innerHTML += `
-              <tr>
+              <tr onclick="openProductModal(${p.id})" style="cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'" title="Bấm để chỉnh sửa sản phẩm ${p.ten_san_pham}">
                 <td class="text-center" style="font-weight:700; color:#64748b;">#${idx + 1}</td>
                 <td class="text-center"><img src="${imgUrl}" alt="${p.ten_san_pham}" style="width:40px; height:40px; object-fit:contain; border-radius:4px; border:1px solid #e2e8f0;"></td>
                 <td class="text-left" style="font-weight: 700; color:#1e293b;">${p.ten_san_pham}</td>
@@ -1228,6 +1253,28 @@
         if (badge) { badge.textContent = '⚠️ Lỗi tải dữ liệu: ' + err.message; badge.style.display = 'inline-block'; badge.style.color = '#dc2626'; badge.style.background = '#fee2e2'; }
       } finally {
         if (filterBtn) { filterBtn.disabled = false; filterBtn.innerHTML = '🔍 Lọc dữ liệu'; }
+      }
+    }
+
+    // Helper: Switch admin tab and optionally filter by category
+    function switchAdminTab(targetId, categoryFilterId = null) {
+      const link = document.querySelector(`.nav-link[data-target="${targetId}"]`);
+      if (link) {
+        link.click();
+      } else {
+        document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+        const sectionEl = document.getElementById(targetId);
+        if (sectionEl) sectionEl.classList.add('active');
+      }
+
+      if (targetId === 'products-view' && categoryFilterId !== null) {
+        setTimeout(() => {
+          const prodCatFilter = document.getElementById('prod-category-filter');
+          if (prodCatFilter) {
+            prodCatFilter.value = categoryFilterId;
+            loadProducts();
+          }
+        }, 150);
       }
     }
 
