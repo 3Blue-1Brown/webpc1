@@ -1036,8 +1036,9 @@
     const isManager = userRole === 'manager';
     if (isManager) document.body.classList.add('is-manager');
 
-    // Load dashboard stats immediately (script runs after DOM is ready)
+    // Load dashboard stats and category/brand list immediately
     loadDashboardStats();
+    loadCategoriesAndBrands();
     if (isManager) {
       const addUserBtn = document.getElementById('btn-add-user');
       if (addUserBtn) addUserBtn.style.display = 'none';
@@ -1943,7 +1944,11 @@
         reader.onerror = () => resolve(file);
       });
     }
-    function openProductModal(id = null) {
+    async function openProductModal(id = null) {
+      if (!categories || categories.length === 0 || document.getElementById('p-category').options.length <= 1) {
+        await loadCategoriesAndBrands();
+      }
+
       document.getElementById('product-form').reset();
       document.getElementById('product-id').value = '';
       document.getElementById('p-is-noi-bat').checked = false;
