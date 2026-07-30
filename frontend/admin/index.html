@@ -1275,9 +1275,8 @@
       }
     }
 
-    // Category Chart State & Interactive Renderer (Chart.js + SVG Fallback)
+    // Category Chart State & Interactive Renderer (Chart.js Doughnut)
     let categoryChartInstance = null;
-    let currentChartType = 'bar'; // 'bar' or 'doughnut'
     let currentChartMetric = 'revenue'; // 'revenue' or 'count'
     let lastCategoriesStats = [];
 
@@ -1292,17 +1291,13 @@
       }
 
       container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; justify-content:flex-start; align-items:center; margin-bottom:0.75rem; gap:8px;">
           <div style="display:flex; gap:4px; background:#f1f5f9; padding:3px; border-radius:8px;">
-            <button type="button" id="btn-metric-rev" onclick="switchChartMetric('revenue')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartMetric === 'revenue' ? 'background:#059669; color:#fff; shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:#64748b;'}">💰 Doanh số (₫)</button>
-            <button type="button" id="btn-metric-count" onclick="switchChartMetric('count')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartMetric === 'count' ? 'background:#2563eb; color:#fff; shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:#64748b;'}">📦 Số lượng (SP)</button>
-          </div>
-          <div style="display:flex; gap:4px; background:#f1f5f9; padding:3px; border-radius:8px;">
-            <button type="button" id="btn-type-bar" onclick="switchCategoryChartType('bar')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartType === 'bar' ? 'background:#1e293b; color:#fff;' : 'background:transparent; color:#64748b;'}">📊 Cột</button>
-            <button type="button" id="btn-type-doughnut" onclick="switchCategoryChartType('doughnut')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartType === 'doughnut' ? 'background:#1e293b; color:#fff;' : 'background:transparent; color:#64748b;'}">🍩 Tròn</button>
+            <button type="button" id="btn-metric-rev" onclick="switchChartMetric('revenue')" style="padding:4px 12px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartMetric === 'revenue' ? 'background:#059669; color:#fff; shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:#64748b;'}">💰 Doanh số (₫)</button>
+            <button type="button" id="btn-metric-count" onclick="switchChartMetric('count')" style="padding:4px 12px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartMetric === 'count' ? 'background:#2563eb; color:#fff; shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:#64748b;'}">📦 Số lượng (SP)</button>
           </div>
         </div>
-        <div style="position:relative; width:100%; height:250px;">
+        <div style="position:relative; width:100%; height:260px;">
           <canvas id="categoryStatsChartCanvas"></canvas>
         </div>
       `;
@@ -1344,23 +1339,21 @@
       const bgColors = colors.slice(0, sortedStats.length);
 
       categoryChartInstance = new Chart(ctx, {
-        type: currentChartType,
+        type: 'doughnut',
         data: {
           labels: labels,
           datasets: [{
             label: currentChartMetric === 'revenue' ? 'Doanh số (VNĐ)' : 'Số lượng sản phẩm',
             data: dataValues,
-            backgroundColor: currentChartType === 'bar'
-              ? (currentChartMetric === 'revenue' ? '#059669' : '#2563eb')
-              : bgColors,
-            borderRadius: currentChartType === 'bar' ? 6 : 0,
-            borderWidth: 1.5,
+            backgroundColor: bgColors,
+            borderWidth: 2,
             borderColor: '#ffffff'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          cutout: '62%',
           onClick: (e, elements) => {
             if (elements.length > 0) {
               const index = elements[0].index;
@@ -1372,7 +1365,7 @@
           },
           plugins: {
             legend: {
-              display: currentChartType === 'doughnut',
+              display: true,
               position: 'right',
               labels: {
                 font: { family: 'Arial', size: 11, weight: 'bold' },
@@ -1389,42 +1382,17 @@
                   const idx = context.dataIndex;
                   const rev = revenues[idx].toLocaleString('vi-VN') + ' ₫';
                   const count = productCounts[idx] + ' sản phẩm';
-                  return ` Doanh số: ${rev} | ${count} (Bấm để xem danh mục)`;
+                  return ` Doanh số: ${rev} | ${count} (Bấm để lọc)`;
                 }
               }
             }
-          },
-          scales: currentChartType === 'bar' ? {
-            x: {
-              ticks: { font: { size: 11, weight: '600' }, color: '#334155' },
-              grid: { display: false }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: {
-                color: '#64748b',
-                callback: function(value) {
-                  if (currentChartMetric === 'revenue') {
-                    if (value >= 1e6) return (value / 1e6).toFixed(1) + ' triệu';
-                    if (value >= 1e3) return (value / 1e3).toFixed(0) + 'k';
-                    return value;
-                  }
-                  return value;
-                }
-              }
-            }
-          } : {}
+          }
         }
       });
     }
 
     function switchChartMetric(metric) {
       currentChartMetric = metric;
-      renderCategoryChart();
-    }
-
-    function switchCategoryChartType(type) {
-      currentChartType = type;
       renderCategoryChart();
     }
 
