@@ -84,7 +84,7 @@
 
     <!-- 3 Flash Sale Banners -->
     <div style="padding: 1.5rem 1rem 0.5rem 1rem;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;" id="flash-sale-banners-container">
         <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
           <img src="flash_banner1.png?v=2" alt="Giảm 50% Dàn PC Gaming Đỉnh Cao" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async">
         </div>
@@ -292,9 +292,35 @@
       setInterval(updateTimer, 1000);
     }
 
+    // ── Load Sale Banners ──
+    async function loadSaleBanners() {
+      try {
+        const res = await fetch('/api/banners?type=sale');
+        if (!res.ok) return;
+        const saleBanners = await res.json();
+        const container = document.getElementById('flash-sale-banners-container');
+        if (!container || !Array.isArray(saleBanners) || saleBanners.length === 0) return;
+
+        container.innerHTML = saleBanners.map(b => {
+          const imgRaw = b.hinh_anh || '';
+          const bannerImg = (imgRaw.startsWith('http://') || imgRaw.startsWith('https://') || imgRaw.startsWith('/')) ? imgRaw : '/' + imgRaw;
+          const finalImg = convertImageUrl(bannerImg);
+          const link = b.lien_ket || '#';
+          return `
+            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s; cursor:pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <a href="${link}"><img src="${finalImg}" alt="${b.tieu_de || 'Banner Sale'}" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async" onerror="this.src='flash_banner1.png'"></a>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.warn('loadSaleBanners error:', e);
+      }
+    }
+
     // Initialise — load all APIs in parallel for maximum speed
     Promise.all([
       loadBanners(),
+      loadSaleBanners(),
       loadCategories(),
       loadFlashSale(),
       loadNewProducts(),

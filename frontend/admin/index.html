@@ -684,6 +684,14 @@
               </div>
 
               <div style="margin-bottom:1rem;">
+                <label style="font-size:0.82rem; font-weight:700; color:#374151; display:block; margin-bottom:0.4rem;">🎯 Vị trí / Loại Banner</label>
+                <select id="banner-type" style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; outline:none; background:#fff; cursor:pointer; box-sizing:border-box;">
+                  <option value="main">🖼️ Banner Slide Chính (Đầu trang chủ)</option>
+                  <option value="sale">🔥 Banner Sale Khuyến Mãi (Khung Flash Sale)</option>
+                </select>
+              </div>
+
+              <div style="margin-bottom:1rem;">
                 <label style="font-size:0.82rem; font-weight:700; color:#374151; display:block; margin-bottom:0.4rem;">🏷️ Tiêu đề banner</label>
                 <input type="text" id="banner-title" placeholder="Ví dụ: Sale mùa hè 2025" style="width:100%; padding:0.65rem 0.9rem; border:1.5px solid #e2e8f0; border-radius:8px; font-size:0.9rem; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#f97316'" onblur="this.style.borderColor='#e2e8f0'">
               </div>
@@ -722,8 +730,13 @@
 
           <!-- RIGHT: Banner Cards Grid -->
           <div>
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
               <div style="font-weight:700; color:#1e293b; font-size:0.95rem;">Danh sách Banner <span id="banner-count-badge" style="background:#f1f5f9; color:#64748b; font-size:0.8rem; padding:2px 10px; border-radius:20px; margin-left:6px; font-weight:600;">0</span></div>
+              <div style="display:flex; gap:4px; background:#f1f5f9; padding:3px; border-radius:8px;">
+                <button type="button" class="btn-banner-filter active" id="btn-banner-filter-all" onclick="filterBannerList('all')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; background:#1e293b; color:#fff;">Tất cả</button>
+                <button type="button" class="btn-banner-filter" id="btn-banner-filter-main" onclick="filterBannerList('main')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; background:transparent; color:#64748b;">🖼️ Slide chính</button>
+                <button type="button" class="btn-banner-filter" id="btn-banner-filter-sale" onclick="filterBannerList('sale')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; background:transparent; color:#64748b;">🔥 Banner Sale</button>
+              </div>
             </div>
             <div id="banners-grid" style="display:grid; grid-template-columns:1fr; gap:1rem;">
               <div style="text-align:center; padding:3rem; color:#94a3b8; background:#fff; border-radius:16px; border:2px dashed #e2e8f0;">
@@ -1895,6 +1908,22 @@
     window.closeOrderDetailModal = closeOrderDetailModal;
 
     // 5. Banners CRUD
+    let currentBannerFilter = 'all';
+
+    function filterBannerList(filterType) {
+      currentBannerFilter = filterType;
+      document.querySelectorAll('.btn-banner-filter').forEach(btn => {
+        btn.style.background = 'transparent';
+        btn.style.color = '#64748b';
+      });
+      const activeBtn = document.getElementById(`btn-banner-filter-${filterType}`);
+      if (activeBtn) {
+        activeBtn.style.background = '#1e293b';
+        activeBtn.style.color = '#fff';
+      }
+      loadBanners();
+    }
+
     function previewBannerImage(url) {
       const previewDiv = document.getElementById('banner-image-preview');
       const previewImg = document.getElementById('banner-preview-img');
@@ -1926,7 +1955,8 @@
 
     async function loadBanners() {
       try {
-        const res = await fetch('/api/banners/all', { headers: authHeaders });
+        const fetchUrl = currentBannerFilter !== 'all' ? `/api/banners/all?type=${currentBannerFilter}` : '/api/banners/all';
+        const res = await fetch(fetchUrl, { headers: authHeaders });
         if(!res.ok) throw new Error('Lỗi lấy banners');
         const banners = await res.json();
 
@@ -1938,7 +1968,7 @@
           grid.innerHTML = `
             <div style="text-align:center; padding:4rem 2rem; color:#94a3b8; background:#fff; border-radius:16px; border:2px dashed #e2e8f0;">
               <div style="font-size:4rem; margin-bottom:1rem;">🖼️</div>
-              <div style="font-weight:700; font-size:1.05rem; color:#64748b;">Chưa có banner nào</div>
+              <div style="font-weight:700; font-size:1.05rem; color:#64748b;">Chưa có banner nào ${currentBannerFilter !== 'all' ? '(' + (currentBannerFilter === 'sale' ? 'Banner Sale' : 'Slide chính') + ')' : ''}</div>
               <p style="font-size:0.88rem; margin-top:0.4rem;">Nhấn "Thêm Banner Mới" để bắt đầu</p>
             </div>`;
           return;
@@ -1950,6 +1980,7 @@
           const bannerImg = (bannerImgRaw.startsWith('http://') || bannerImgRaw.startsWith('https://') || bannerImgRaw.startsWith('/')) ? bannerImgRaw : '/' + bannerImgRaw;
           const finalBannerImg = convertGoogleDriveLink(bannerImg);
           const isVisible = !!b.trang_thai;
+          const isSale = b.loai_banner === 'sale';
 
           const card = document.createElement('div');
           card.style.cssText = 'background:#fff; border-radius:16px; border:1px solid #e2e8f0; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.05); transition:box-shadow 0.2s, transform 0.2s;';
@@ -1959,9 +1990,12 @@
           card.innerHTML = `
             <div style="position:relative; background:#f1f5f9; aspect-ratio:16/5; overflow:hidden;">
               <img src="${finalBannerImg}" alt="Banner ${idx+1}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.parentElement.style.background='#f1f5f9';">
-              <div style="position:absolute; top:10px; left:10px;">
+              <div style="position:absolute; top:10px; left:10px; display:flex; gap:6px; flex-wrap:wrap;">
                 <span style="background:${isVisible ? 'rgba(16,185,129,0.9)' : 'rgba(239,68,68,0.9)'}; color:#fff; font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:20px; backdrop-filter:blur(4px);">
                   ${isVisible ? '✅ Hiển thị' : '🚫 Ẩn'}
+                </span>
+                <span style="background:${isSale ? 'linear-gradient(135deg,#ef4444,#ea580c)' : 'linear-gradient(135deg,#2563eb,#3b82f6)'}; color:#fff; font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:20px; backdrop-filter:blur(4px);">
+                  ${isSale ? '🔥 Banner Sale' : '🖼️ Slide Chính'}
                 </span>
               </div>
               <div style="position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.5); color:#fff; font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:20px;">#${b.vi_tri}</div>
@@ -1977,9 +2011,8 @@
               </div>
             </div>`;
 
-          // Wire up buttons via addEventListener (avoids quote escaping in onclick)
           const editBtn = card.querySelector('.banner-edit-btn');
-          if (editBtn) editBtn.addEventListener('click', () => editBanner(b.id, b.tieu_de || '', b.lien_ket || '#', b.vi_tri, b.trang_thai, b.hinh_anh || ''));
+          if (editBtn) editBtn.addEventListener('click', () => editBanner(b.id, b.tieu_de || '', b.lien_ket || '#', b.vi_tri, b.trang_thai, b.hinh_anh || '', b.loai_banner || 'main'));
           const delBtn = card.querySelector('.banner-del-btn');
           if (delBtn) delBtn.addEventListener('click', () => deleteBanner(b.id));
 
@@ -1993,6 +2026,7 @@
       e.preventDefault();
       const id = document.getElementById('banner-id').value;
       const data = {
+        loai_banner: document.getElementById('banner-type').value,
         tieu_de: document.getElementById('banner-title').value,
         lien_ket: document.getElementById('banner-link').value,
         vi_tri: document.getElementById('banner-order').value,
@@ -2029,8 +2063,9 @@
       } catch(e) { console.error(e); }
     });
 
-    function editBanner(id, title, link, order, status, image) {
+    function editBanner(id, title, link, order, status, image, type = 'main') {
       document.getElementById('banner-id').value = id;
+      document.getElementById('banner-type').value = type || 'main';
       document.getElementById('banner-title').value = title === 'null' ? '' : title;
       document.getElementById('banner-link').value = link;
       document.getElementById('banner-order').value = order;

@@ -32,10 +32,46 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// GET all active banners (For Frontend)
+// Auto-migrate loai_banner column
+(async function migrateBannerTable() {
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS banner (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        tieu_de VARCHAR(255) NULL,
+        hinh_anh TEXT NOT NULL,
+        lien_ket VARCHAR(255) DEFAULT '#',
+        vi_tri INT DEFAULT 0,
+        trang_thai TINYINT DEFAULT 1,
+        loai_banner VARCHAR(50) DEFAULT 'main'
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+    
+    const [cols] = await db.query("SHOW COLUMNS FROM banner LIKE 'loai_banner'");
+    if (cols.length === 0) {
+      await db.query("ALTER TABLE banner ADD COLUMN loai_banner VARCHAR(50) DEFAULT 'main'");
+      console.log('✅ Added loai_banner column to banner table');
+    }
+  } catch (err) {
+    console.warn('ℹ️ Banner table migration note:', err.message);
+  }
+})();
+
+// GET active banners (For Frontend, with optional ?type=main or ?type=sale)
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM banner WHERE trang_thai = 1 ORDER BY vi_tri ASC');
+    const bannerType = req.query.type || 'main';
+    let query = 'SELECT * FROM banner WHERE trang_thai = 1';
+    let params = [];
+
+    if (bannerType === 'sale') {
+      query += " AND loai_banner = 'sale'";
+    } else {
+      query += " AND (loai_banner = 'main' OR loai_banner IS NULL OR loai_banner = '')";
+    }
+    query += ' ORDER BY vi_tri ASC';
+
+    const [rows] = await db.query(query, params);
     res.json(rows);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -45,7 +81,17 @@ router.get('/', async (req, res) => {
 // GET all banners (For Admin)
 router.get('/all', verifyToken, verifyManagerOrAdmin, async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM banner ORDER BY vi_tri ASC');
+    const bannerType = req.query.type;
+    let query = 'SELECT * FROM banner';
+    let params = [];
+    if (bannerType === 'sale') {
+      query += " WHERE loai_banner = 'sale'";
+    } else if (bannerType === 'main') {
+      query += " WHERE (loai_banner = 'main' OR loai_banner IS NULL OR loai_banner = '')";
+    }
+    query += ' ORDER BY vi_tri ASC';
+
+    const [rows] = await db.query(query, params);
     res.json(rows);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -55,20 +101,21 @@ router.get('/all', verifyToken, verifyManagerOrAdmin, async (req, res) => {
 // CREATE banner (Admin)
 router.post('/', verifyToken, verifyManagerOrAdmin,  async (req, res) => {
   try {
-    const { tieu_de, lien_ket, vi_tri, trang_thai, hinh_anh } = req.body;
+    const { tieu_de, lien_ket, vi_tri, trang_thai, hinh_anh, loai_banner } = req.body;
     
     if (!hinh_anh) {
       return res.status(400).json({ error: 'Vui lòng cung cấp đường dẫn hình ảnh banner.' });
     }
 
     const finalImage = cleanImageUrl(hinh_anh);
+    const bannerType = loai_banner === 'sale' ? 'sale' : 'main';
 
     const [result] = await db.execute(
-      'INSERT INTO banner (tieu_de, hinh_anh, lien_ket, vi_tri, trang_thai) VALUES (?, ?, ?, ?, ?)',
-      [tieu_de || null, finalImage, lien_ket || '#', vi_tri || 0, trang_thai !== undefined ? trang_thai : 1]
+      'INSERT INTO banner (tieu_de, hinh_anh, lien_ket, vi_tri, trang_thai, loai_banner) VALUES (?, ?, ?, ?, ?, ?)',
+      [tieu_de || null, finalImage, lien_ket || '#', vi_tri || 0, trang_thai !== undefined ? trang_thai : 1, bannerType]
     );
     const isMgr = req.user && (req.user.role || '').toLowerCase() === 'manager';
-    const logMsg = isMgr ? `[MANAGER THÊM] Tiêu đề: ${tieu_de || 'Banner mới'}` : `Tiêu đề: ${tieu_de || 'Banner mới'}`;
+    const logMsg = isMgr ? `[MANAGER THÊM BANNER ${bannerType.toUpperCase()}] Tiêu đề: ${tieu_de || 'Banner mới'}` : `Tiêu đề: ${tieu_de || 'Banner mới'}`;
     logActivity(req.user, 'Thêm banner', 'Banner', result.insertId, logMsg);
     res.status(201).json({ id: result.insertId, message: 'Banner created' });
   } catch (e) {
@@ -79,18 +126,19 @@ router.post('/', verifyToken, verifyManagerOrAdmin,  async (req, res) => {
 // UPDATE banner (Admin)
 router.put('/:id', verifyToken, verifyManagerOrAdmin,  async (req, res) => {
   try {
-    const { tieu_de, lien_ket, vi_tri, trang_thai, hinh_anh } = req.body;
+    const { tieu_de, lien_ket, vi_tri, trang_thai, hinh_anh, loai_banner } = req.body;
     const finalImage = hinh_anh ? cleanImageUrl(hinh_anh) : null;
+    const bannerType = loai_banner === 'sale' ? 'sale' : 'main';
     
     if (finalImage) {
       await db.execute(
-        'UPDATE banner SET tieu_de = ?, hinh_anh = ?, lien_ket = ?, vi_tri = ?, trang_thai = ? WHERE id = ?',
-        [tieu_de, finalImage, lien_ket, vi_tri, trang_thai, req.params.id]
+        'UPDATE banner SET tieu_de = ?, hinh_anh = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
+        [tieu_de, finalImage, lien_ket, vi_tri, trang_thai, bannerType, req.params.id]
       );
     } else {
       await db.execute(
-        'UPDATE banner SET tieu_de = ?, lien_ket = ?, vi_tri = ?, trang_thai = ? WHERE id = ?',
-        [tieu_de, lien_ket, vi_tri, trang_thai, req.params.id]
+        'UPDATE banner SET tieu_de = ?, lien_ket = ?, vi_tri = ?, trang_thai = ?, loai_banner = ? WHERE id = ?',
+        [tieu_de, lien_ket, vi_tri, trang_thai, bannerType, req.params.id]
       );
     }
     res.json({ message: 'Banner updated' });
