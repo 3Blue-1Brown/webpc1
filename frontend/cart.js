@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       const li = document.createElement('li');
       li.className = 'auth-login-link';
-      li.innerHTML = '<a href="login.html">Đăng nhập</a>';
+      li.innerHTML = '<a href="login.html">👤 Đăng nhập</a>';
       mainNavUl.appendChild(li);
     }
   }
