@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tự Xây Dựng Cấu Hình PC & Workstation - Nam Nguyễn PC</title>
+  <link rel="stylesheet" href="style.css?v=13" />
+  <style>
+    /* PC Builder Specific Styles */
+    .pc-builder-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .builder-header-banner {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .builder-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #fbbf24;
+      margin: 0 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .builder-subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    .builder-summary-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1.25rem 1.75rem;
+      text-align: right;
+    }
+    .total-price-label {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .total-price-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #ef4444;
+      margin-top: 0.2rem;
+    }
+
+    /* Slots List */
+    .slots-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .slot-item {
+      background: #fff;
+      border-radius: 14px;
+      border: 1.5px solid #e2e8f0;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .slot-item:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+    .slot-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 260px;
+      flex-shrink: 0;
+    }
+    .slot-icon {
+      width: 48px;
+      height: 48px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .slot-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1e293b;
+    }
+    .slot-desc {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    .slot-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      min-height: 60px;
+    }
+    .slot-content.has-product {
+      background: #fff;
+      border: 1.5px solid #3b82f6;
+    }
+    .selected-product-detail {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      overflow: hidden;
+    }
+    .selected-product-img {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+    .selected-product-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 450px;
+    }
+    .selected-product-price {
+      font-weight: 700;
+      color: #dc2626;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .btn-select-slot {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-select-slot:hover {
+      background: #b91c1c;
+    }
+    .btn-remove-slot {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-remove-slot:hover {
+      background: #fca5a5;
+    }
+
+    /* Actions Bar */
+    .builder-actions-bar {
+      position: sticky;
+      bottom: 1.5rem;
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid #334155;
+      z-index: 100;
+    }
+    .actions-left {
+      color: #fff;
+    }
+    .actions-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .btn-action-main {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      padding: 0.85rem 1.75rem;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      transition: transform 0.2s;
+    }
+    .btn-action-main:hover {
+      transform: translateY(-2px);
+    }
+    .btn-action-secondary {
+      background: #334155;
+      color: #fff;
+      border: 1px solid #475569;
+      padding: 0.85rem 1.4rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-action-secondary:hover {
+      background: #475569;
+    }
+
+    /* Modal for Selecting Products */
+    .select-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .select-modal-box {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    }
+    .select-modal-header {
+      background: #1e293b;
+      color: #fff;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .select-modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-product-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      gap: 1rem;
+    }
+    .modal-product-item:last-child {
+      border-bottom: none;
+    }
+
+    @media print {
+      header, footer, .builder-actions-bar, .btn-select-slot, .btn-remove-slot, #floating-contact-container {
+        display: none !important;
+      }
+      .pc-builder-container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .builder-header-banner {
+        background: #fff !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+      }
+      .builder-title { color: #000 !important; }
+      .total-price-value { color: #000 !important; }
+      .slot-item { border: 1px solid #999 !important; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header>
+    <div class="top-bar">
+      <span>🔥 SIÊU SALE PC GAMING & WORKSTATION - GIẢM ĐẾN 50%</span>
+      <span>📞 Hotline Kinh Doanh: <b>0988.888.888</b> | 🛠️ Kỹ Thuật: <b>0900.000.000</b></span>
+    </div>
+
+    <div class="header-main">
+      <div class="header-container">
+        <a href="index.html" class="logo">
+          <span class="logo-icon">💻</span>
+          <div class="logo-text">
+            <span class="brand-name">NAM NGUYỄN PC</span>
+            <span class="brand-sub">PC GAMING & WORKSTATION</span>
+          </div>
+        </a>
+
+        <div class="search-box">
+          <input type="text" placeholder="Tìm sản phẩm linh kiện..." id="header-search-input" />
+          <button type="button" onclick="if(document.getElementById('header-search-input').value.trim()){ window.location.href='products.html?q=' + encodeURIComponent(document.getElementById('header-search-input').value.trim()); }">🔍 Tìm kiếm</button>
+        </div>
+
+        <div class="header-actions">
+          <a href="javascript:void(0)" onclick="openZaloModal()" class="action-btn">
+            <span class="icon">💬</span>
+            <span class="label">Chat Zalo</span>
+          </a>
+          <a href="cart.html" class="action-btn cart-btn">
+            <span class="icon">🛒</span>
+            <span class="label">Giỏ Hàng</span>
+            <span class="cart-badge" id="cart-count">0</span>
+          </a>
+          <a href="javascript:void(0)" onclick="openAuthModal()" class="action-btn" id="auth-btn">
+            <span class="icon">👤</span>
+            <span class="label">Tài Khoản</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="main-nav">
+      <div class="nav-container">
+        <a href="index.html" class="nav-item">🏠 Trang Chủ</a>
+        <a href="products.html" class="nav-item">🖥️ Tất Cả Sản Phẩm</a>
+        <a href="pc-builder.html" class="nav-item active" style="color:#fbbf24; font-weight:800;">🛠️ Xây Dựng Cấu Hình PC</a>
+        <a href="products.html?sale=true" class="nav-item">🔥 Khuyến Mãi Flash Sale</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- PC Builder Section -->
+  <main class="pc-builder-container">
+    <div class="builder-header-banner">
+      <div>
+        <h1 class="builder-title">🛠️ TỰ XÂY DỰNG CẤU HÌNH PC & WORKSTATION</h1>
+        <p class="builder-subtitle">Tự tay chọn từng linh kiện tương thích 100%, tự động tính giá và xuất báo giá chuyên nghiệp chỉ với 1 click.</p>
+      </div>
+      <div class="builder-summary-card">
+        <div class="total-price-label">Tổng Chi Phí Cấu Hình</div>
+        <div class="total-price-value" id="builder-total-price">0đ</div>
+      </div>
+    </div>
+
+    <!-- Slots Grid -->
+    <div class="slots-grid" id="slots-grid-container">
+      <!-- Generated via JavaScript -->
+    </div>
+
+    <!-- Sticky Actions Bar -->
+    <div class="builder-actions-bar">
+      <div class="actions-left">
+        <div style="font-weight:700; font-size:1.1rem; color:#fff;">Tổng tiền: <span id="sticky-total-price" style="color:#ef4444; font-size:1.3rem;">0đ</span></div>
+        <div style="font-size:0.8rem; color:#94a3b8;" id="selected-slots-count">Đã chọn 0 / 8 linh kiện</div>
+      </div>
+      <div class="actions-right">
+        <button class="btn-action-secondary" onclick="resetAllSlots()">🔄 Làm mới</button>
+        <button class="btn-action-secondary" onclick="window.print()">🖨️ In Báo Giá</button>
+        <button class="btn-action-main" onclick="addWholeBuildToCart()">🛒 Thêm Trọn Bộ Vào Giỏ Hàng</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Selector for Components -->
+  <div class="select-modal-overlay" id="select-modal">
+    <div class="select-modal-box">
+      <div class="select-modal-header">
+        <h3 id="modal-slot-title" style="margin:0; font-size:1.15rem;">Chọn linh kiện</h3>
+        <button onclick="closeSelectModal()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div style="padding: 1rem 1.5rem; background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+        <input type="text" id="modal-search-input" placeholder="Gõ tên linh kiện để tìm nhanh..." oninput="filterModalProducts()" style="width:100%; padding:0.7rem 1rem; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.92rem; outline:none; box-sizing:border-box;">
+      </div>
+      <div class="select-modal-body" id="modal-products-list">
+        <!-- Products populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="zalo-qr-modal.js"></script>
+  <script src="js/floating-contact.js"></script>
+  <script src="js/purchase-popup.js"></script>
+  <script>
+    // Configuration of 8 Component Slots
+    const SLOTS = [
+      { id: 'cpu', icon: '🧠', name: 'CPU (Vi Xử Lý)', desc: 'Chọn chip xử lý Intel Core i5/i7/i9 hoặc Xeon', catFilter: ['CPU PC', 'CPU SEVER'] },
+      { id: 'main', icon: '🔌', name: 'MAINBOARD (Bo Mạch Chủ)', desc: 'Chọn bo mạch chủ tương thích', catFilter: ['MAINBOARD PC', 'MAINBOARD SEVER'] },
+      { id: 'ram', icon: '⚡', name: 'RAM (Bộ Nhớ Trong)', desc: 'Chọn RAM PC DDR4/DDR5 hoặc RAM Server ECC', catFilter: ['RAM PC', 'RAM SEVER'] },
+      { id: 'vga', icon: '🎮', name: 'VGA (Card Đồ Họa)', desc: 'Chọn VGA NVIDIA RTX / AMD Radeon', catFilter: ['CARD ĐỒ HỌA'] },
+      { id: 'ssd', icon: '💾', name: 'Ổ CỨNG (SSD / HDD)', desc: 'Chọn ổ cứng lưu trữ NVMe SSD tốc độ cao', catFilter: ['Ổ CỨNG SSD'] },
+      { id: 'psu', icon: '⚡', name: 'NGUỒN MÁY TÍNH (PSU)', desc: 'Chọn nguồn công suất thực 80 Plus', catFilter: ['NGUỒN MÁY TÍNH'] },
+      { id: 'cooler', icon: '❄️', name: 'TẢN NHIỆT CPU', desc: 'Chọn tản nhiệt khí hoặc tản nhiệt nước AIO', catFilter: ['TẢN NHIỆT CPU'] },
+      { id: 'case', icon: '📦', name: 'VỎ MÁY TÍNH (CASE)', desc: 'Chọn vỏ case máy tính đẹp phong cách', catFilter: ['VỎ MÁY TÍNH'] }
+    ];
+
+    let allProducts = [];
+    let selectedBuild = {}; // slotId -> product object
+    let currentActiveSlot = null;
+    let currentModalProducts = [];
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      renderSlotsGrid();
+      await fetchAllProducts();
+      updateCartBadge();
+    });
+
+    async function fetchAllProducts() {
+      try {
+        const res = await fetch('/api/products');
+        allProducts = await res.json();
+      } catch (e) {
+        console.error('Failed to load products for PC Builder', e);
+      }
+    }
+
+    function renderSlotsGrid() {
+      const container = document.getElementById('slots-grid-container');
+      container.innerHTML = '';
+
+      SLOTS.forEach(slot => {
+        const selected = selectedBuild[slot.id];
+        const hasProd = !!selected;
+
+        const div = document.createElement('div');
+        div.className = 'slot-item';
+        div.innerHTML = `
+          <div class="slot-info">
+            <div class="slot-icon">${slot.icon}</div>
+            <div>
+              <div class="slot-name">${slot.name}</div>
+              <div class="slot-desc">${slot.desc}</div>
+            </div>
+          </div>
+          <div class="slot-content ${hasProd ? 'has-product' : ''}">
+            ${hasProd ? `
+              <div class="selected-product-detail">
+                <img src="${getProdImg(selected)}" class="selected-product-img" alt="${selected.ten_san_pham}">
+                <div>
+                  <div class="selected-product-title" title="${selected.ten_san_pham}">${selected.ten_san_pham}</div>
+                  <div class="selected-product-price">${formatVND(getProdPrice(selected))}</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button class="btn-select-slot" style="background:#3b82f6;" onclick="openSelectModal('${slot.id}')">🔄 Đổi</button>
+                <button class="btn-remove-slot" onclick="removeSlot('${slot.id}')">✕ Xóa</button>
+              </div>
+            ` : `
+              <span style="color:#94a3b8; font-size:0.9rem;">Chưa chọn linh kiện...</span>
+              <button class="btn-select-slot" onclick="openSelectModal('${slot.id}')">➕ Chọn linh kiện</button>
+            `}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      calculateTotal();
+    }
+
+    function openSelectModal(slotId) {
+      currentActiveSlot = SLOTS.find(s => s.id === slotId);
+      if (!currentActiveSlot) return;
+
+      document.getElementById('modal-slot-title').innerText = `Chọn ${currentActiveSlot.name}`;
+      document.getElementById('modal-search-input').value = '';
+      
+      // Filter products matching category
+      currentModalProducts = allProducts.filter(p => {
+        const cat = (p.ten_danh_muc || '').toUpperCase();
+        return currentActiveSlot.catFilter.some(f => cat.includes(f.toUpperCase()));
+      });
+
+      renderModalProductsList(currentModalProducts);
+      document.getElementById('select-modal').style.display = 'flex';
+    }
+
+    function closeSelectModal() {
+      document.getElementById('select-modal').style.display = 'none';
+    }
+
+    function filterModalProducts() {
+      const q = document.getElementById('modal-search-input').value.trim().toLowerCase();
+      const filtered = currentModalProducts.filter(p => 
+        (p.ten_san_pham || '').toLowerCase().includes(q) || (p.hang_san_xuat || '').toLowerCase().includes(q)
+      );
+      renderModalProductsList(filtered);
+    }
+
+    function renderModalProductsList(prods) {
+      const list = document.getElementById('modal-products-list');
+      if (prods.length === 0) {
+        list.innerHTML = `<div style="text-align:center; padding:2rem; color:#64748b;">Không tìm thấy linh kiện phù hợp.</div>`;
+        return;
+      }
+
+      list.innerHTML = prods.map(p => `
+        <div class="modal-product-item">
+          <div style="display:flex; align-items:center; gap:1rem;">
+            <img src="${getProdImg(p)}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0;">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem; color:#0f172a;">${p.ten_san_pham}</div>
+              <div style="font-size:0.8rem; color:#64748b;">Hãng: ${p.hang_san_xuat || 'Chính hãng'} | Danh mục: ${p.ten_danh_muc}</div>
+              <div style="font-weight:800; color:#dc2626; margin-top:3px;">${formatVND(getProdPrice(p))}</div>
+            </div>
+          </div>
+          <button onclick="selectProductForSlot('${p.id}')" style="background:#dc2626; color:#fff; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; cursor:pointer;">➕ Chọn Món Này</button>
+        </div>
+      `).join('');
+    }
+
+    function selectProductForSlot(productId) {
+      const prod = allProducts.find(p => p.id == productId);
+      if (prod && currentActiveSlot) {
+        selectedBuild[currentActiveSlot.id] = prod;
+        closeSelectModal();
+        renderSlotsGrid();
+      }
+    }
+
+    function removeSlot(slotId) {
+      delete selectedBuild[slotId];
+      renderSlotsGrid();
+    }
+
+    function resetAllSlots() {
+      if (confirm('Bạn có chắc muốn xóa tất cả linh kiện đã chọn không?')) {
+        selectedBuild = {};
+        renderSlotsGrid();
+      }
+    }
+
+    function calculateTotal() {
+      let total = 0;
+      let count = 0;
+      Object.values(selectedBuild).forEach(p => {
+        total += getProdPrice(p);
+        count++;
+      });
+
+      const formatted = formatVND(total);
+      document.getElementById('builder-total-price').innerText = formatted;
+      document.getElementById('sticky-total-price').innerText = formatted;
+      document.getElementById('selected-slots-count').innerText = `Đã chọn ${count} / 8 linh kiện`;
+    }
+
+    function addWholeBuildToCart() {
+      const prods = Object.values(selectedBuild);
+      if (prods.length === 0) {
+        alert('Vui lòng chọn ít nhất một linh kiện trước khi thêm vào giỏ hàng.');
+        return;
+      }
+
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      prods.forEach(p => {
+        const idx = cart.findIndex(item => item.id == p.id);
+        if (idx > -1) {
+          cart[idx].so_luong = (cart[idx].so_luong || 1) + 1;
+        } else {
+          cart.push({
+            id: p.id,
+            ten_san_pham: p.ten_san_pham,
+            gia: getProdPrice(p),
+            anh: getProdImg(p),
+            so_luong: 1
+          });
+        }
+      });
+
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartBadge();
+      alert(`Đã thêm trọn bộ ${prods.length} linh kiện vào giỏ hàng thành công!`);
+      window.location.href = 'cart.html';
+    }
+
+    function getProdPrice(p) {
+      if (p.gia_khuyen_mai && Number(p.gia_khuyen_mai) < Number(p.gia)) {
+        return Number(p.gia_khuyen_mai);
+      }
+      return Number(p.gia || 0);
+    }
+
+    function getProdImg(p) {
+      if (Array.isArray(p.anh) && p.anh.length > 0) return p.anh[0];
+      if (typeof p.anh === 'string' && p.anh.startsWith('[')) {
+        try { const arr = JSON.parse(p.anh); if(arr[0]) return arr[0]; } catch(e){}
+      }
+      if (typeof p.anh === 'string' && p.anh) return p.anh;
+      return 'https://via.placeholder.com/100';
+    }
+
+    function formatVND(num) {
+      return num.toLocaleString('vi-VN') + 'đ';
+    }
+
+    function updateCartBadge() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const count = cart.reduce((acc, item) => acc + (item.so_luong || 1), 0);
+      const badge = document.getElementById('cart-count');
+      if (badge) badge.innerText = count;
+    }
+  </script>
+</body>
+</html>
