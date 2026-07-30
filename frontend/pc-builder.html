@@ -6,7 +6,7 @@
   <title>Tự Xây Dựng Cấu Hình PC & Workstation - Nam Nguyễn PC</title>
   <link rel="stylesheet" href="style.css?v=13" />
   <style>
-    /* PC Builder Specific Styles */
+    /* PC Builder Specific Styling */
     .pc-builder-container {
       max-width: 1200px;
       margin: 2rem auto;
@@ -29,14 +29,14 @@
     .builder-title {
       font-size: 1.75rem;
       font-weight: 800;
-      color: #fbbf24;
+      color: #facc15;
       margin: 0 0 0.5rem 0;
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
     .builder-subtitle {
-      color: #94a3b8;
+      color: #cbd5e1;
       font-size: 0.95rem;
       margin: 0;
     }
@@ -65,8 +65,8 @@
     .slots-grid {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
+      gap: 1.25rem;
+      margin-bottom: 3rem;
     }
     .slot-item {
       background: #fff;
@@ -136,16 +136,18 @@
       overflow: hidden;
     }
     .selected-product-img {
-      width: 44px;
-      height: 44px;
-      object-fit: cover;
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      background: #fff;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
+      padding: 2px;
       flex-shrink: 0;
     }
     .selected-product-title {
-      font-weight: 600;
-      font-size: 0.92rem;
+      font-weight: 700;
+      font-size: 0.95rem;
       color: #0f172a;
       white-space: nowrap;
       overflow: hidden;
@@ -153,9 +155,9 @@
       max-width: 450px;
     }
     .selected-product-price {
-      font-weight: 700;
+      font-weight: 800;
       color: #dc2626;
-      font-size: 1rem;
+      font-size: 1.05rem;
       flex-shrink: 0;
     }
     .btn-select-slot {
@@ -252,7 +254,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.65);
+      background: rgba(0,0,0,0.7);
       z-index: 9999;
       align-items: center;
       justify-content: center;
@@ -315,55 +317,36 @@
   </style>
 </head>
 <body>
-  <!-- Header Navigation -->
-  <header>
-    <div class="top-bar">
-      <span>🔥 SIÊU SALE PC GAMING & WORKSTATION - GIẢM ĐẾN 50%</span>
-      <span>📞 Hotline Kinh Doanh: <b>0988.888.888</b> | 🛠️ Kỹ Thuật: <b>0900.000.000</b></span>
-    </div>
 
-    <div class="header-main">
-      <div class="header-container">
-        <a href="index.html" class="logo">
-          <span class="logo-icon">💻</span>
-          <div class="logo-text">
-            <span class="brand-name">NAM NGUYỄN PC</span>
-            <span class="brand-sub">PC GAMING & WORKSTATION</span>
-          </div>
-        </a>
-
-        <div class="search-box">
-          <input type="text" placeholder="Tìm sản phẩm linh kiện..." id="header-search-input" />
-          <button type="button" onclick="if(document.getElementById('header-search-input').value.trim()){ window.location.href='products.html?q=' + encodeURIComponent(document.getElementById('header-search-input').value.trim()); }">🔍 Tìm kiếm</button>
+  <!-- Site Header (Standard Header matching index.html) -->
+  <header class="site-header">
+    <div class="logo">
+      <a href="index.html" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+        <img src="logo.png" alt="Nam Nguyễn Logo" style="height: 48px; width: auto; object-fit: contain;">
+        <div style="display:flex; flex-direction:column; line-height:1.2;">
+          <span style="font-weight:700; font-size:1.3rem; color:#ffffff; letter-spacing:0.5px;">Nam Nguyễn</span>
+          <span style="font-weight:700; font-size:0.75rem; color:#facc15; text-transform:uppercase; letter-spacing:1px;">PC &amp; Workstation</span>
         </div>
-
-        <div class="header-actions">
-          <a href="javascript:void(0)" onclick="openZaloModal()" class="action-btn">
-            <span class="icon">💬</span>
-            <span class="label">Chat Zalo</span>
-          </a>
-          <a href="cart.html" class="action-btn cart-btn">
-            <span class="icon">🛒</span>
-            <span class="label">Giỏ Hàng</span>
-            <span class="cart-badge" id="cart-count">0</span>
-          </a>
-          <a href="javascript:void(0)" onclick="openAuthModal()" class="action-btn" id="auth-btn">
-            <span class="icon">👤</span>
-            <span class="label">Tài Khoản</span>
-          </a>
-        </div>
-      </div>
+      </a>
     </div>
-
-    <!-- Main Navigation Bar -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle navigation">
+      <span class="hamburger-bar"></span><span class="hamburger-bar"></span><span class="hamburger-bar"></span>
+    </button>
     <nav class="main-nav">
-      <div class="nav-container">
-        <a href="index.html" class="nav-item">🏠 Trang Chủ</a>
-        <a href="products.html" class="nav-item">🖥️ Tất Cả Sản Phẩm</a>
-        <a href="pc-builder.html" class="nav-item active" style="color:#fbbf24; font-weight:800;">🛠️ Xây Dựng Cấu Hình PC</a>
-        <a href="products.html?sale=true" class="nav-item">🔥 Khuyến Mãi Flash Sale</a>
-      </div>
+      <ul>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="categories.html">Danh mục</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="pc-builder.html" class="active" style="color:#facc15; font-weight:800;">🛠️ Xây Dựng Cấu Hình</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+      </ul>
     </nav>
+    <div class="search-wrap">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input" />
+      <button id="search-btn" onclick="if(document.getElementById('search-input').value.trim()){ window.location.href='products.html?q=' + encodeURIComponent(document.getElementById('search-input').value.trim()); }">🔍</button>
+    </div>
   </header>
 
   <!-- PC Builder Section -->
@@ -388,7 +371,7 @@
     <div class="builder-actions-bar">
       <div class="actions-left">
         <div style="font-weight:700; font-size:1.1rem; color:#fff;">Tổng tiền: <span id="sticky-total-price" style="color:#ef4444; font-size:1.3rem;">0đ</span></div>
-        <div style="font-size:0.8rem; color:#94a3b8;" id="selected-slots-count">Đã chọn 0 / 8 linh kiện</div>
+        <div style="font-size:0.8rem; color:#cbd5e1;" id="selected-slots-count">Đã chọn 0 / 8 linh kiện</div>
       </div>
       <div class="actions-right">
         <button class="btn-action-secondary" onclick="resetAllSlots()">🔄 Làm mới</button>
@@ -414,7 +397,14 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer class="site-footer" style="margin-top:4rem;">
+    <p>© 2026 NAM NGUYỄN PC & WORKSTATION. All rights reserved.</p>
+  </footer>
+
   <!-- Scripts -->
+  <script src="js/image-utils.js"></script>
+  <script src="cart.js?v=2"></script>
   <script src="zalo-qr-modal.js"></script>
   <script src="js/floating-contact.js"></script>
   <script src="js/purchase-popup.js"></script>
@@ -440,6 +430,15 @@
       renderSlotsGrid();
       await fetchAllProducts();
       updateCartBadge();
+
+      // Mobile Menu Toggle
+      const mobileBtn = document.getElementById('mobile-menu-btn');
+      const mainNav = document.querySelector('.main-nav');
+      if (mobileBtn && mainNav) {
+        mobileBtn.addEventListener('click', function() {
+          mainNav.classList.toggle('open');
+        });
+      }
     });
 
     async function fetchAllProducts() {
@@ -453,6 +452,7 @@
 
     function renderSlotsGrid() {
       const container = document.getElementById('slots-grid-container');
+      if (!container) return;
       container.innerHTML = '';
 
       SLOTS.forEach(slot => {
@@ -472,7 +472,7 @@
           <div class="slot-content ${hasProd ? 'has-product' : ''}">
             ${hasProd ? `
               <div class="selected-product-detail">
-                <img src="${getProdImg(selected)}" class="selected-product-img" alt="${selected.ten_san_pham}">
+                <img src="${getProdImg(selected)}" class="selected-product-img" alt="${selected.ten_san_pham}" onerror="handleImgError(this)" data-raw-url="${getRawProdImg(selected)}">
                 <div>
                   <div class="selected-product-title" title="${selected.ten_san_pham}">${selected.ten_san_pham}</div>
                   <div class="selected-product-price">${formatVND(getProdPrice(selected))}</div>
@@ -530,19 +530,23 @@
         return;
       }
 
-      list.innerHTML = prods.map(p => `
-        <div class="modal-product-item">
-          <div style="display:flex; align-items:center; gap:1rem;">
-            <img src="${getProdImg(p)}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0;">
-            <div>
-              <div style="font-weight:700; font-size:0.95rem; color:#0f172a;">${p.ten_san_pham}</div>
-              <div style="font-size:0.8rem; color:#64748b;">Hãng: ${p.hang_san_xuat || 'Chính hãng'} | Danh mục: ${p.ten_danh_muc}</div>
-              <div style="font-weight:800; color:#dc2626; margin-top:3px;">${formatVND(getProdPrice(p))}</div>
+      list.innerHTML = prods.map(p => {
+        const imgUrl = getProdImg(p);
+        const rawImg = getRawProdImg(p);
+        return `
+          <div class="modal-product-item">
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <img src="${imgUrl}" style="width:56px; height:56px; object-fit:contain; border-radius:8px; border:1px solid #e2e8f0; background:#fff; padding:2px;" onerror="handleImgError(this)" data-raw-url="${rawImg}">
+              <div>
+                <div style="font-weight:700; font-size:0.95rem; color:#0f172a;">${p.ten_san_pham}</div>
+                <div style="font-size:0.8rem; color:#64748b; margin-top:2px;">Hãng: <b>${p.hang_san_xuat || 'Chính hãng'}</b> | Danh mục: ${p.ten_danh_muc}</div>
+                <div style="font-weight:800; color:#dc2626; font-size:1rem; margin-top:4px;">${formatVND(getProdPrice(p))}</div>
+              </div>
             </div>
+            <button onclick="selectProductForSlot('${p.id}')" style="background:#dc2626; color:#fff; border:none; padding:0.65rem 1.2rem; border-radius:8px; font-weight:700; cursor:pointer; flex-shrink:0;">➕ Chọn Món Này</button>
           </div>
-          <button onclick="selectProductForSlot('${p.id}')" style="background:#dc2626; color:#fff; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; cursor:pointer;">➕ Chọn Món Này</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function selectProductForSlot(productId) {
@@ -616,12 +620,21 @@
       return Number(p.gia || 0);
     }
 
-    function getProdImg(p) {
-      if (Array.isArray(p.anh) && p.anh.length > 0) return p.anh[0];
-      if (typeof p.anh === 'string' && p.anh.startsWith('[')) {
-        try { const arr = JSON.parse(p.anh); if(arr[0]) return arr[0]; } catch(e){}
+    function getRawProdImg(p) {
+      let raw = p.anh;
+      if (Array.isArray(p.anh) && p.anh.length > 0) raw = p.anh[0];
+      else if (typeof p.anh === 'string' && p.anh.startsWith('[')) {
+        try { const arr = JSON.parse(p.anh); if(arr[0]) raw = arr[0]; } catch(e){}
       }
-      if (typeof p.anh === 'string' && p.anh) return p.anh;
+      return raw || '';
+    }
+
+    function getProdImg(p) {
+      const raw = getRawProdImg(p);
+      if (typeof convertImageUrl === 'function') {
+        const converted = convertImageUrl(raw);
+        if (converted) return converted;
+      }
       return 'https://via.placeholder.com/100';
     }
 
