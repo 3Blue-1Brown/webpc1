@@ -2460,6 +2460,13 @@
           initProductsView();
         } else {
           const err = await res.json();
+          if (res.status === 401 || (err.error && (err.error.includes('expired') || err.error.includes('token')))) {
+            alert('🔒 Phiên đăng nhập Admin của bạn đã hết hạn. Vui lòng đăng nhập lại!');
+            localStorage.removeItem('token');
+            localStorage.removeItem('adminToken');
+            window.location.reload();
+            return;
+          }
           alert('Lỗi: ' + (err.error || 'Có lỗi xảy ra.'));
         }
       } catch (e) {
