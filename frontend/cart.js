@@ -142,6 +142,72 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => console.error('Lỗi tải subnav:', err));
   }
 
+  // --- MOBILE HAMBURGER MENU TOGGLE ---
+  const siteHeader = document.querySelector('.site-header');
+  const mainNav = document.querySelector('.main-nav');
+  if (siteHeader && mainNav) {
+    let mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    if (!mobileMenuBtn) {
+      mobileMenuBtn = document.createElement('button');
+      mobileMenuBtn.id = 'mobile-menu-btn';
+      mobileMenuBtn.className = 'mobile-menu-btn';
+      mobileMenuBtn.setAttribute('aria-label', 'Toggle Navigation Menu');
+      mobileMenuBtn.innerHTML = `
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      `;
+      // Insert after logo if logo exists
+      const logo = siteHeader.querySelector('.logo');
+      if (logo && logo.nextSibling) {
+        siteHeader.insertBefore(mobileMenuBtn, logo.nextSibling);
+      } else {
+        siteHeader.appendChild(mobileMenuBtn);
+      }
+    }
+
+    mobileMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isActive = mainNav.classList.toggle('active');
+      mobileMenuBtn.classList.toggle('active', isActive);
+    });
+
+    // Close menu when clicking outside header
+    document.addEventListener('click', (e) => {
+      if (!siteHeader.contains(e.target) && mainNav.classList.contains('active')) {
+        mainNav.classList.remove('active');
+        mobileMenuBtn.classList.remove('active');
+      }
+    });
+
+    // Close menu when clicking nav links
+    const navLinks = mainNav.querySelectorAll('a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('active');
+        mobileMenuBtn.classList.remove('active');
+      });
+    });
+  }
+
+  // --- SEARCH BAR GLOBAL HANDLER ---
+  const searchBtn = document.getElementById('search-btn');
+  const searchInput = document.getElementById('search-input');
+  if (searchBtn && searchInput) {
+    const doSearch = () => {
+      const q = searchInput.value.trim();
+      if (q) {
+        window.location.href = `search.html?q=${encodeURIComponent(q)}`;
+      }
+    };
+    searchBtn.addEventListener('click', doSearch);
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        doSearch();
+      }
+    });
+  }
+
   // --- AUTHENTICATION UI INJECTION ---
   const token = localStorage.getItem('token');
   const userStr = localStorage.getItem('user');
