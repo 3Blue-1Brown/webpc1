@@ -213,6 +213,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const userStr = localStorage.getItem('user');
   const mainNavUl = document.querySelector('.main-nav ul');
   if (mainNavUl) {
+    // Dynamic Failsafe Menu Icons Booster
+    const iconMap = {
+      'index.html': '🏠',
+      'categories.html': '📂',
+      'products.html': '🖥️',
+      'pc-builder.html': '🛠️',
+      'about.html': 'ℹ️',
+      'contact.html': '📞'
+    };
+    mainNavUl.querySelectorAll('a').forEach(a => {
+      const href = (a.getAttribute('href') || '').toLowerCase();
+      Object.keys(iconMap).forEach(page => {
+        if (href.endsWith(page) && !a.innerText.includes(iconMap[page])) {
+          a.innerText = `${iconMap[page]} ${a.innerText.trim()}`;
+        }
+      });
+    });
+
     // Remove any existing login links or auth containers to prevent duplicate login buttons
     const existingLogins = mainNavUl.querySelectorAll('li.auth-dropdown-container, li.auth-login-link, a[href*="login"]');
     existingLogins.forEach(el => {
