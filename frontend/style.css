@@ -1687,10 +1687,10 @@ ul {
 .popup-item-name { font-weight: 700; color: #fbbf24; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
 .popup-time { color: #94a3b8; font-size: 0.75rem; }
 
-/* ── Trust Badges Grid ── */
+/* ── Trust Badges Grid (Redesigned & Styled) ── */
 .trust-badges-container {
   max-width: 1200px;
-  margin: 2.5rem auto 1.5rem auto;
+  margin: 3rem auto 2rem auto;
   padding: 0 1rem;
 }
 .trust-badges-grid {
@@ -1698,40 +1698,59 @@ ul {
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
 }
-@media (max-width: 900px) {
+@media (max-width: 992px) {
   .trust-badges-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .trust-badges-grid { grid-template-columns: 1fr; }
 }
 .trust-badge-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.25rem 1rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1.2rem 1.1rem;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 0.9rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .trust-badge-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.12);
+  border-color: #fca5a5;
 }
-.trust-icon {
-  font-size: 2.2rem;
+.trust-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
   flex-shrink: 0;
 }
+.trust-text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 .trust-title {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-weight: 800;
-  font-size: 0.95rem;
-  color: #0f172a;
-  margin-bottom: 2px;
+  font-size: 0.92rem;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
 }
 .trust-desc {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 0.78rem;
   color: #64748b;
+  line-height: 1.4;
 }
 
 
