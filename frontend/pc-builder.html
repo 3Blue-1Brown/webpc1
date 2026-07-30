@@ -621,12 +621,13 @@
     }
 
     function getRawProdImg(p) {
-      let raw = p.anh;
-      if (Array.isArray(p.anh) && p.anh.length > 0) raw = p.anh[0];
-      else if (typeof p.anh === 'string' && p.anh.startsWith('[')) {
-        try { const arr = JSON.parse(p.anh); if(arr[0]) raw = arr[0]; } catch(e){}
+      if (!p) return '';
+      let raw = p.duong_dan_anh || p.anh_url || p.anh;
+      if (Array.isArray(raw) && raw.length > 0) raw = raw[0];
+      else if (typeof raw === 'string' && raw.startsWith('[')) {
+        try { const arr = JSON.parse(raw); if(arr[0]) raw = arr[0]; } catch(e){}
       }
-      return raw || '';
+      return typeof raw === 'string' ? raw.trim() : '';
     }
 
     function getProdImg(p) {
@@ -635,7 +636,7 @@
         const converted = convertImageUrl(raw);
         if (converted) return converted;
       }
-      return 'https://via.placeholder.com/100';
+      return 'logo.png';
     }
 
     function formatVND(num) {
