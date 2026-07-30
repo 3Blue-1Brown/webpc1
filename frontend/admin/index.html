@@ -517,7 +517,7 @@
 
         <!-- 4 Stat Cards (Clickable Navigation) -->
         <div class="stats-grid">
-          <div class="stat-card clickable-stat-card" onclick="switchAdminTab('orders-view')" title="Bấm để xem danh sách Đơn hàng">
+          <div class="stat-card clickable-stat-card" onclick="switchAdminTab('orders-view', null, 'Hoàn thành')" title="Bấm để xem các đơn hàng đã Hoàn thành (Doanh thu thực tế)">
             <div class="stat-icon revenue">💵</div>
             <div class="stat-info">
               <h4>Doanh Thu Thực Tế</h4>
@@ -1204,7 +1204,7 @@
 
         const progressContainer = document.getElementById('order-progress-container');
         progressContainer.innerHTML = `
-          <div class="progress-item">
+          <div class="progress-item" onclick="switchAdminTab('orders-view', null, 'Hoàn thành')" style="cursor:pointer; padding:4px 0; transition:all 0.2s;" title="Bấm để lọc danh sách đơn Hoàn thành">
             <div class="progress-label">
               <span>✅ Đơn hoàn thành (${data.orders.hoan_thanh} đơn)</span>
               <span style="color:#059669; font-weight:700;">${pHoanThanh}%</span>
@@ -1212,7 +1212,7 @@
             <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pHoanThanh}%; background:#059669;"></div></div>
           </div>
 
-          <div class="progress-item">
+          <div class="progress-item" onclick="switchAdminTab('orders-view', null, 'Đang xử lý')" style="cursor:pointer; padding:4px 0; transition:all 0.2s;" title="Bấm để lọc danh sách đơn Đang xử lý">
             <div class="progress-label">
               <span>🔄 Đơn đang xử lý (${data.orders.xu_ly} đơn)</span>
               <span style="color:#2563eb; font-weight:700;">${pXuLy}%</span>
@@ -1220,7 +1220,7 @@
             <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pXuLy}%; background:#2563eb;"></div></div>
           </div>
 
-          <div class="progress-item">
+          <div class="progress-item" onclick="switchAdminTab('orders-view', null, 'Mới')" style="cursor:pointer; padding:4px 0; transition:all 0.2s;" title="Bấm để lọc danh sách đơn Mới">
             <div class="progress-label">
               <span>🆕 Đơn hàng mới (${data.orders.moi} đơn)</span>
               <span style="color:#f97316; font-weight:700;">${pMoi}%</span>
@@ -1228,7 +1228,7 @@
             <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pMoi}%; background:#f97316;"></div></div>
           </div>
 
-          <div class="progress-item">
+          <div class="progress-item" onclick="switchAdminTab('orders-view', null, 'Hủy')" style="cursor:pointer; padding:4px 0; transition:all 0.2s;" title="Bấm để lọc danh sách đơn bị Hủy">
             <div class="progress-label">
               <span>❌ Đơn bị hủy (${data.orders.huy} đơn)</span>
               <span style="color:#dc2626; font-weight:700;">${pHuy}%</span>
@@ -1404,8 +1404,8 @@
       return `<div style="text-align:center; font-size:0.85rem; color:#64748b; margin-top:8px;">Tổng doanh số: <b>${totalRev.toLocaleString('vi-VN')}₫</b> | Tổng sản phẩm: <b>${totalCount} sp</b></div>`;
     }
 
-    // Helper: Switch admin tab and optionally filter by category
-    function switchAdminTab(targetId, categoryFilterId = null) {
+    // Helper: Switch admin tab and optionally filter by category or order status
+    function switchAdminTab(targetId, categoryFilterId = null, orderStatusFilter = null) {
       const link = document.querySelector(`.nav-link[data-target="${targetId}"]`);
       if (link) {
         link.click();
@@ -1421,6 +1421,18 @@
           if (prodCatFilter) {
             prodCatFilter.value = categoryFilterId;
             loadProducts();
+          }
+        }, 150);
+      }
+
+      if (targetId === 'orders-view' && orderStatusFilter !== null) {
+        setTimeout(() => {
+          const statusFilterEl = document.getElementById('order-status-filter');
+          if (statusFilterEl) {
+            statusFilterEl.value = orderStatusFilter;
+            if (typeof renderFilteredOrders === 'function') {
+              renderFilteredOrders();
+            }
           }
         }, 150);
       }
