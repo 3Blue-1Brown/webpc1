@@ -49,6 +49,13 @@
         </select>
       </div>
       <div>
+        <label for="filter-sale" style="font-weight: 600;">Khuyến mãi</label><br/>
+        <select id="filter-sale" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;">
+          <option value="All">Tất cả sản phẩm</option>
+          <option value="sale">🔥 Đang Giảm Giá / Flash Sale</option>
+        </select>
+      </div>
+      <div>
         <label for="filter-price-min" style="font-weight: 600;">Giá từ</label><br/>
         <input type="number" id="filter-price-min" min="0" placeholder="0" style="padding: 0.4rem 0.6rem; border: 1px solid #d1d5db; border-radius: 6px;" />
       </div>
@@ -109,34 +116,35 @@
         }
         allProducts = data;
         
-        // Read URL params
+        // Read URL params (cat, sale, search/q)
         const urlParams = new URLSearchParams(window.location.search);
         const catId = urlParams.get('cat');
-        
+        const isSaleParam = urlParams.get('sale') === 'true' || urlParams.get('flash_sale') === 'true' || urlParams.get('sale') === '1';
+        const searchParam = urlParams.get('search') || urlParams.get('q') || '';
+
+        if (searchParam && document.getElementById('filter-name')) {
+          document.getElementById('filter-name').value = searchParam;
+        }
+
+        if (isSaleParam && document.getElementById('filter-sale')) {
+          document.getElementById('filter-sale').value = 'sale';
+        }
+
         // Fetch categories to populate select box
         const catRes = await fetch('/api/categories');
         const cats = await catRes.json();
-        if (!Array.isArray(cats)) return;
         const select = document.getElementById('category-filter');
-        
-        const catGrid = document.getElementById('category-grid');
-        cats.forEach(c => {
-          select.innerHTML += `<option value="${c.ten_danh_muc}">${c.ten_danh_muc}</option>`;
-          
-          if (catGrid) {
-            const card = document.createElement('div');
-            card.className = 'category-card';
-            const imgHTML = c.hinh_anh ? `<div class="cat-img-wrap"><img src="${c.hinh_anh}" alt="${c.ten_danh_muc}"></div>` : '';
-            card.innerHTML = `<a href="categories.html?cat=${c.id}">${imgHTML}<span class="cat-title">${c.ten_danh_muc}</span></a>`;
-            catGrid.appendChild(card);
-          }
-        });
+        if (Array.isArray(cats) && select) {
+          cats.forEach(c => {
+            select.innerHTML += `<option value="${c.ten_danh_muc}">${c.ten_danh_muc}</option>`;
+          });
 
-        if (catId) {
-          const category = cats.find(c => c.id == catId);
-          if (category) {
-            currentFilter = category.ten_danh_muc;
-            select.value = category.ten_danh_muc;
+          if (catId) {
+            const category = cats.find(c => c.id == catId);
+            if (category) {
+              currentFilter = category.ten_danh_muc;
+              select.value = category.ten_danh_muc;
+            }
           }
         }
         
@@ -148,20 +156,31 @@
 
     function applyFilterSort() {
       const name = document.getElementById('filter-name') ? document.getElementById('filter-name').value.trim().toLowerCase() : '';
+      const saleFilter = document.getElementById('filter-sale') ? document.getElementById('filter-sale').value : 'All';
       const priceMin = document.getElementById('filter-price-min') ? parseFloat(document.getElementById('filter-price-min').value) : NaN;
       const priceMax = document.getElementById('filter-price-max') ? parseFloat(document.getElementById('filter-price-max').value) : NaN;
       const condition = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'All';
 
       let filtered = allProducts;
       
+      // Filter by sale status
+      if (saleFilter === 'sale') {
+        filtered = filtered.filter(p => p.is_flash_sale || (p.gia_khuyen_mai && Number(p.gia_khuyen_mai) < Number(p.gia)));
+      }
+
       // Filter by category
       if (currentFilter !== 'All') {
         filtered = filtered.filter(p => p.ten_danh_muc === currentFilter);
       }
       
-      // Advanced filters
+      // Advanced filters (Search across name, category, or brand)
       filtered = filtered.filter(p => {
-        if (name && !p.ten_san_pham.toLowerCase().includes(name)) return false;
+        if (name) {
+          const matchName = (p.ten_san_pham || '').toLowerCase().includes(name);
+          const matchCat = (p.ten_danh_muc || '').toLowerCase().includes(name);
+          const matchBrand = (p.hang_san_xuat || '').toLowerCase().includes(name);
+          if (!matchName && !matchCat && !matchBrand) return false;
+        }
         if (!isNaN(priceMin) && (p.gia || 0) < priceMin) return false;
         if (!isNaN(priceMax) && (p.gia || 0) > priceMax) return false;
         if (condition === 'new' && !p.trang_thai) return false; // assume true = new
@@ -223,6 +242,12 @@
       currentPage = 1;
       applyFilterSort();
     });
+    if (document.getElementById('filter-sale')) {
+      document.getElementById('filter-sale').addEventListener('change', () => {
+        currentPage = 1;
+        applyFilterSort();
+      });
+    }
     document.getElementById('sort-select').addEventListener('change', e => {
       currentSort = e.target.value;
       currentPage = 1;
