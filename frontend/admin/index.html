@@ -1338,6 +1338,9 @@
       ];
       const bgColors = colors.slice(0, sortedStats.length);
 
+      const totalRevSum = revenues.reduce((a, b) => a + b, 0);
+      const totalCountSum = productCounts.reduce((a, b) => a + b, 0);
+
       categoryChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -1350,10 +1353,40 @@
             borderColor: '#ffffff'
           }]
         },
+        plugins: [{
+          id: 'centerTextPlugin',
+          beforeDraw: function(chart) {
+            const width = chart.width;
+            const height = chart.height;
+            const ctx = chart.ctx;
+            ctx.restore();
+            
+            const fontSizeTitle = 10;
+            ctx.font = `bold ${fontSizeTitle}px Arial`;
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#64748b';
+
+            const titleText = currentChartMetric === 'revenue' ? 'TỔNG DOANH SỐ' : 'TỔNG SẢN PHẨM';
+            const titleX = Math.round((width - ctx.measureText(titleText).width) / 2 - (chart.legend ? chart.legend.width / 2 : 0));
+            const titleY = height / 2 - 10;
+            ctx.fillText(titleText, titleX, titleY);
+
+            const fontSizeVal = 13;
+            ctx.font = `800 ${fontSizeVal}px Arial`;
+            ctx.fillStyle = '#059669';
+
+            const valText = currentChartMetric === 'revenue' ? totalRevSum.toLocaleString('vi-VN') + '₫' : totalCountSum + ' SP';
+            const valX = Math.round((width - ctx.measureText(valText).width) / 2 - (chart.legend ? chart.legend.width / 2 : 0));
+            const valY = height / 2 + 10;
+            ctx.fillText(valText, valX, valY);
+
+            ctx.save();
+          }
+        }],
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '62%',
+          cutout: '65%',
           onClick: (e, elements) => {
             if (elements.length > 0) {
               const index = elements[0].index;
@@ -1370,7 +1403,24 @@
               labels: {
                 font: { family: 'Arial', size: 11, weight: 'bold' },
                 boxWidth: 12,
-                padding: 8
+                padding: 8,
+                generateLabels: function(chart) {
+                  return labels.map((label, i) => {
+                    const rev = revenues[i] > 0 ? revenues[i].toLocaleString('vi-VN') + '₫' : '0₫';
+                    const count = productCounts[i] + ' sp';
+                    const textVal = currentChartMetric === 'revenue'
+                      ? `${label} — ${rev}`
+                      : `${label} — ${count}`;
+                    return {
+                      text: textVal,
+                      fillStyle: bgColors[i],
+                      strokeStyle: '#ffffff',
+                      lineWidth: 1,
+                      hidden: false,
+                      index: i
+                    };
+                  });
+                }
               }
             },
             tooltip: {
