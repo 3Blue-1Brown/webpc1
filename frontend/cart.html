@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Giỏ hàng - WebPC</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <style>
     .cart-container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
     .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }
@@ -28,6 +28,8 @@
     .btn-continue:hover { background: #e5e7eb; }
     .btn-checkout { background: var(--red); color: #fff; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; }
     .btn-checkout:hover { background: #b91c1c; }
+    .btn-clear-cart { background: #fee2e2; color: #dc2626; padding: 0.8rem 1.5rem; border-radius: 6px; font-weight: 600; border: 1px solid #fca5a5; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-clear-cart:hover { background: #fecaca; transform: translateY(-1px); }
     
     .empty-cart { text-align: center; padding: 4rem 1rem; background: #fff; border-radius: 8px; }
     .empty-cart h2 { color: #6b7280; margin-bottom: 1rem; }
@@ -152,6 +154,7 @@
         <div class="cart-summary">
           <h3>Tổng cộng: <span class="cart-total-price">${window.Cart.getCartTotal().toLocaleString('vi-VN')}₫</span></h3>
           <div class="cart-actions">
+            <button class="btn-clear-cart" onclick="removeAllItems()">🗑️ Xóa tất cả sản phẩm</button>
             <a href="categories.html" class="btn-continue">Tiếp tục mua sắm</a>
             <button class="btn-checkout" onclick="window.location.href='checkout.html'">Tiến hành thanh toán</button>
           </div>
@@ -173,6 +176,13 @@
     function removeItem(id) {
       if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
         window.Cart.removeFromCart(id);
+        renderCart();
+      }
+    }
+
+    function removeAllItems() {
+      if (confirm('Bạn có chắc chắn muốn xóa tất cả sản phẩm khỏi giỏ hàng?')) {
+        window.Cart.clearCart();
         renderCart();
       }
     }

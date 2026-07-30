@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nam Nguyễn PC & Workstation - Trang Chủ</title>
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
   <!-- Header -->
@@ -84,15 +84,15 @@
 
     <!-- 3 Flash Sale Banners -->
     <div style="padding: 1.5rem 1rem 0.5rem 1rem;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;" id="flash-sale-banners-container">
-        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-          <img src="flash_banner1.png?v=2" alt="Giảm 50% Dàn PC Gaming Đỉnh Cao" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async">
+      <div class="flash-sale-banners-grid" id="flash-sale-banners-container">
+        <div class="flash-sale-banner-card">
+          <img src="flash_banner1.png?v=2" alt="Giảm 50% Dàn PC Gaming Đỉnh Cao" class="flash-sale-banner-img" loading="lazy" decoding="async">
         </div>
-        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-          <img src="flash_banner2.png?v=2" alt="Siêu Ưu Đãi Workstation" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async">
+        <div class="flash-sale-banner-card">
+          <img src="flash_banner2.png?v=2" alt="Siêu Ưu Đãi Workstation" class="flash-sale-banner-img" loading="lazy" decoding="async">
         </div>
-        <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-          <img src="flash_banner3.png?v=2" alt="Xả Hàng Giá Sốc Linh Kiện Chính Hãng" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async">
+        <div class="flash-sale-banner-card">
+          <img src="flash_banner3.png?v=2" alt="Xả Hàng Giá Sốc Linh Kiện Chính Hãng" class="flash-sale-banner-img" loading="lazy" decoding="async">
         </div>
       </div>
 
@@ -292,26 +292,42 @@
       setInterval(updateTimer, 1000);
     }
 
-    // ── Load Sale Banners ──
+    // ── Load Sale Banners (Always render 3 distinct slots) ──
     async function loadSaleBanners() {
       try {
         const res = await fetch('/api/banners?type=sale');
-        if (!res.ok) return;
-        const saleBanners = await res.json();
+        const saleBanners = (res.ok) ? (await res.json()) : [];
         const container = document.getElementById('flash-sale-banners-container');
-        if (!container || !Array.isArray(saleBanners) || saleBanners.length === 0) return;
+        if (!container) return;
 
-        container.innerHTML = saleBanners.map(b => {
-          const imgRaw = b.hinh_anh || '';
-          const bannerImg = (imgRaw.startsWith('http://') || imgRaw.startsWith('https://') || imgRaw.startsWith('/')) ? imgRaw : '/' + imgRaw;
-          const finalImg = convertImageUrl(bannerImg);
-          const link = b.lien_ket || '#';
-          return `
-            <div style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.12); border: 2px solid #fca5a5; transition: transform 0.2s; cursor:pointer;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-              <a href="${link}"><img src="${finalImg}" alt="${b.tieu_de || 'Banner Sale'}" style="width: 100%; height: 170px; object-fit: cover; display: block;" loading="lazy" decoding="async" onerror="this.src='flash_banner1.png'"></a>
+        const defaultBanners = [
+          { img: 'flash_banner1.png?v=2', title: 'Giảm 50% Dàn PC Gaming Đỉnh Cao', link: '#' },
+          { img: 'flash_banner2.png?v=2', title: 'Siêu Ưu Đãi Workstation', link: '#' },
+          { img: 'flash_banner3.png?v=2', title: 'Xả Hàng Giá Sốc Linh Kiện Chính Hãng', link: '#' }
+        ];
+
+        let html = '';
+        for (let i = 0; i < 3; i++) {
+          const b = (Array.isArray(saleBanners) && saleBanners[i]) ? saleBanners[i] : null;
+          let finalImg = defaultBanners[i].img;
+          let link = defaultBanners[i].link;
+          let title = defaultBanners[i].title;
+
+          if (b) {
+            const imgRaw = b.hinh_anh || '';
+            const bannerImg = (imgRaw.startsWith('http://') || imgRaw.startsWith('https://') || imgRaw.startsWith('/')) ? imgRaw : '/' + imgRaw;
+            finalImg = convertImageUrl(bannerImg);
+            link = b.lien_ket || '#';
+            title = b.tieu_de || title;
+          }
+
+          html += `
+            <div class="flash-sale-banner-card">
+              <a href="${link}"><img src="${finalImg}" alt="${title}" class="flash-sale-banner-img" loading="lazy" decoding="async" onerror="this.src='${defaultBanners[i].img}'"></a>
             </div>
           `;
-        }).join('');
+        }
+        container.innerHTML = html;
       } catch (e) {
         console.warn('loadSaleBanners error:', e);
       }

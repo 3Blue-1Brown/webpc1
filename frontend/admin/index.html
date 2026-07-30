@@ -755,7 +755,10 @@
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap: 1rem;">
             <h3>Danh sách sản phẩm</h3>
-            <button class="btn-sm" style="background:var(--orange); color:#fff; padding:0.6rem 1.2rem; font-weight:700; border-radius:6px;" onclick="openProductModal()">+ Thêm sản phẩm mới</button>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-sm btn-delete" style="padding:0.6rem 1.2rem; font-weight:700; border-radius:6px;" onclick="clearAllProducts()">🗑️ Xóa tất cả sản phẩm</button>
+              <button class="btn-sm" style="background:var(--orange); color:#fff; padding:0.6rem 1.2rem; font-weight:700; border-radius:6px;" onclick="openProductModal()">+ Thêm sản phẩm mới</button>
+            </div>
           </div>
           
           <!-- Filters & Search -->
@@ -2486,6 +2489,27 @@
         }
       } catch(e) {
         console.error(e);
+      }
+    }
+
+    async function clearAllProducts() {
+      if(!confirm('⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa TẤT CẢ sản phẩm trong hệ thống không? Toàn bộ sản phẩm sẽ được chuyển sang trạng thái đã xóa.')) return;
+      try {
+        const res = await fetch('/api/products/clear-all', {
+          method: 'DELETE',
+          headers: authHeaders
+        });
+        if(res.ok) {
+          const data = await res.json();
+          alert(`Đã xóa tất cả ${data.count || 0} sản phẩm thành công!`);
+          loadProducts();
+        } else {
+          const err = await res.json();
+          alert('Lỗi: ' + (err.error || 'Không thể xóa tất cả sản phẩm'));
+        }
+      } catch(e) {
+        console.error(e);
+        alert('Lỗi kết nối khi xóa tất cả sản phẩm');
       }
     }
 

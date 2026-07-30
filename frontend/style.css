@@ -1508,4 +1508,43 @@ ul {
   }
 }
 
+/* ── Flash Sale Banners Custom Styling ── */
+.flash-sale-banners-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 900px) {
+  .flash-sale-banners-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+.flash-sale-banner-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border: 2px solid #fca5a5;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background: #fff;
+  cursor: pointer;
+}
+.flash-sale-banner-card:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.2);
+}
+.flash-sale-banner-img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  display: block;
+}
+@media (max-width: 768px) {
+  .flash-sale-banner-img {
+    height: 160px;
+  }
+}
+
+
 

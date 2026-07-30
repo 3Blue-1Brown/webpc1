@@ -444,6 +444,20 @@ router.put(
   }
 );
 
+// DELETE all products (Only Admin can delete all)
+router.delete('/clear-all', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const [result] = await db.execute(
+      'UPDATE san_pham SET is_deleted = 1 WHERE is_deleted = 0'
+    );
+
+    logActivity(req.user, 'Xóa tất cả sản phẩm', 'Sản phẩm', null, `Đã xóa tất cả ${result.affectedRows} sản phẩm`);
+    res.json({ message: 'All products deleted successfully', count: result.affectedRows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // DELETE product (Only Admin can delete)
 router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
   try {
