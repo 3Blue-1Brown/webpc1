@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Admin Dashboard - Nam Nguyễn PC & Workstation</title>
   <script src="../js/image-utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
 <style>
     .text-center { text-align: center !important; }
@@ -568,9 +569,9 @@
 
           <!-- Right: Category Stats & Sales Revenue Chart -->
           <div class="card" style="margin-bottom:0;">
-            <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b; display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="margin:0 0 1rem 0; font-size:1.05rem; color:#1e293b; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
               <span>📊 Biểu Đồ Doanh Số Theo Danh Mục</span>
-              <span style="font-size:0.8rem; color:#059669; font-weight:600;">Lọc sản phẩm ➔</span>
+              <span style="font-size:0.8rem; color:#059669; font-weight:600; cursor:pointer;" onclick="switchAdminTab('products-view')" title="Bấm để chuyển tới Quản lý sản phẩm">Lọc sản phẩm ➔</span>
             </h4>
             <div id="category-stats-container">
               <p style="color:#64748b;">Đang tải số liệu...</p>
@@ -1237,37 +1238,11 @@
         `;
 
         // 3. Category Sales & Product Breakdown Chart
-        const catContainer = document.getElementById('category-stats-container');
         if (data.categoriesStats && data.categoriesStats.length > 0) {
-          const maxRev = Math.max(...data.categoriesStats.map(c => Number(c.category_revenue || 0)), 1);
-          let catHtml = '<div style="display:flex; flex-direction:column; gap:0.75rem;">';
-          data.categoriesStats.forEach(c => {
-            const rev = Number(c.category_revenue || 0);
-            const percent = Math.min(Math.round((rev / maxRev) * 100), 100);
-            const formattedRev = rev > 0 ? rev.toLocaleString('vi-VN') + '₫' : '0₫';
-            const catId = c.id;
-
-            catHtml += `
-              <div class="cat-stat-item" onclick="switchAdminTab('products-view', '${catId}')" style="cursor:pointer; padding:0.6rem 0.75rem; border-radius:8px; border:1px solid #f1f5f9; background:#fff; transition:all 0.2s;" onmouseover="this.style.background='#f8fafc'; this.style.borderColor='#cbd5e1';" onmouseout="this.style.background='#fff'; this.style.borderColor='#f1f5f9';" title="Bấm để xem & lọc danh mục ${c.ten_danh_muc}">
-                <div style="display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:0.35rem;">
-                  <span style="font-weight:700; color:#1e293b; display:flex; align-items:center; gap:6px;">
-                    📁 ${c.ten_danh_muc}
-                  </span>
-                  <span style="display:flex; gap:10px; align-items:center;">
-                    <span style="font-weight:700; color:#059669;">${formattedRev}</span>
-                    <span style="background:#e2e8f0; color:#334155; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.78rem;">${c.count_products} sp</span>
-                  </span>
-                </div>
-                <div style="width:100%; height:8px; background:#f1f5f9; border-radius:4px; overflow:hidden;">
-                  <div style="width:${Math.max(percent, rev > 0 ? 6 : 2)}%; height:100%; background:linear-gradient(90deg, #10b981, #059669); border-radius:4px; transition:width 0.5s ease;"></div>
-                </div>
-              </div>
-            `;
-          });
-          catHtml += '</div>';
-          catContainer.innerHTML = catHtml;
+          renderCategoryChart(data.categoriesStats);
         } else {
-          catContainer.innerHTML = '<p style="color:#64748b;">Chưa có danh mục nào.</p>';
+          const catContainer = document.getElementById('category-stats-container');
+          catContainer.innerHTML = '<p style="color:#64748b; text-align:center; padding:1rem;">Chưa có danh mục nào.</p>';
         }
 
         // 4. Top Selling Products Table (Clickable to open Edit Modal)
@@ -1298,6 +1273,167 @@
       } finally {
         if (filterBtn) { filterBtn.disabled = false; filterBtn.innerHTML = '🔍 Lọc dữ liệu'; }
       }
+    }
+
+    // Category Chart State & Interactive Renderer (Chart.js + SVG Fallback)
+    let categoryChartInstance = null;
+    let currentChartType = 'bar'; // 'bar' or 'doughnut'
+    let currentChartMetric = 'revenue'; // 'revenue' or 'count'
+    let lastCategoriesStats = [];
+
+    function renderCategoryChart(categoriesStats) {
+      if (categoriesStats) lastCategoriesStats = categoriesStats;
+      const container = document.getElementById('category-stats-container');
+      if (!container) return;
+
+      if (!lastCategoriesStats || lastCategoriesStats.length === 0) {
+        container.innerHTML = '<p style="color:#64748b; text-align:center; padding:2rem;">Chưa có dữ liệu danh mục.</p>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:8px;">
+          <div style="display:flex; gap:4px; background:#f1f5f9; padding:3px; border-radius:8px;">
+            <button type="button" id="btn-metric-rev" onclick="switchChartMetric('revenue')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartMetric === 'revenue' ? 'background:#059669; color:#fff; shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:#64748b;'}">💰 Doanh số (₫)</button>
+            <button type="button" id="btn-metric-count" onclick="switchChartMetric('count')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartMetric === 'count' ? 'background:#2563eb; color:#fff; shadow:0 1px 3px rgba(0,0,0,0.1);' : 'background:transparent; color:#64748b;'}">📦 Số lượng (SP)</button>
+          </div>
+          <div style="display:flex; gap:4px; background:#f1f5f9; padding:3px; border-radius:8px;">
+            <button type="button" id="btn-type-bar" onclick="switchCategoryChartType('bar')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartType === 'bar' ? 'background:#1e293b; color:#fff;' : 'background:transparent; color:#64748b;'}">📊 Cột</button>
+            <button type="button" id="btn-type-doughnut" onclick="switchCategoryChartType('doughnut')" style="padding:4px 10px; font-size:0.78rem; font-weight:700; border-radius:6px; border:none; cursor:pointer; transition:all 0.2s; ${currentChartType === 'doughnut' ? 'background:#1e293b; color:#fff;' : 'background:transparent; color:#64748b;'}">🍩 Tròn</button>
+          </div>
+        </div>
+        <div style="position:relative; width:100%; height:250px;">
+          <canvas id="categoryStatsChartCanvas"></canvas>
+        </div>
+      `;
+
+      if (typeof Chart !== 'undefined') {
+        drawCategoryChartJS();
+      } else {
+        container.innerHTML += renderCategoryPieChartFallback(lastCategoriesStats);
+      }
+    }
+
+    function drawCategoryChartJS() {
+      const canvas = document.getElementById('categoryStatsChartCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      if (categoryChartInstance) {
+        categoryChartInstance.destroy();
+        categoryChartInstance = null;
+      }
+
+      const sortedStats = [...lastCategoriesStats].sort((a, b) => {
+        const valA = currentChartMetric === 'revenue' ? Number(a.category_revenue || 0) : Number(a.count_products || 0);
+        const valB = currentChartMetric === 'revenue' ? Number(b.category_revenue || 0) : Number(b.count_products || 0);
+        return valB - valA;
+      });
+
+      const labels = sortedStats.map(c => c.ten_danh_muc);
+      const dataValues = sortedStats.map(c => currentChartMetric === 'revenue' ? Number(c.category_revenue || 0) : Number(c.count_products || 0));
+      const productCounts = sortedStats.map(c => Number(c.count_products || 0));
+      const revenues = sortedStats.map(c => Number(c.category_revenue || 0));
+      const categoryIds = sortedStats.map(c => c.id);
+
+      const colors = [
+        '#2563eb', '#10b981', '#f97316', '#8b5cf6', '#ec4899',
+        '#06b6d4', '#f59e0b', '#6366f1', '#14b8a6', '#ef4444',
+        '#84cc16', '#d946ef', '#0284c7', '#64748b'
+      ];
+      const bgColors = colors.slice(0, sortedStats.length);
+
+      categoryChartInstance = new Chart(ctx, {
+        type: currentChartType,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: currentChartMetric === 'revenue' ? 'Doanh số (VNĐ)' : 'Số lượng sản phẩm',
+            data: dataValues,
+            backgroundColor: currentChartType === 'bar'
+              ? (currentChartMetric === 'revenue' ? '#059669' : '#2563eb')
+              : bgColors,
+            borderRadius: currentChartType === 'bar' ? 6 : 0,
+            borderWidth: 1.5,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (e, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              const catId = categoryIds[index];
+              if (catId) {
+                switchAdminTab('products-view', catId);
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: currentChartType === 'doughnut',
+              position: 'right',
+              labels: {
+                font: { family: 'Arial', size: 11, weight: 'bold' },
+                boxWidth: 12,
+                padding: 8
+              }
+            },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const rev = revenues[idx].toLocaleString('vi-VN') + ' ₫';
+                  const count = productCounts[idx] + ' sản phẩm';
+                  return ` Doanh số: ${rev} | ${count} (Bấm để xem danh mục)`;
+                }
+              }
+            }
+          },
+          scales: currentChartType === 'bar' ? {
+            x: {
+              ticks: { font: { size: 11, weight: '600' }, color: '#334155' },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#64748b',
+                callback: function(value) {
+                  if (currentChartMetric === 'revenue') {
+                    if (value >= 1e6) return (value / 1e6).toFixed(1) + ' triệu';
+                    if (value >= 1e3) return (value / 1e3).toFixed(0) + 'k';
+                    return value;
+                  }
+                  return value;
+                }
+              }
+            }
+          } : {}
+        }
+      });
+    }
+
+    function switchChartMetric(metric) {
+      currentChartMetric = metric;
+      renderCategoryChart();
+    }
+
+    function switchCategoryChartType(type) {
+      currentChartType = type;
+      renderCategoryChart();
+    }
+
+    // Fallback SVG renderer if offline
+    function renderCategoryPieChartFallback(categories) {
+      if (!categories || categories.length === 0) return '';
+      const totalRev = categories.reduce((sum, c) => sum + Number(c.category_revenue || 0), 0);
+      const totalCount = categories.reduce((sum, c) => sum + Number(c.count_products || 0), 0);
+      return `<div style="text-align:center; font-size:0.85rem; color:#64748b; margin-top:8px;">Tổng doanh số: <b>${totalRev.toLocaleString('vi-VN')}₫</b> | Tổng sản phẩm: <b>${totalCount} sp</b></div>`;
     }
 
     // Helper: Switch admin tab and optionally filter by category
