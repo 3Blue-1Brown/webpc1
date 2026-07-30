@@ -443,20 +443,19 @@
     /**
      * Parse any description text pasted by user into a beautiful 2-column table & description box
      */
-    function formatDescriptionToTable(rawText, p = {}) {
-      const text = (rawText || (p ? p.mo_ta : '') || '').trim();
-      if (!text) {
-        return '<p style="color:#9ca3af; font-style:italic; padding:0.5rem 0;">Chưa có thông số & mô tả chi tiết.</p>';
-      }
-
-      // If text is already HTML format, render directly
-      if (/<(table|ul|ol|div)\b[^>]*>/i.test(text)) {
+    /**
+     * Build clean 2-column table for Technical Specifications
+     */
+    function renderTechSpecsTable(p) {
+      const text = (p.thong_so_ky_thuat || '').trim();
+      
+      // If HTML table/div is passed directly
+      if (text && /<(table|ul|ol|div)\b[^>]*>/i.test(text)) {
         return `<div class="desc-custom-html">${text}</div>`;
       }
 
       const specsList = [];
       const addedKeys = new Set();
-      const notesList = [];
 
       function addSpecItem(key, value) {
         if (!key || value === null || value === undefined) return;
@@ -469,7 +468,6 @@
           addedKeys.add(norm);
           specsList.push({ key: cleanKey, value: cleanVal });
         } else {
-          // Update value if richer
           const existing = specsList.find(s => s.key.toLowerCase() === norm);
           if (existing && cleanVal.length > existing.value.length) {
             existing.value = cleanVal;
@@ -477,83 +475,78 @@
         }
       }
 
-      // List of common spec key prefixes to recognize when pasted without colon/tab
-      const commonPrefixes = [
-        'Sản phẩm', 'Tên sản phẩm', 'Hãng sản xuất', 'Hãng', 'Model', 'Socket Server', 'Socket CPU', 'Socket',
-        'Tốc độ cơ bản', 'Xung cơ bản', 'Xung Turbo', 'Xung nhịp', 'Cache', 'Bộ nhớ đệm',
-        'Nhân CPU', 'Số nhân', 'Luồng CPU', 'Số luồng', 'Đồ họa tích hợp', 'GPU tích hợp', 'GPU',
-        'Bộ nhớ hỗ trợ', 'Chuẩn RAM', 'Loại RAM', 'Dung lượng', 'Bus', 'Độ trễ', 'Điện áp',
-        'Dây chuyền công nghệ', 'Tiến trình sản xuất', 'Tiến trình', 'TDP', 'Bảo hành', 'Tình trạng', 'Xuất xứ',
-        'Chipset', 'Số khe RAM', 'M.2', 'SATA', 'LAN', 'WiFi', 'Bluetooth', 'Form Factor', 'Form Case',
-        'Chuẩn giao tiếp', 'Tốc độ đọc', 'Tốc độ ghi', 'TBW', 'NAND Flash',
-        'Kích thước', 'Độ phân giải', 'Tần số quét', 'Tấm nền', 'Thời gian phản hồi', 'Độ sáng', 'HDR',
-        'VRAM', 'Loại bộ nhớ', 'Bus Memory', 'Công suất', 'Chuẩn 80 Plus', 'Modular', 'Kênh RAM hỗ trợ'
-      ];
+      // Populate from thong_so object if available
+      if (p.thong_so && typeof p.thong_so === 'object') {
+        Object.entries(p.thong_so).forEach(([k, v]) => {
+          if (v) addSpecItem(k, v);
+        });
+      }
 
-      // Separate joined single-line string into lines before each key prefix
-      let processedText = text;
-      commonPrefixes.forEach(k => {
-        const escaped = k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        const regex = new RegExp(`([^\\n])\\s+(${escaped})`, 'gi');
-        processedText = processedText.replace(regex, '$1\n$2');
-      });
+      // Parse text lines from thong_so_ky_thuat (or fallback to mo_ta if thong_so_ky_thuat is empty)
+      const rawSource = text || (specsList.length === 0 ? (p.mo_ta || '') : '');
+      
+      if (rawSource && !/<(table|ul|ol|div)\b[^>]*>/i.test(rawSource)) {
+        const commonPrefixes = [
+          'Sản phẩm', 'Tên sản phẩm', 'Hãng sản xuất', 'Hãng', 'Model', 'Socket Server', 'Socket CPU', 'Socket',
+          'Tốc độ cơ bản', 'Xung cơ bản', 'Xung Turbo', 'Xung nhịp', 'Cache', 'Bộ nhớ đệm',
+          'Nhân CPU', 'Số nhân', 'Luồng CPU', 'Số luồng', 'Đồ họa tích hợp', 'GPU tích hợp', 'GPU',
+          'Bộ nhớ hỗ trợ', 'Chuẩn RAM', 'Loại RAM', 'Dung lượng', 'Bus', 'Độ trễ', 'Điện áp',
+          'Dây chuyền công nghệ', 'Tiến trình sản xuất', 'Tiến trình', 'TDP', 'Bảo hành', 'Tình trạng', 'Xuất xứ',
+          'Chipset', 'Số khe RAM', 'M.2', 'SATA', 'LAN', 'WiFi', 'Bluetooth', 'Form Factor', 'Form Case',
+          'Chuẩn giao tiếp', 'Tốc độ đọc', 'Tốc độ ghi', 'TBW', 'NAND Flash',
+          'Kích thước', 'Độ phân giải', 'Tần số quét', 'Tấm nền', 'Thời gian phản hồi', 'Độ sáng', 'HDR',
+          'VRAM', 'Loại bộ nhớ', 'Bus Memory', 'Công suất', 'Chuẩn 80 Plus', 'Modular', 'Kênh RAM hỗ trợ'
+        ];
 
-      const lines = processedText.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
+        let processedText = rawSource;
+        commonPrefixes.forEach(k => {
+          const escaped = k.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+          const regex = new RegExp(`([^\\n])\\s+(${escaped})`, 'gi');
+          processedText = processedText.replace(regex, '$1\n$2');
+        });
 
-      lines.forEach(line => {
-        // 1. Colon delimiter (e.g. "Socket: LGA1700")
-        const colonIdx = line.indexOf(':');
-        if (colonIdx > 0 && colonIdx < line.length - 1) {
-          const k = line.substring(0, colonIdx).trim();
-          const v = line.substring(colonIdx + 1).trim();
-          if (k && v) {
-            addSpecItem(k, v);
+        const lines = processedText.split(/[\r\n]+/).map(l => l.trim()).filter(Boolean);
+
+        lines.forEach(line => {
+          // 1. Colon delimiter (e.g. "Socket: LGA1700")
+          const colonIdx = line.indexOf(':');
+          if (colonIdx > 0 && colonIdx < line.length - 1) {
+            addSpecItem(line.substring(0, colonIdx), line.substring(colonIdx + 1));
             return;
           }
-        }
 
-        // 2. Tab delimiter (e.g. "Socket\tLGA1700")
-        const tabIdx = line.indexOf('\t');
-        if (tabIdx > 0 && tabIdx < line.length - 1) {
-          const k = line.substring(0, tabIdx).trim();
-          const v = line.substring(tabIdx + 1).trim();
-          if (k && v) {
-            addSpecItem(k, v);
+          // 2. Tab delimiter (e.g. "Socket\tLGA1700")
+          const tabIdx = line.indexOf('\t');
+          if (tabIdx > 0 && tabIdx < line.length - 1) {
+            addSpecItem(line.substring(0, tabIdx), line.substring(tabIdx + 1));
             return;
           }
-        }
 
-        // 3. Equals or dash delimiter (e.g. "Socket = LGA1700" or "Socket - LGA1700")
-        const matchDelim = line.match(/^([^=-]+)\s*[:=-]\s*(.+)$/);
-        if (matchDelim) {
-          addSpecItem(matchDelim[1], matchDelim[2]);
-          return;
-        }
+          // 3. Equals or dash delimiter (e.g. "Socket - LGA1700")
+          const matchDelim = line.match(/^([^=-]+)\s*[:=-]\s*(.+)$/);
+          if (matchDelim) {
+            addSpecItem(matchDelim[1], matchDelim[2]);
+            return;
+          }
 
-        // 4. Prefix match without colon/tab (e.g. "Socket LGA1700" or "Cache 36MB")
-        let matchedPrefix = false;
-        for (const prefix of commonPrefixes) {
-          if (line.toLowerCase().startsWith(prefix.toLowerCase())) {
-            const val = line.substring(prefix.length).trim().replace(/^[:\t\s=-]+/, '').trim();
-            if (val) {
-              addSpecItem(prefix, val);
-              matchedPrefix = true;
-              break;
+          // 4. Prefix match without colon/tab (e.g. "Socket LGA1700")
+          for (const prefix of commonPrefixes) {
+            if (line.toLowerCase().startsWith(prefix.toLowerCase())) {
+              const val = line.substring(prefix.length).trim().replace(/^[:\t\s=-]+/, '').trim();
+              if (val) {
+                addSpecItem(prefix, val);
+                return;
+              }
             }
           }
-        }
-        if (matchedPrefix) return;
 
-        // 5. Otherwise, treat as descriptive text line
-        // Filter out lines that are just spec key names (e.g. "Cache") or incomplete fragments
-        const cleanLine = line.trim();
-        const isKeyOnly = commonPrefixes.some(p => p.toLowerCase() === cleanLine.toLowerCase() || (cleanLine.length < 15 && p.toLowerCase().startsWith(cleanLine.toLowerCase())));
-        if (cleanLine && cleanLine.length > 2 && !isKeyOnly) {
-          notesList.push(cleanLine);
-        }
-      });
+          // If line contains colon or key/value lookalike
+          if (line.length > 3 && line.length < 80) {
+            addSpecItem('Thông số', line);
+          }
+        });
+      }
 
-      let tableHtml = '';
       if (specsList.length > 0) {
         const rowsHtml = specsList.map(item => `
           <tr>
@@ -562,7 +555,7 @@
           </tr>
         `).join('');
 
-        tableHtml = `
+        return `
           <div class="desc-table-wrapper">
             <table class="desc-table">
               <tbody>
@@ -573,16 +566,26 @@
         `;
       }
 
-      let notesHtml = '';
-      if (notesList.length > 0) {
-        notesHtml = `
-          <div class="desc-notes-box" style="${specsList.length > 0 ? 'margin-top:1rem;' : ''}">
-            ${notesList.map(n => `<p style="margin-bottom:0.4rem;">${n}</p>`).join('')}
-          </div>
-        `;
+      return '<p style="color:#9ca3af; font-style:italic;">Chưa có thông số kỹ thuật chi tiết.</p>';
+    }
+
+    /**
+     * Render Product Description purely in text / paragraph format
+     */
+    function renderProductDescription(p) {
+      const desc = (p.mo_ta || '').trim();
+      if (!desc) {
+        return '<p style="color:#9ca3af; font-style:italic;">Chưa có bài viết mô tả chi tiết cho sản phẩm này.</p>';
       }
 
-      return (tableHtml + notesHtml) || `<p style="line-height:1.6;">${text}</p>`;
+      // If desc is custom HTML, render as-is
+      if (/<(table|ul|ol|div|p)\b[^>]*>/i.test(desc)) {
+        return `<div class="desc-custom-html">${desc}</div>`;
+      }
+
+      // Render as clean text paragraphs
+      const paragraphs = desc.split(/[\r\n]+/).map(line => line.trim()).filter(Boolean);
+      return paragraphs.map(para => `<p style="margin-bottom:0.75rem; line-height:1.65; color:#374151; font-size:0.95rem;">${para}</p>`).join('');
     }
 
     // Utility to get query param
@@ -696,10 +699,16 @@
                 </div>
               </div>
 
-              <!-- SPECS & DESCRIPTION CARD PLACED BELOW PURCHASE BLOCK -->
+              <!-- 1. TECHNICAL SPECIFICATIONS CARD -->
               <div class="product-description-card" style="margin-top: 1.5rem;">
-                <h3>📋 Thông số kỹ thuật & Mô tả sản phẩm</h3>
-                ${formatDescriptionToTable(p.mo_ta, p)}
+                <h3 style="display:flex; align-items:center; gap:8px;">⚙️ Thông số kỹ thuật</h3>
+                ${renderTechSpecsTable(p)}
+              </div>
+
+              <!-- 2. PRODUCT DESCRIPTION CARD -->
+              <div class="product-description-card" style="margin-top: 1.5rem;">
+                <h3 style="display:flex; align-items:center; gap:8px;">📝 Mô tả sản phẩm</h3>
+                ${renderProductDescription(p)}
               </div>
             </div>
           </div>

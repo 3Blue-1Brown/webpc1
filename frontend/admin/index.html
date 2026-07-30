@@ -907,8 +907,16 @@
           </div>
 
           <div class="form-group-admin form-col-full">
-            <label for="p-desc">Mô tả chi tiết</label>
-            <textarea id="p-desc" rows="3" placeholder="Nhập thông tin mô tả chi tiết sản phẩm..."></textarea>
+            <label for="p-desc">📝 Mô tả chi tiết sản phẩm</label>
+            <textarea id="p-desc" rows="4" placeholder="Nhập bài viết giới thiệu, tính năng nổi bật của sản phẩm..."></textarea>
+          </div>
+
+          <div class="form-group-admin form-col-full">
+            <label for="p-specs">⚙️ Thông số kỹ thuật</label>
+            <textarea id="p-specs" rows="6" style="font-family: monospace; font-size: 0.88rem;" placeholder="Mỗi thông số nhập 1 dòng (dạng 'Tên: Giá trị'), ví dụ:&#10;Socket: LGA 1700&#10;Số nhân / luồng: 24 nhân / 32 luồng&#10;Xung nhịp: 3.2 GHz - 6.0 GHz&#10;Bộ nhớ đệm (Cache): 36MB&#10;Bảo hành: 36 tháng"></textarea>
+            <p style="font-size:0.75rem; color:#6b7280; margin-top:3px;">
+              💡 Định dạng gợi ý: Nhập dạng <strong>Tên thông số: Giá trị</strong> trên từng dòng để hiển thị bảng thông số chuẩn đẹp.
+            </p>
           </div>
 
 
@@ -1943,6 +1951,8 @@
       document.getElementById('p-is-flash-sale').checked = false;
       document.getElementById('p-img-links').value = '';
       document.getElementById('p-img-files').value = '';
+      document.getElementById('p-desc').value = '';
+      document.getElementById('p-specs').value = '';
       document.getElementById('image-previews-container').innerHTML = '';
       document.getElementById('preview-error-msg').style.display = 'none';
       
@@ -2055,6 +2065,7 @@
         document.getElementById('p-stock').value = p.so_luong;
         document.getElementById('p-status').value = p.trang_thai ? "1" : "0";
         document.getElementById('p-desc').value = p.mo_ta || '';
+        document.getElementById('p-specs').value = p.thong_so_ky_thuat || '';
         document.getElementById('p-is-noi-bat').checked = !!p.is_noi_bat;
         document.getElementById('p-is-moi').checked = !!p.is_moi;
         document.getElementById('p-is-flash-sale').checked = !!p.is_flash_sale;
@@ -2101,6 +2112,7 @@
       formData.append('is_moi', document.getElementById('p-is-moi').checked);
       formData.append('is_flash_sale', document.getElementById('p-is-flash-sale').checked);
       formData.append('mo_ta', document.getElementById('p-desc').value.trim());
+      formData.append('thong_so_ky_thuat', document.getElementById('p-specs').value.trim());
       formData.append('thong_so', JSON.stringify({}));
       formData.append('anh_url', JSON.stringify(formattedLinks));
 

@@ -9,6 +9,18 @@ const fs = require('fs');
 const sharp = require('sharp');
 const { verifyToken, requireRole, verifyAdmin, verifyManagerOrAdmin } = require('./auth');
 
+// Ensure thong_so_ky_thuat column exists in san_pham table
+(async function initDatabaseColumns() {
+  try {
+    await db.query(`
+      ALTER TABLE san_pham 
+      ADD COLUMN thong_so_ky_thuat TEXT NULL AFTER mo_ta
+    `);
+  } catch (e) {
+    // Column already exists or error ignored
+  }
+})();
+
 // Helper: just clean up image URLs before saving to DB.
 // No conversion needed — the frontend handles display via image-utils.js
 function cleanImageUrl(url) {
@@ -161,6 +173,7 @@ router.post(
       ten_san_pham,
       hang_san_xuat,
       mo_ta,
+      thong_so_ky_thuat,
       gia,
       gia_khuyen_mai,
       so_luong,
@@ -226,13 +239,14 @@ router.post(
       // 1. Insert product basic info
       const [result] = await connection.execute(
         `INSERT INTO san_pham 
-          (id_danh_muc, ten_san_pham, hang_san_xuat, mo_ta, gia, gia_khuyen_mai, so_luong, trang_thai, is_noi_bat, is_moi, is_flash_sale) 
-         VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+          (id_danh_muc, ten_san_pham, hang_san_xuat, mo_ta, thong_so_ky_thuat, gia, gia_khuyen_mai, so_luong, trang_thai, is_noi_bat, is_moi, is_flash_sale) 
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
         [
           id_danh_muc,
           ten_san_pham.trim(),
           hang_san_xuat ? hang_san_xuat.trim() : null,
           mo_ta ? mo_ta.trim() : null,
+          thong_so_ky_thuat ? thong_so_ky_thuat.trim() : null,
           gia,
           gia_khuyen_mai && gia_khuyen_mai.toString().trim() !== '' ? gia_khuyen_mai : null,
           so_luong !== undefined && so_luong.toString().trim() !== '' ? so_luong : 0,
@@ -297,6 +311,7 @@ router.put(
       ten_san_pham,
       hang_san_xuat,
       mo_ta,
+      thong_so_ky_thuat,
       gia,
       gia_khuyen_mai,
       so_luong,
@@ -365,7 +380,7 @@ router.put(
 
       const [updateRes] = await connection.execute(
         `UPDATE san_pham SET 
-          id_danh_muc = ?, ten_san_pham = ?, hang_san_xuat = ?, mo_ta = ?, 
+          id_danh_muc = ?, ten_san_pham = ?, hang_san_xuat = ?, mo_ta = ?, thong_so_ky_thuat = ?,
           gia = ?, gia_khuyen_mai = ?, so_luong = ?, trang_thai = ?,
           is_noi_bat = ?, is_moi = ?, is_flash_sale = ?
          WHERE id = ? AND is_deleted = 0`,
@@ -374,6 +389,7 @@ router.put(
           ten_san_pham.trim(),
           hang_san_xuat ? hang_san_xuat.trim() : null,
           mo_ta ? mo_ta.trim() : null,
+          thong_so_ky_thuat ? thong_so_ky_thuat.trim() : null,
           gia,
           gia_khuyen_mai && gia_khuyen_mai.toString().trim() !== '' ? gia_khuyen_mai : null,
           so_luong !== undefined && so_luong.toString().trim() !== '' ? so_luong : 0,
