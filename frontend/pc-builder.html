@@ -591,24 +591,43 @@
         return;
       }
 
-      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      prods.forEach(p => {
-        const idx = cart.findIndex(item => item.id == p.id);
-        if (idx > -1) {
-          cart[idx].so_luong = (cart[idx].so_luong || 1) + 1;
-        } else {
-          cart.push({
-            id: p.id,
-            ten_san_pham: p.ten_san_pham,
-            gia: getProdPrice(p),
-            anh: getProdImg(p),
-            so_luong: 1
-          });
-        }
-      });
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+      if (!token || !userStr) {
+        alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+        window.location.href = 'login.html';
+        return;
+      }
 
-      localStorage.setItem('cart', JSON.stringify(cart));
-      updateCartBadge();
+      if (window.Cart && typeof window.Cart.getCart === 'function' && typeof window.Cart.saveCart === 'function') {
+        let cart = window.Cart.getCart();
+        const imgConverter = typeof convertImageUrl === 'function' ? convertImageUrl : (u => u ? (u.trim()) : '');
+
+        prods.forEach(p => {
+          const idx = cart.findIndex(item => item.id == p.id);
+          const price = getProdPrice(p);
+          const rawImg = p.duong_dan_anh || (p.images && p.images[0]) || getRawProdImg(p) || '';
+          const imgUrl = imgConverter(rawImg);
+
+          if (idx > -1) {
+            cart[idx].quantity = (cart[idx].quantity || 1) + 1;
+          } else {
+            cart.push({
+              id: p.id,
+              ten_san_pham: p.ten_san_pham,
+              gia: price,
+              duong_dan_anh: imgUrl,
+              quantity: 1
+            });
+          }
+        });
+
+        window.Cart.saveCart(cart);
+      } else {
+        alert('Lỗi: Hệ thống giỏ hàng chưa khởi tạo. Vui lòng tải lại trang.');
+        return;
+      }
+
       alert(`Đã thêm trọn bộ ${prods.length} linh kiện vào giỏ hàng thành công!`);
       window.location.href = 'cart.html';
     }
@@ -644,10 +663,9 @@
     }
 
     function updateCartBadge() {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const count = cart.reduce((acc, item) => acc + (item.so_luong || 1), 0);
-      const badge = document.getElementById('cart-count');
-      if (badge) badge.innerText = count;
+      if (window.Cart && typeof window.Cart.updateCartIcon === 'function') {
+        window.Cart.updateCartIcon();
+      }
     }
   </script>
 </body>
