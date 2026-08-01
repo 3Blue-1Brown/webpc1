@@ -1246,7 +1246,7 @@ ul {
   }
 }
 
-@media (max-width: 1366px) {
+@media (max-width: 1480px) {
   .site-header {
     display: flex !important;
     flex-wrap: wrap !important;
