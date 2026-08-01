@@ -131,6 +131,44 @@
       });
     }
 
+    function mapKeywordToCategories(normQuery) {
+      if (!normQuery) return null;
+      const q = normQuery.trim().toLowerCase();
+
+      if (q === 'cpu') {
+        return ['CPU PC', 'CPU SEVER', 'CPU SERVER'];
+      }
+      if (q === 'main' || q === 'mainboard' || q === 'bo mach' || q === 'bo mach chu') {
+        return ['MAINBOARD PC', 'MAINBOARD SEVER', 'MAINBOARD SERVER'];
+      }
+      if (q === 'ram') {
+        return ['RAM PC', 'RAM SEVER', 'RAM SERVER'];
+      }
+      if (q === 'vga' || q === 'card' || q === 'card do hoa' || q === 'gpu') {
+        return ['CARD ĐỒ HỌA'];
+      }
+      if (q === 'ssd' || q === 'o cung' || q === 'o cung ssd' || q === 'hdd') {
+        return ['Ổ CỨNG SSD'];
+      }
+      if (q === 'nguon' || q === 'nguon may tinh' || q === 'psu') {
+        return ['NGUỒN MÁY TÍNH'];
+      }
+      if (q === 'tan nhiet' || q === 'tan nhiet cpu' || q === 'cooler') {
+        return ['TẢN NHIỆT CPU'];
+      }
+      if (q === 'vo' || q === 'vo case' || q === 'vo may tinh' || q === 'case') {
+        return ['VỎ MÁY TÍNH'];
+      }
+      if (q === 'man hinh' || q === 'man hinh may tinh' || q === 'monitor') {
+        return ['MÀN HÌNH MÁY TÍNH'];
+      }
+      if (q === 'laptop') {
+        return ['LAPTOP'];
+      }
+
+      return null;
+    }
+
     function applyFilters() {
       const nameInput = document.getElementById('filter-name');
       const searchHeaderInput = document.getElementById('search-input');
@@ -145,24 +183,34 @@
       if (rawSearch) {
         const normQuery = typeof window.removeAccents === 'function' ? window.removeAccents(rawSearch) : rawSearch.toLowerCase();
 
-        // 1. Primary search: Match in Product Name, Category Name, or Brand
-        let primaryFiltered = filtered.filter(p => {
-          const pName = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_san_pham) : (p.ten_san_pham || '').toLowerCase();
-          const pCat = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_danh_muc) : (p.ten_danh_muc || '').toLowerCase();
-          const pBrand = typeof window.removeAccents === 'function' ? window.removeAccents(p.hang_san_xuat) : (p.hang_san_xuat || '').toLowerCase();
+        // 0. Keyword category mapping check (e.g. "cpu" -> ["CPU PC", "CPU SEVER"])
+        const targetCategories = mapKeywordToCategories(normQuery);
 
-          return pName.includes(normQuery) || pCat.includes(normQuery) || pBrand.includes(normQuery);
-        });
-
-        // 2. Secondary fallback: Only check description/specs if primary search returned 0 results
-        if (primaryFiltered.length > 0) {
-          filtered = primaryFiltered;
-        } else {
+        if (targetCategories && targetCategories.length > 0) {
           filtered = filtered.filter(p => {
-            const pDesc = typeof window.removeAccents === 'function' ? window.removeAccents(p.mo_ta) : (p.mo_ta || '').toLowerCase();
-            const pSpec = typeof window.removeAccents === 'function' ? window.removeAccents(p.thong_so_ky_thuat) : (p.thong_so_ky_thuat || '').toLowerCase();
-            return pDesc.includes(normQuery) || pSpec.includes(normQuery);
+            const pCat = (p.ten_danh_muc || '').toUpperCase();
+            return targetCategories.some(c => pCat === c.toUpperCase() || pCat.includes(c.toUpperCase()));
           });
+        } else {
+          // 1. Primary search: Match in Product Name, Category Name, or Brand
+          let primaryFiltered = filtered.filter(p => {
+            const pName = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_san_pham) : (p.ten_san_pham || '').toLowerCase();
+            const pCat = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_danh_muc) : (p.ten_danh_muc || '').toLowerCase();
+            const pBrand = typeof window.removeAccents === 'function' ? window.removeAccents(p.hang_san_xuat) : (p.hang_san_xuat || '').toLowerCase();
+
+            return pName.includes(normQuery) || pCat.includes(normQuery) || pBrand.includes(normQuery);
+          });
+
+          // 2. Secondary fallback: Only check description/specs if primary search returned 0 results
+          if (primaryFiltered.length > 0) {
+            filtered = primaryFiltered;
+          } else {
+            filtered = filtered.filter(p => {
+              const pDesc = typeof window.removeAccents === 'function' ? window.removeAccents(p.mo_ta) : (p.mo_ta || '').toLowerCase();
+              const pSpec = typeof window.removeAccents === 'function' ? window.removeAccents(p.thong_so_ky_thuat) : (p.thong_so_ky_thuat || '').toLowerCase();
+              return pDesc.includes(normQuery) || pSpec.includes(normQuery);
+            });
+          }
         }
       }
 
