@@ -132,35 +132,55 @@
     }
 
     function applyFilters() {
-      const rawName = document.getElementById('filter-name').value.trim();
-      const normName = typeof window.removeAccents === 'function' ? window.removeAccents(rawName) : rawName.toLowerCase();
+      const nameInput = document.getElementById('filter-name');
+      const searchHeaderInput = document.getElementById('search-input');
+      const rawSearch = (nameInput && nameInput.value.trim()) || (searchHeaderInput && searchHeaderInput.value.trim()) || '';
       const category = document.getElementById('filter-category').value;
       const priceMin = parseFloat(document.getElementById('filter-price-min').value);
       const priceMax = parseFloat(document.getElementById('filter-price-max').value);
       const condition = document.getElementById('filter-condition').value;
 
-      let filtered = allProducts.filter(p => {
-        if (normName) {
+      let filtered = allProducts;
+
+      if (rawSearch) {
+        const normQuery = typeof window.removeAccents === 'function' ? window.removeAccents(rawSearch) : rawSearch.toLowerCase();
+
+        // 1. Primary search: Match in Product Name, Category Name, or Brand
+        let primaryFiltered = filtered.filter(p => {
           const pName = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_san_pham) : (p.ten_san_pham || '').toLowerCase();
           const pCat = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_danh_muc) : (p.ten_danh_muc || '').toLowerCase();
           const pBrand = typeof window.removeAccents === 'function' ? window.removeAccents(p.hang_san_xuat) : (p.hang_san_xuat || '').toLowerCase();
-          const pDesc = typeof window.removeAccents === 'function' ? window.removeAccents(p.mo_ta) : (p.mo_ta || '').toLowerCase();
-          const pSpec = typeof window.removeAccents === 'function' ? window.removeAccents(p.thong_so_ky_thuat) : (p.thong_so_ky_thuat || '').toLowerCase();
 
-          const match = pName.includes(normName) ||
-                        pCat.includes(normName) ||
-                        pBrand.includes(normName) ||
-                        pDesc.includes(normName) ||
-                        pSpec.includes(normName);
-          if (!match) return false;
+          return pName.includes(normQuery) || pCat.includes(normQuery) || pBrand.includes(normQuery);
+        });
+
+        // 2. Secondary fallback: Only check description/specs if primary search returned 0 results
+        if (primaryFiltered.length > 0) {
+          filtered = primaryFiltered;
+        } else {
+          filtered = filtered.filter(p => {
+            const pDesc = typeof window.removeAccents === 'function' ? window.removeAccents(p.mo_ta) : (p.mo_ta || '').toLowerCase();
+            const pSpec = typeof window.removeAccents === 'function' ? window.removeAccents(p.thong_so_ky_thuat) : (p.thong_so_ky_thuat || '').toLowerCase();
+            return pDesc.includes(normQuery) || pSpec.includes(normQuery);
+          });
         }
-        if (category !== 'All' && p.ten_danh_muc !== category) return false;
-        if (!isNaN(priceMin) && (p.gia || 0) < priceMin) return false;
-        if (!isNaN(priceMax) && (p.gia || 0) > priceMax) return false;
-        if (condition === 'new' && !p.trang_thai) return false; // assume true = new
-        if (condition === 'used' && p.trang_thai) return false;
-        return true;
-      });
+      }
+
+      if (category !== 'All') {
+        filtered = filtered.filter(p => p.ten_danh_muc === category);
+      }
+      if (!isNaN(priceMin) && priceMin >= 0) {
+        filtered = filtered.filter(p => (p.gia || 0) >= priceMin);
+      }
+      if (!isNaN(priceMax) && priceMax >= 0) {
+        filtered = filtered.filter(p => (p.gia || 0) <= priceMax);
+      }
+      if (condition === 'new') {
+        filtered = filtered.filter(p => p.trang_thai);
+      } else if (condition === 'used') {
+        filtered = filtered.filter(p => !p.trang_thai);
+      }
+
       render(filtered);
     }
 
@@ -168,21 +188,35 @@
       document.getElementById('apply-filters').addEventListener('click', applyFilters);
     }
 
-    const handleSearch = () => {
-      const term = (document.getElementById('search-input')?.value || '').trim();
-      document.getElementById('filter-name').value = term;
+    // Live sync & instant filtering for search inputs
+    const headerInput = document.getElementById('search-input');
+    const filterInput = document.getElementById('filter-name');
+
+    function syncAndFilter(val) {
+      if (headerInput && headerInput.value !== val) headerInput.value = val;
+      if (filterInput && filterInput.value !== val) filterInput.value = val;
       applyFilters();
-    };
+    }
+
+    if (headerInput) {
+      ['input', 'change', 'keyup', 'search'].forEach(evt => {
+        headerInput.addEventListener(evt, (e) => {
+          syncAndFilter(e.target.value);
+        });
+      });
+    }
+
+    if (filterInput) {
+      ['input', 'change', 'keyup', 'search'].forEach(evt => {
+        filterInput.addEventListener(evt, (e) => {
+          syncAndFilter(e.target.value);
+        });
+      });
+    }
 
     const sBtn = document.getElementById('search-btn');
     if (sBtn) {
-      sBtn.onclick = handleSearch;
-    }
-    const sInput = document.getElementById('search-input');
-    if (sInput) {
-      sInput.onkeypress = (e) => {
-        if (e.key === 'Enter') handleSearch();
-      };
+      sBtn.onclick = () => syncAndFilter(headerInput ? headerInput.value : '');
     }
 
     loadAll();
