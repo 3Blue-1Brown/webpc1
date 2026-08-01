@@ -63,9 +63,10 @@ router.get('/summary', verifyToken, verifyManagerOrAdmin, async (req, res) => {
       `SELECT COUNT(*) AS total_contacts, SUM(CASE WHEN trang_thai = 'Mới' THEN 1 ELSE 0 END) AS new_contacts FROM lien_he`
     );
 
-    // 5. Top 5 selling products (only counting completed orders) within date filter if applied
+    // 5. Top 5 selling products (only counting completed orders) sorted by total quantity sold descending
     let topProductsSql = `SELECT sp.id, sp.ten_san_pham, sp.gia, sp.so_luong, dm.ten_danh_muc,
               COALESCE(SUM(CASE WHEN dh.trang_thai_don_hang = 'Hoàn thành' THEN ct.so_luong ELSE 0 END), 0) AS total_sold,
+              COUNT(DISTINCT CASE WHEN dh.trang_thai_don_hang = 'Hoàn thành' THEN dh.id ELSE NULL END) AS total_orders,
               (SELECT duong_dan FROM anh_san_pham WHERE id_san_pham = sp.id ORDER BY anh_chinh DESC, id ASC LIMIT 1) AS duong_dan_anh
        FROM san_pham sp
        LEFT JOIN danh_muc dm ON sp.id_danh_muc = dm.id
@@ -81,7 +82,7 @@ router.get('/summary', verifyToken, verifyManagerOrAdmin, async (req, res) => {
       topProductsSql += ` WHERE sp.is_deleted = 0`;
     }
 
-    topProductsSql += ` GROUP BY sp.id ORDER BY total_sold DESC, sp.id DESC LIMIT 5`;
+    topProductsSql += ` GROUP BY sp.id ORDER BY total_sold DESC, total_orders DESC, sp.id DESC LIMIT 5`;
 
     const [topProducts] = await db.query(topProductsSql, topProductsParams);
 

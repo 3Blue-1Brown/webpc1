@@ -1260,10 +1260,13 @@
           catContainer.innerHTML = '<p style="color:#64748b; text-align:center; padding:1rem;">Chưa có danh mục nào.</p>';
         }
 
-        // 4. Top Selling Products Table (Clickable to open Edit Modal)
+        // 4. Top Selling Products Table (Sorted by completed quantity sold descending)
         const topTbody = document.getElementById('top-products-tbody');
         topTbody.innerHTML = '';
         if (data.topProducts && data.topProducts.length > 0) {
+          // Sort explicitly by completed quantity sold descending
+          data.topProducts.sort((a, b) => (Number(b.total_sold) || 0) - (Number(a.total_sold) || 0));
+
           data.topProducts.forEach((p, idx) => {
             const imgUrl = convertGoogleDriveLink(p.duong_dan_anh || 'placeholder.png');
             topTbody.innerHTML += `
