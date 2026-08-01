@@ -76,10 +76,10 @@ ul {
 }
 
 .main-nav a {
-  padding: 0.55rem 0.6rem;
+  padding: 0.45rem 0.5rem;
   color: rgba(255, 255, 255, 0.95);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   border-radius: 6px;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -1246,7 +1246,7 @@ ul {
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1366px) {
   .site-header {
     display: flex !important;
     flex-wrap: wrap !important;
