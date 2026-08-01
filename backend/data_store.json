@@ -33,8 +33,10 @@
       "ten_danh_muc": "RAM PC",
       "mo_ta": null,
       "trang_thai": 1,
-      "hinh_anh": "uploads/products/ram_pc.png"{
-        "id": 9,
+      "hinh_anh": "uploads/products/ram_pc.png"
+    },
+    {
+      "id": 9,
         "ten_danh_muc": "RAM SEVER",
         "mo_ta": null,
         "trang_thai": 1,
@@ -199,7 +201,7 @@
       {
         "id": 7,
         "tieu_de": "Banner Khuyến Mãi",
-        "duong_dan_anh": "https://lh3.googleusercontent.com/d/1s3uPlFDJq_8gjJ_zF0xRzbGmp6NzwIkV",
+        "duong_dan_anh": "banner2.png",
         "lien_ket": "#",
         "thu_tu": 1,
         "trang_thai": 1

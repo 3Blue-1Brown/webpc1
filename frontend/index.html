@@ -186,7 +186,7 @@
         track.innerHTML = activeBanners.map((b, i) => {
           const bannerImgRaw = b.hinh_anh || '';
           const bannerImg = (bannerImgRaw.startsWith('http://') || bannerImgRaw.startsWith('https://') || bannerImgRaw.startsWith('/')) ? bannerImgRaw : '/' + bannerImgRaw;
-          const finalImg = convertImageUrl(bannerImg);
+          const finalImg = convertImageUrl(bannerImg) + '?v=1920';
 
           return `
             <div class="slide ${i === 0 ? 'active' : ''}">

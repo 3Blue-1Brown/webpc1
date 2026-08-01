@@ -20,8 +20,9 @@ const PORT = process.env.PORT || 3000;
 // Gzip compression — reduces response size ~70%
 app.use(compression());
 
-// Serve static frontend files (Disable cache for HTML files so updates reflect immediately)
+// Serve static frontend files (7-day caching for assets, no-cache for HTML)
 app.use(express.static(path.join(__dirname, '..', 'frontend'), {
+  maxAge: '7d',
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chi Tiết Sản Phẩm</title>
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <style>
     /* ══════════════════════════════════════
        Product Detail – Two Column Layout
@@ -388,13 +388,62 @@
        Responsive
     ══════════════════════════════════════ */
     @media (max-width: 900px) {
+      .detail-container {
+        padding: 1rem 0.5rem;
+      }
+      .product-name {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+      }
       .detail-layout {
         flex-direction: column;
+        gap: 1.25rem;
       }
       .detail-left,
       .detail-right {
         flex: none;
-        width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
+        position: static;
+      }
+      .gallery-main-wrap {
+        max-height: 340px;
+        padding: 0.8rem;
+      }
+      .gallery-thumb {
+        width: 65px;
+        height: 65px;
+        min-width: 65px;
+        min-height: 65px;
+      }
+      .purchase-block {
+        padding: 1.2rem 1rem;
+      }
+      .price-current {
+        font-size: 1.5rem;
+      }
+      .btn-detail-action {
+        padding: 12px 16px !important;
+        font-size: 0.9rem !important;
+        border-radius: 10px !important;
+      }
+      .btn-detail-action.btn-buy-now {
+        padding: 14px 16px !important;
+        font-size: 0.95rem !important;
+      }
+      .product-description-card {
+        padding: 1rem;
+        margin-top: 1rem !important;
+      }
+      .desc-table-label {
+        width: 38%;
+        padding: 10px 12px;
+        font-size: 0.85rem;
+      }
+      .desc-table-value {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+        word-break: break-word;
       }
     }
   </style>

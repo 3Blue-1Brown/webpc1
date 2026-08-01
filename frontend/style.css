@@ -1448,11 +1448,11 @@ ul {
     gap: 2px !important;
     margin-bottom: 3px !important;
   }
-  .btn-price-tag,
-  .btn-contact-premium,
-  .btn-add-cart,
-  .btn-buy-now,
-  .btn-stock {
+  .product-card .btn-price-tag,
+  .product-card .btn-contact-premium,
+  .product-card .btn-add-cart,
+  .product-card .btn-buy-now,
+  .product-card .btn-stock {
     padding: 4px 2px !important;
     font-size: 0.68rem !important;
     border-radius: 4px !important;
