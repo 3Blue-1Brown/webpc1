@@ -1246,7 +1246,7 @@ ul {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .site-header {
     display: flex !important;
     flex-wrap: wrap !important;
@@ -1286,7 +1286,8 @@ ul {
     box-shadow: 0 8px 20px rgba(0,0,0,0.25) !important;
     animation: fadeInNav 0.25s ease-out forwards;
   }
-  .main-nav.active {
+  .main-nav.active,
+  .main-nav.open {
     display: block !important;
   }
   .main-nav ul {
