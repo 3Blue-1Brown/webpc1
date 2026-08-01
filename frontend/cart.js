@@ -190,22 +190,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- SEARCH BAR GLOBAL HANDLER ---
+  // --- SEARCH BAR GLOBAL HANDLER & ACCENT REMOVER ---
+  function removeAccents(str) {
+    if (!str) return '';
+    return String(str)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase();
+  }
+  window.removeAccents = removeAccents;
+
   const searchBtn = document.getElementById('search-btn');
   const searchInput = document.getElementById('search-input');
   if (searchBtn && searchInput) {
     const doSearch = () => {
       const q = searchInput.value.trim();
       if (q) {
-        window.location.href = `search.html?q=${encodeURIComponent(q)}`;
+        const pageName = window.location.pathname.split('/').pop() || 'index.html';
+        if (pageName === 'products.html' || pageName === 'search.html') {
+          const filterName = document.getElementById('filter-name');
+          if (filterName) {
+            filterName.value = q;
+            if (typeof applyFilterSort === 'function') applyFilterSort();
+            else if (typeof applyFilters === 'function') applyFilters();
+          } else {
+            window.location.href = `products.html?q=${encodeURIComponent(q)}`;
+          }
+        } else {
+          window.location.href = `products.html?q=${encodeURIComponent(q)}`;
+        }
       }
     };
-    searchBtn.addEventListener('click', doSearch);
-    searchInput.addEventListener('keypress', (e) => {
+    searchBtn.onclick = doSearch;
+    searchInput.onkeypress = (e) => {
       if (e.key === 'Enter') {
         doSearch();
       }
-    });
+    };
   }
 
   // --- AUTHENTICATION UI INJECTION ---

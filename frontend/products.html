@@ -196,13 +196,22 @@
         filtered = filtered.filter(p => p.ten_danh_muc === currentFilter);
       }
       
-      // Advanced filters (Search across name, category, or brand)
+      // Advanced filters (Search across name, category, brand, description, specs with accent-insensitive matching)
       filtered = filtered.filter(p => {
         if (name) {
-          const matchName = (p.ten_san_pham || '').toLowerCase().includes(name);
-          const matchCat = (p.ten_danh_muc || '').toLowerCase().includes(name);
-          const matchBrand = (p.hang_san_xuat || '').toLowerCase().includes(name);
-          if (!matchName && !matchCat && !matchBrand) return false;
+          const normName = typeof window.removeAccents === 'function' ? window.removeAccents(name) : name.toLowerCase();
+          const pName = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_san_pham) : (p.ten_san_pham || '').toLowerCase();
+          const pCat = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_danh_muc) : (p.ten_danh_muc || '').toLowerCase();
+          const pBrand = typeof window.removeAccents === 'function' ? window.removeAccents(p.hang_san_xuat) : (p.hang_san_xuat || '').toLowerCase();
+          const pDesc = typeof window.removeAccents === 'function' ? window.removeAccents(p.mo_ta) : (p.mo_ta || '').toLowerCase();
+          const pSpec = typeof window.removeAccents === 'function' ? window.removeAccents(p.thong_so_ky_thuat) : (p.thong_so_ky_thuat || '').toLowerCase();
+
+          const match = pName.includes(normName) ||
+                        pCat.includes(normName) ||
+                        pBrand.includes(normName) ||
+                        pDesc.includes(normName) ||
+                        pSpec.includes(normName);
+          if (!match) return false;
         }
         if (!isNaN(priceMin) && (p.gia || 0) < priceMin) return false;
         if (!isNaN(priceMax) && (p.gia || 0) > priceMax) return false;
@@ -229,6 +238,10 @@
       const pageItems = list.slice(start, end);
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '';
+      if (pageItems.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; font-size:1.1rem; color:#64748b;">Không tìm thấy sản phẩm nào phù hợp với từ khóa tìm kiếm.</div>';
+        return;
+      }
       pageItems.forEach(p => {
         grid.appendChild(buildProductCard(p));
       });
@@ -282,13 +295,26 @@
         applyFilterSort();
       });
     }
-    document.getElementById('search-btn').addEventListener('click', () => {
-      const term = document.getElementById('search-input').value.trim().toLowerCase();
-      if (!term) return;
-      const filtered = allProducts.filter(p => p.ten_san_pham.toLowerCase().includes(term));
-      renderPagination(filtered);
-      renderPage(filtered, 1);
-    });
+
+    const handleHeaderSearch = () => {
+      const term = document.getElementById('search-input') ? document.getElementById('search-input').value.trim() : '';
+      if (document.getElementById('filter-name')) {
+        document.getElementById('filter-name').value = term;
+      }
+      currentPage = 1;
+      applyFilterSort();
+    };
+
+    const sBtn = document.getElementById('search-btn');
+    if (sBtn) {
+      sBtn.onclick = handleHeaderSearch;
+    }
+    const sInput = document.getElementById('search-input');
+    if (sInput) {
+      sInput.onkeypress = (e) => {
+        if (e.key === 'Enter') handleHeaderSearch();
+      };
+    }
 
     // Initial load
     fetchProducts();

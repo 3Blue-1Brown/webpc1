@@ -99,31 +99,61 @@
         const catRes = await fetch('/api/categories');
         const cats = await catRes.json();
         const select = document.getElementById('filter-category');
-        cats.forEach(c => {
-          select.innerHTML += `<option value="${c.ten_danh_muc}">${c.ten_danh_muc}</option>`;
-        });
-        
-        render(allProducts);
+        if (select && Array.isArray(cats)) {
+          cats.forEach(c => {
+            select.innerHTML += `<option value="${c.ten_danh_muc}">${c.ten_danh_muc}</option>`;
+          });
+        }
+
+        // Parse URL search parameter ?q= or ?search=
+        const urlParams = new URLSearchParams(window.location.search);
+        const qParam = urlParams.get('q') || urlParams.get('search') || '';
+        if (qParam) {
+          const filterNameInput = document.getElementById('filter-name');
+          const headerSearchInput = document.getElementById('search-input');
+          if (filterNameInput) filterNameInput.value = qParam;
+          if (headerSearchInput) headerSearchInput.value = qParam;
+        }
+
+        applyFilters();
       } catch (e) { console.error('Load error', e); }
     }
 
     function render(list) {
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '';
+      if (list.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; font-size:1.1rem; color:#64748b;">Không tìm thấy sản phẩm phù hợp.</div>';
+        return;
+      }
       list.forEach(p => {
         grid.appendChild(buildProductCard(p));
       });
     }
 
     function applyFilters() {
-      const name = document.getElementById('filter-name').value.trim().toLowerCase();
+      const rawName = document.getElementById('filter-name').value.trim();
+      const normName = typeof window.removeAccents === 'function' ? window.removeAccents(rawName) : rawName.toLowerCase();
       const category = document.getElementById('filter-category').value;
       const priceMin = parseFloat(document.getElementById('filter-price-min').value);
       const priceMax = parseFloat(document.getElementById('filter-price-max').value);
       const condition = document.getElementById('filter-condition').value;
 
       let filtered = allProducts.filter(p => {
-        if (name && !p.ten_san_pham.toLowerCase().includes(name)) return false;
+        if (normName) {
+          const pName = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_san_pham) : (p.ten_san_pham || '').toLowerCase();
+          const pCat = typeof window.removeAccents === 'function' ? window.removeAccents(p.ten_danh_muc) : (p.ten_danh_muc || '').toLowerCase();
+          const pBrand = typeof window.removeAccents === 'function' ? window.removeAccents(p.hang_san_xuat) : (p.hang_san_xuat || '').toLowerCase();
+          const pDesc = typeof window.removeAccents === 'function' ? window.removeAccents(p.mo_ta) : (p.mo_ta || '').toLowerCase();
+          const pSpec = typeof window.removeAccents === 'function' ? window.removeAccents(p.thong_so_ky_thuat) : (p.thong_so_ky_thuat || '').toLowerCase();
+
+          const match = pName.includes(normName) ||
+                        pCat.includes(normName) ||
+                        pBrand.includes(normName) ||
+                        pDesc.includes(normName) ||
+                        pSpec.includes(normName);
+          if (!match) return false;
+        }
         if (category !== 'All' && p.ten_danh_muc !== category) return false;
         if (!isNaN(priceMin) && (p.gia || 0) < priceMin) return false;
         if (!isNaN(priceMax) && (p.gia || 0) > priceMax) return false;
@@ -134,15 +164,25 @@
       render(filtered);
     }
 
-    document.getElementById('apply-filters').addEventListener('click', applyFilters);
-    // Global search redirects to same filter by name
+    if (document.getElementById('apply-filters')) {
+      document.getElementById('apply-filters').addEventListener('click', applyFilters);
+    }
+
+    const handleSearch = () => {
+      const term = (document.getElementById('search-input')?.value || '').trim();
+      document.getElementById('filter-name').value = term;
+      applyFilters();
+    };
+
     const sBtn = document.getElementById('search-btn');
     if (sBtn) {
-      sBtn.addEventListener('click', () => {
-        const term = (document.getElementById('search-input')?.value || '').trim();
-        document.getElementById('filter-name').value = term;
-        applyFilters();
-      });
+      sBtn.onclick = handleSearch;
+    }
+    const sInput = document.getElementById('search-input');
+    if (sInput) {
+      sInput.onkeypress = (e) => {
+        if (e.key === 'Enter') handleSearch();
+      };
     }
 
     loadAll();
