@@ -24,7 +24,7 @@ Xây dựng website bán hàng công nghệ chuyên nghiệp dành cho Laptop, P
 ### 🛠️ Công nghệ cốt lõi:
 - **Frontend**: HTML5, Vanilla CSS3 (Custom Design System, Flexbox, Grid), JavaScript ES6+ (Native Fetch API, Image Utilities).
 - **Backend**: Node.js, Express.js framework, CORS, Multer (xử lý upload file), Sharp (tự động nén ảnh WebP).
-- **Database**: SQLite3 / MySQL (Hỗ trợ cấu trúc Linh hoạt, truy vấn nhanh).
+- **Database**: Clever Cloud MySQL (`mysql2` driver, hỗ trợ connection pooling và tự động duy trì kết nối).
 - **Tích hợp hình ảnh**: Tự động chuyển đổi link Google Drive, CDN, Imgur với cơ chế `referrerPolicy="no-referrer"` chống chặn ảnh.
 
 ---
@@ -35,6 +35,8 @@ Xây dựng website bán hàng công nghệ chuyên nghiệp dành cho Laptop, P
 webpc1/
 ├── backend/
 │   ├── app.js                 # Entry point chính của Node.js Express server
+│   ├── db.js                  # Cấu hình & duy trì kết nối Database MySQL Pool
+│   ├── .env                   # File chứa biến môi trường & đường dẫn kết nối CSDL
 │   ├── routes/                # Các tuyến API route
 │   │   ├── products.js        # API Sản phẩm, danh mục & upload ảnh
 │   │   ├── orders.js          # API Đơn hàng & chi tiết đơn
@@ -43,8 +45,7 @@ webpc1/
 │   │   ├── contacts.js        # API Tin nhắn liên hệ
 │   │   └── activity-logs.js   # API Nhật ký hoạt động Manager/Admin
 │   ├── uploads/               # Thư mục chứa ảnh tải lên server
-│   ├── package.json           # Danh sách thư viện và script
-│   └── database.sqlite        # File CSDL SQLite
+│   └── package.json           # Danh sách thư viện và script
 ├── frontend/
 │   ├── index.html             # Trang chủ website
 │   ├── products.html          # Trang danh sách sản phẩm, lọc & tìm kiếm
@@ -66,6 +67,26 @@ webpc1/
 ---
 
 ## 3. THIẾT KẾ CSDL (DATABASE SCHEMA)
+
+### 🔌 Thông tin đường dẫn & Cấu hình kết nối CSDL (Database Connection Path):
+- **Trang quản trị trực tiếp Addon Database `ban-hang-db` (Personal Space)**:  
+  [https://console.clever-cloud.com/organisations/user_dd27e6a5-6b89-4e50-bc14-e3861efbe6f4/addons/addon_d27ff64a-59b2-4845-b2b2-84d472f3c192](https://console.clever-cloud.com/organisations/user_dd27e6a5-6b89-4e50-bc14-e3861efbe6f4/addons/addon_d27ff64a-59b2-4845-b2b2-84d472f3c192)  
+- **Trang chủ Console Clever Cloud**:  
+  [https://console.clever-cloud.com](https://console.clever-cloud.com)  
+  *(Cách mở giao diện PHPMyAdmin như ảnh: Vào [console.clever-cloud.com](https://console.clever-cloud.com) ➔ Chọn **Personal space** ➔ Ở menu bên trái chọn **ban-hang-db** ➔ Nhấn nút **PHPMyAdmin**)*
+- **Trang đăng nhập phpMyAdmin độc lập**: [https://phpmyadmin.services.clever-cloud.com](https://phpmyadmin.services.clever-cloud.com)
+- **Addon ID**: `addon_d27ff64a-59b2-4845-b2b2-84d472f3c192`
+- **User / Org ID**: `user_dd27e6a5-6b89-4e50-bc14-e3861efbe6f4`
+- **Cloud Provider**: Clever Cloud (MySQL Managed Service)
+- **Host / Server**: `bqkzt4ns3c4znylrimuv-mysql.services.clever-cloud.com`
+- **Port**: `3306`
+- **Database Name**: `bqkzt4ns3c4znylrimuv`
+- **User**: `uge4ns0rgb6l8c2c`
+- **Password**: `5BsD3ImKEWv0zs1ckw53`
+- **Chuỗi kết nối (Connection URI / Path)**:  
+  `mysql://uge4ns0rgb6l8c2c:5BsD3ImKEWv0zs1ckw53@bqkzt4ns3c4znylrimuv-mysql.services.clever-cloud.com:3306/bqkzt4ns3c4znylrimuv`
+- **File cấu hình môi trường**: [backend/.env](file:///c:/Users/minhngoc/Documents/webpc1/backend/.env)
+- **File khởi tạo Pool kết nối**: [backend/db.js](file:///c:/Users/minhngoc/Documents/webpc1/backend/db.js)
 
 ### Các bảng dữ liệu chính:
 1. **`danh_muc`**: `id`, `ten_danh_muc`, `mo_ta`

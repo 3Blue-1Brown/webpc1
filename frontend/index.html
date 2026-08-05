@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nam Nguyễn PC & Workstation - Trang Chủ</title>
-  <link rel="stylesheet" href="style.css?v=14" />
+  <link rel="stylesheet" href="style.css?v=24" />
 </head>
 <body>
   <!-- Header -->
@@ -13,13 +13,13 @@
     <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle navigation"><span class="hamburger-bar"></span><span class="hamburger-bar"></span><span class="hamburger-bar"></span></button>
     <nav class="main-nav">
       <ul>
-        <li><a href="index.html" class="active">🏠 Trang chủ</a></li>
-        <li><a href="categories.html">📂 Danh mục</a></li>
-        <li><a href="products.html">🖥️ Sản phẩm</a></li>
-        <li><a href="pc-builder.html">🛠️ Xây Dựng Cấu Hình</a></li>
-        <li><a href="about.html">ℹ️ Giới thiệu</a></li>
-        <li><a href="contact.html">📞 Liên hệ</a></li>
-        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+        <li><a href="index.html" class="active">Trang chủ</a></li>
+        <li><a href="categories.html">Danh mục</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="pc-builder.html">Xây Dựng Cấu Hình</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">Giỏ hàng (<span id="cart-count">0</span>)</a></li>
       </ul>
     </nav>
     <div class="search-wrap">
@@ -83,20 +83,8 @@
       </div>
     </div>
 
-    <!-- 3 Flash Sale Banners -->
-    <div style="padding: 1.5rem 1rem 0.5rem 1rem;">
-      <div class="flash-sale-banners-grid" id="flash-sale-banners-container">
-        <div class="flash-sale-banner-card">
-          <a href="products.html?sale=true&group=pc_gaming"><img src="flash_banner1.png?v=7" alt="SIÊU SALE LINH KIỆN PC GAMING" class="flash-sale-banner-img" loading="lazy" decoding="async"></a>
-        </div>
-        <div class="flash-sale-banner-card">
-          <a href="products.html?sale=true&group=server_ws"><img src="flash_banner2.png?v=7" alt="LINH KIỆN SERVER & WORKSTATION" class="flash-sale-banner-img" loading="lazy" decoding="async"></a>
-        </div>
-        <div class="flash-sale-banner-card">
-          <a href="products.html?sale=true&group=upgrade_accessories"><img src="flash_banner3.png?v=7" alt="XẢ HÀNG PHỤ KIỆN & NÂNG CẤP PC" class="flash-sale-banner-img" loading="lazy" decoding="async"></a>
-        </div>
-      </div>
-
+    <!-- Flash Sale Products Section -->
+    <div style="padding: 1rem 1rem 0.5rem 1rem;">
       <!-- Products Grid -->
       <div class="product-grid" id="flash-sale-grid" style="padding-bottom: 1rem;"></div>
     </div>
@@ -329,53 +317,9 @@
       setInterval(updateTimer, 1000);
     }
 
-    // ── Load Sale Banners (Always render 3 distinct slots) ──
-    async function loadSaleBanners() {
-      try {
-        const res = await fetch('/api/banners?type=sale');
-        const saleBanners = (res.ok) ? (await res.json()) : [];
-        const container = document.getElementById('flash-sale-banners-container');
-        if (!container) return;
-
-        const defaultBanners = [
-          { img: 'flash_banner1.png?v=7', title: 'SIÊU SALE LINH KIỆN PC GAMING', link: 'products.html?sale=true&group=pc_gaming' },
-          { img: 'flash_banner2.png?v=7', title: 'LINH KIỆN SERVER & WORKSTATION', link: 'products.html?sale=true&group=server_ws' },
-          { img: 'flash_banner3.png?v=7', title: 'XẢ HÀNG PHỤ KIỆN & NÂNG CẤP PC', link: 'products.html?sale=true&group=upgrade_accessories' }
-        ];
-
-        let html = '';
-        for (let i = 0; i < 3; i++) {
-          const b = (Array.isArray(saleBanners) && saleBanners[i]) ? saleBanners[i] : null;
-          let finalImg = defaultBanners[i].img;
-          let link = defaultBanners[i].link;
-          let title = defaultBanners[i].title;
-
-          if (b) {
-            const imgRaw = b.hinh_anh || '';
-            const bannerImg = (imgRaw.startsWith('http://') || imgRaw.startsWith('https://') || imgRaw.startsWith('/')) ? imgRaw : '/' + imgRaw;
-            finalImg = convertImageUrl(bannerImg);
-            title = b.tieu_de || title;
-            if (b.lien_ket && b.lien_ket.trim() !== '' && b.lien_ket.trim() !== '#') {
-              link = b.lien_ket.trim();
-            }
-          }
-
-          html += `
-            <div class="flash-sale-banner-card">
-              <a href="${link}"><img src="${finalImg}" alt="${title}" class="flash-sale-banner-img" loading="lazy" decoding="async" onerror="this.src='${defaultBanners[i].img}'"></a>
-            </div>
-          `;
-        }
-        container.innerHTML = html;
-      } catch (e) {
-        console.warn('loadSaleBanners error:', e);
-      }
-    }
-
     // Initialise — load all APIs in parallel for maximum speed
     Promise.all([
       loadBanners(),
-      loadSaleBanners(),
       loadCategories(),
       loadFlashSale(),
       loadNewProducts(),

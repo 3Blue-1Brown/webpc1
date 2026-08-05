@@ -299,8 +299,62 @@
       border-bottom: none;
     }
 
+    /* Compatibility Warnings */
+    .compat-warnings {
+      margin-bottom: 1.5rem;
+      animation: fadeSlideIn 0.35s ease-out;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .compat-warnings-header {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #fff;
+      padding: 0.85rem 1.25rem;
+      border-radius: 12px 12px 0 0;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      letter-spacing: 0.3px;
+    }
+    .compat-warnings-body {
+      background: #fffbeb;
+      border: 1.5px solid #fbbf24;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 0.75rem 1.25rem;
+    }
+    .compat-warning-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid #fde68a;
+      font-size: 0.92rem;
+      color: #92400e;
+      line-height: 1.5;
+    }
+    .compat-warning-item:last-child {
+      border-bottom: none;
+    }
+    .compat-warning-icon {
+      font-size: 1.15rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .compat-warning-text strong {
+      color: #78350f;
+    }
+    .slot-item.has-warning {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+    }
+
     @media print {
-      header, footer, .builder-actions-bar, .btn-select-slot, .btn-remove-slot, #floating-contact-container {
+      header, footer, .builder-actions-bar, .btn-select-slot, .btn-remove-slot, #floating-contact-container, .compat-warnings {
         display: none !important;
       }
       .pc-builder-container {
@@ -337,13 +391,13 @@
     </button>
     <nav class="main-nav">
       <ul>
-        <li><a href="index.html">🏠 Trang chủ</a></li>
-        <li><a href="categories.html">📂 Danh mục</a></li>
-        <li><a href="products.html">🖥️ Sản phẩm</a></li>
-        <li><a href="pc-builder.html" class="active">🛠️ Xây Dựng Cấu Hình</a></li>
-        <li><a href="about.html">ℹ️ Giới thiệu</a></li>
-        <li><a href="contact.html">📞 Liên hệ</a></li>
-        <li><a href="cart.html" class="cart-link">🛒 Giỏ hàng (<span id="cart-count">0</span>)</a></li>
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="categories.html">Danh mục</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="pc-builder.html" class="active">Xây Dựng Cấu Hình</a></li>
+        <li><a href="about.html">Giới thiệu</a></li>
+        <li><a href="contact.html">Liên hệ</a></li>
+        <li><a href="cart.html" class="cart-link">Giỏ hàng (<span id="cart-count">0</span>)</a></li>
       </ul>
     </nav>
     <div class="search-wrap">
@@ -364,6 +418,9 @@
         <div class="total-price-value" id="builder-total-price">0đ</div>
       </div>
     </div>
+
+    <!-- Compatibility Warnings -->
+    <div id="compatibility-warnings"></div>
 
     <!-- Slots Grid -->
     <div class="slots-grid" id="slots-grid-container">
@@ -496,6 +553,10 @@
       });
 
       calculateTotal();
+      // Run compatibility check after rendering
+      const warnings = checkCompatibility();
+      renderCompatibilityWarnings(warnings);
+      highlightIncompatibleSlots(warnings);
     }
 
     function openSelectModal(slotId) {
@@ -559,6 +620,13 @@
         selectedBuild[currentActiveSlot.id] = prod;
         closeSelectModal();
         renderSlotsGrid();
+        // Scroll to warnings if any after selecting
+        setTimeout(() => {
+          const warningsEl = document.getElementById('compatibility-warnings');
+          if (warningsEl && warningsEl.innerHTML.trim()) {
+            warningsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 100);
       }
     }
 
@@ -670,6 +738,233 @@
       if (window.Cart && typeof window.Cart.updateCartIcon === 'function') {
         window.Cart.updateCartIcon();
       }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // COMPATIBILITY CHECKING ENGINE
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Extract compatibility info from product name + specs
+     * Returns { sockets: [], ddrTypes: [], categoryType: 'pc'|'server'|null, formFactors: [] }
+     */
+    function extractCompatInfo(product) {
+      if (!product) return { sockets: [], ddrTypes: [], categoryType: null, formFactors: [] };
+
+      const name = (product.ten_san_pham || '').toUpperCase();
+      const specs = (product.thong_so_ky_thuat || '').toUpperCase();
+      const cat = (product.ten_danh_muc || '').toUpperCase();
+      const combined = name + ' | ' + specs;
+
+      // --- Extract CPU Socket ---
+      const sockets = [];
+      const socketPatterns = [
+        /LGA\s*1700/g,
+        /LGA\s*1200/g,
+        /LGA\s*1151/g,
+        /LGA\s*1150/g,
+        /LGA\s*115X/g,
+        /LGA\s*2011[\s-]*3/g,
+        /LGA\s*2011/g,
+        /LGA\s*2066/g,
+        /LGA\s*1366/g,
+        /SOCKET\s*AM4/g,
+        /\bAM4\b/g,
+        /SOCKET\s*AM5/g,
+        /\bAM5\b/g,
+      ];
+      socketPatterns.forEach(pat => {
+        const matches = combined.match(pat);
+        if (matches) {
+          matches.forEach(m => {
+            let normalized = m.replace(/\s+/g, ' ').trim();
+            // Normalize LGA variants
+            normalized = normalized.replace(/LGA\s*2011[\s-]*3/, 'LGA 2011-3');
+            normalized = normalized.replace(/LGA\s*(\d+)/, 'LGA $1');
+            normalized = normalized.replace(/SOCKET\s*(AM\d)/, '$1');
+            if (!sockets.includes(normalized)) sockets.push(normalized);
+          });
+        }
+      });
+
+      // Infer socket from CPU generation names if not found directly
+      if (sockets.length === 0) {
+        // Intel Core 12th/13th/14th gen = LGA 1700
+        if (/\b(i[3579])[\s-]*(1[234]\d{2,3})/.test(combined)) sockets.push('LGA 1700');
+        // Intel Core 10th/11th gen = LGA 1200
+        else if (/\b(i[3579])[\s-]*(1[01]\d{2,3})/.test(combined)) sockets.push('LGA 1200');
+        // Intel Core 6th-9th gen = LGA 1151
+        else if (/\b(i[3579])[\s-]*([6789]\d{2,3})/.test(combined)) sockets.push('LGA 1151');
+        // Xeon E5 = LGA 2011-3
+        else if (/XEON\s*E5/i.test(combined)) sockets.push('LGA 2011-3');
+      }
+
+      // --- Extract DDR Type ---
+      const ddrTypes = [];
+      ['DDR5', 'DDR4', 'DDR3'].forEach(ddr => {
+        const pat = new RegExp('\\b' + ddr + '\\b');
+        if (pat.test(combined) && !ddrTypes.includes(ddr)) {
+          ddrTypes.push(ddr);
+        }
+      });
+
+      // --- Extract Category Type (PC vs Server) ---
+      let categoryType = null;
+      if (cat.includes('PC')) categoryType = 'pc';
+      else if (cat.includes('SEVER') || cat.includes('SERVER')) categoryType = 'server';
+
+      // --- Extract Form Factor ---
+      const formFactors = [];
+      if (/\bE-?ATX\b/i.test(combined)) formFactors.push('E-ATX');
+      else if (/\bM-?ATX\b|\bMICRO[\s-]?ATX\b|\bMATX\b/i.test(combined)) formFactors.push('M-ATX');
+      else if (/\bMINI[\s-]?ITX\b|\bITX\b/i.test(combined)) formFactors.push('Mini-ITX');
+      else if (/\bATX\b/i.test(combined)) formFactors.push('ATX');
+
+      return { sockets, ddrTypes, categoryType, formFactors };
+    }
+
+    /**
+     * Check compatibility between all selected components
+     * Returns array of { type, severity, message, slots[] }
+     */
+    function checkCompatibility() {
+      const warnings = [];
+      const build = selectedBuild;
+
+      // Get compatibility info for relevant components
+      const cpuInfo = build.cpu ? extractCompatInfo(build.cpu) : null;
+      const mainInfo = build.main ? extractCompatInfo(build.main) : null;
+      const ramInfo = build.ram ? extractCompatInfo(build.ram) : null;
+
+      // ── Rule 1: Socket CPU ↔ Mainboard ──
+      if (cpuInfo && mainInfo && cpuInfo.sockets.length > 0 && mainInfo.sockets.length > 0) {
+        const cpuSockets = cpuInfo.sockets;
+        const mainSockets = mainInfo.sockets;
+        const hasMatch = cpuSockets.some(cs => mainSockets.some(ms => cs === ms));
+        if (!hasMatch) {
+          warnings.push({
+            type: 'socket',
+            severity: 'error',
+            message: `<strong>CPU</strong> sử dụng socket <strong>${cpuSockets.join('/')}</strong> không tương thích với <strong>Mainboard</strong> hỗ trợ socket <strong>${mainSockets.join('/')}</strong>. Hai linh kiện này không thể lắp chung với nhau.`,
+            slots: ['cpu', 'main']
+          });
+        }
+      }
+
+      // ── Rule 2: DDR RAM ↔ Mainboard ──
+      if (ramInfo && mainInfo && ramInfo.ddrTypes.length > 0 && mainInfo.ddrTypes.length > 0) {
+        const ramDDR = ramInfo.ddrTypes;
+        const mainDDR = mainInfo.ddrTypes;
+        const hasMatch = ramDDR.some(rd => mainDDR.some(md => rd === md));
+        if (!hasMatch) {
+          warnings.push({
+            type: 'ddr_ram_main',
+            severity: 'error',
+            message: `<strong>RAM ${ramDDR.join('/')}</strong> không tương thích với <strong>Mainboard</strong> chỉ hỗ trợ <strong>${mainDDR.join('/')}</strong>. Cần chọn RAM đúng chuẩn DDR của mainboard.`,
+            slots: ['ram', 'main']
+          });
+        }
+      }
+
+      // ── Rule 3: DDR RAM ↔ CPU (some CPUs only support specific DDR) ──
+      if (ramInfo && cpuInfo && ramInfo.ddrTypes.length > 0 && cpuInfo.ddrTypes.length > 0) {
+        const ramDDR = ramInfo.ddrTypes;
+        const cpuDDR = cpuInfo.ddrTypes;
+        const hasMatch = ramDDR.some(rd => cpuDDR.some(cd => rd === cd));
+        if (!hasMatch) {
+          warnings.push({
+            type: 'ddr_ram_cpu',
+            severity: 'warning',
+            message: `<strong>RAM ${ramDDR.join('/')}</strong> có thể không tương thích với <strong>CPU</strong> hỗ trợ <strong>${cpuDDR.join('/')}</strong>.`,
+            slots: ['ram', 'cpu']
+          });
+        }
+      }
+
+      // ── Rule 4: Category mismatch (PC vs Server) ──
+      const categorized = {};
+      ['cpu', 'main', 'ram'].forEach(slotId => {
+        if (build[slotId]) {
+          const info = slotId === 'cpu' ? cpuInfo : (slotId === 'main' ? mainInfo : ramInfo);
+          if (info && info.categoryType) {
+            categorized[slotId] = info.categoryType;
+          }
+        }
+      });
+
+      const catValues = Object.values(categorized);
+      const hasPc = catValues.includes('pc');
+      const hasServer = catValues.includes('server');
+      if (hasPc && hasServer) {
+        const pcSlots = Object.entries(categorized).filter(([,v]) => v === 'pc').map(([k]) => k);
+        const serverSlots = Object.entries(categorized).filter(([,v]) => v === 'server').map(([k]) => k);
+        const slotNames = { cpu: 'CPU', main: 'Mainboard', ram: 'RAM' };
+        const pcNames = pcSlots.map(s => slotNames[s] + ' PC').join(', ');
+        const serverNames = serverSlots.map(s => slotNames[s] + ' Server').join(', ');
+        warnings.push({
+          type: 'category_mix',
+          severity: 'warning',
+          message: `Bạn đang kết hợp linh kiện <strong>${pcNames}</strong> với <strong>${serverNames}</strong>. Linh kiện PC và Server có thể không hoạt động tối ưu khi lắp chung.`,
+          slots: [...pcSlots, ...serverSlots]
+        });
+      }
+
+      return warnings;
+    }
+
+    /**
+     * Render compatibility warning UI
+     */
+    function renderCompatibilityWarnings(warnings) {
+      const container = document.getElementById('compatibility-warnings');
+      if (!container) return;
+
+      if (!warnings || warnings.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const warningsHtml = warnings.map(w => `
+        <div class="compat-warning-item">
+          <span class="compat-warning-icon">${w.severity === 'error' ? '🚫' : '⚠️'}</span>
+          <div class="compat-warning-text">${w.message}</div>
+        </div>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="compat-warnings">
+          <div class="compat-warnings-header">
+            ⚠️ CẢNH BÁO TƯƠNG THÍCH LINH KIỆN (${warnings.length})
+          </div>
+          <div class="compat-warnings-body">
+            ${warningsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * Highlight slots that have compatibility issues
+     */
+    function highlightIncompatibleSlots(warnings) {
+      // Remove all previous highlights
+      document.querySelectorAll('.slot-item.has-warning').forEach(el => {
+        el.classList.remove('has-warning');
+      });
+
+      if (!warnings || warnings.length === 0) return;
+
+      // Collect all slot IDs that have issues
+      const warnSlots = new Set();
+      warnings.forEach(w => w.slots.forEach(s => warnSlots.add(s)));
+
+      // Find and highlight matching slot elements
+      const slotItems = document.querySelectorAll('.slot-item');
+      SLOTS.forEach((slot, index) => {
+        if (warnSlots.has(slot.id) && slotItems[index]) {
+          slotItems[index].classList.add('has-warning');
+        }
+      });
     }
   </script>
 </body>
