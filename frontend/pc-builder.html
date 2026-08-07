@@ -348,9 +348,166 @@
     .compat-warning-text strong {
       color: #78350f;
     }
-    .slot-item.has-warning {
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+    /* Mobile Responsiveness for PC Builder (max-width: 768px) */
+    @media (max-width: 768px) {
+      .pc-builder-container {
+        margin: 1rem auto;
+        padding: 0 0.5rem;
+      }
+      .builder-header-banner {
+        padding: 1.25rem 1rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        border-radius: 12px;
+      }
+      .builder-title {
+        font-size: 1.35rem;
+      }
+      .builder-subtitle {
+        font-size: 0.85rem;
+      }
+      .builder-summary-card {
+        text-align: center;
+        padding: 0.85rem 1rem;
+        width: 100%;
+      }
+      .total-price-value {
+        font-size: 1.5rem;
+      }
+
+      .slots-grid {
+        gap: 0.85rem;
+        margin-bottom: 8rem; /* Leave space for fixed bottom bar */
+      }
+      .slot-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0.9rem 1rem;
+        border-radius: 12px;
+      }
+      .slot-info {
+        width: 100%;
+        gap: 0.75rem;
+      }
+      .slot-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+      }
+      .slot-name {
+        font-size: 0.95rem;
+      }
+      .slot-desc {
+        font-size: 0.78rem;
+      }
+
+      .slot-content {
+        width: 100%;
+        flex-wrap: wrap;
+        padding: 0.6rem 0.85rem;
+        gap: 0.5rem;
+      }
+      .selected-product-detail {
+        width: 100%;
+        gap: 0.6rem;
+      }
+      .selected-product-img {
+        width: 42px;
+        height: 42px;
+      }
+      .selected-product-title {
+        font-size: 0.85rem;
+        max-width: 180px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .selected-product-price {
+        font-size: 0.95rem;
+      }
+      .btn-select-slot {
+        width: 100%;
+        justify-content: center;
+        padding: 0.6rem;
+        font-size: 0.85rem;
+      }
+      .btn-remove-slot {
+        font-size: 0.78rem;
+        padding: 0.4rem 0.6rem;
+      }
+
+      /* Fixed Mobile Bottom Actions Bar */
+      .builder-actions-bar {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 0.85rem 1rem !important;
+        margin: 0 !important;
+        flex-direction: column !important;
+        gap: 0.6rem !important;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.3) !important;
+        z-index: 1000 !important;
+      }
+      .actions-left {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .total-price-label {
+        font-size: 0.75rem;
+      }
+      .actions-left .total-price-value {
+        font-size: 1.3rem;
+        margin-top: 0;
+      }
+      .actions-right {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .btn-action-secondary {
+        flex: 1;
+        padding: 0.6rem 0.5rem;
+        font-size: 0.82rem;
+        text-align: center;
+        border-radius: 8px;
+      }
+      .btn-action-main {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        border-radius: 8px;
+      }
+
+      /* Lift floating contact buttons above bottom bar on mobile */
+      #floating-contact-container {
+        bottom: 140px !important;
+      }
+
+      /* Select Modal responsive on mobile */
+      .select-modal-overlay {
+        padding: 0.5rem;
+      }
+      .select-modal-box {
+        max-height: 90vh;
+        border-radius: 12px;
+      }
+      .modal-product-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .modal-product-item .btn-select-slot {
+        width: 100%;
+      }
     }
 
     @media print {
@@ -524,7 +681,7 @@
         div.className = 'slot-item';
         div.innerHTML = `
           <div class="slot-info">
-            <div class="slot-icon">${slot.icon}</div>
+            ${slot.icon ? `<div class="slot-icon">${slot.icon}</div>` : ''}
             <div>
               <div class="slot-name">${slot.name}</div>
               <div class="slot-desc">${slot.desc}</div>
@@ -540,12 +697,12 @@
                 </div>
               </div>
               <div style="display:flex; gap:0.5rem; align-items:center;">
-                <button class="btn-select-slot" style="background:#3b82f6;" onclick="openSelectModal('${slot.id}')">🔄 Đổi</button>
+                <button class="btn-select-slot" style="background:#3b82f6;" onclick="openSelectModal('${slot.id}')">Đổi</button>
                 <button class="btn-remove-slot" onclick="removeSlot('${slot.id}')">✕ Xóa</button>
               </div>
             ` : `
               <span style="color:#475569; font-size:0.92rem; font-weight:600;">Chưa chọn linh kiện...</span>
-              <button class="btn-select-slot" onclick="openSelectModal('${slot.id}')">➕ Chọn linh kiện</button>
+              <button class="btn-select-slot" onclick="openSelectModal('${slot.id}')">Chọn linh kiện</button>
             `}
           </div>
         `;
